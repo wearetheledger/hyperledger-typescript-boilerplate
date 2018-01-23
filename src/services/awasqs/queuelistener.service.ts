@@ -33,7 +33,7 @@ export class QueueListenerService {
     init() {
         this.getQueryUrl().then(queryUrl => {
             Log.awssqs.info(`Chain is up, listening to AWS queue: ${EnvConfig.AWS_QUEUE_NAME}`);
-            this.listen(queryUrl);
+            this.listen();
         });
     }
 
@@ -43,11 +43,12 @@ export class QueueListenerService {
      * @param {string} queryUrl 
      * @memberof QueueService
      */
-    listen(queryUrl: string): void {
-        Consumer.create({
-            queueUrl: queryUrl,
+    listen(): void {
+        const listener = Consumer.create({
+            queueUrl: this.queryUrl,
             handleMessage: (message, done) => {
                 Log.awssqs.info(`Handling new queue item: ${message.Body}`);
+                // TODO: notify frontend of succesful push on queue
                 const body = <MessageBody>Utils.deserializeJson(message.Body);
                 this.requestHelper.invokeRequest([body.payload], message.event)
                     .then(result => {
@@ -58,6 +59,12 @@ export class QueueListenerService {
                     });
             }
         });
+
+        listener.on('error', (error) => {
+            Log.awssqs.error(error.message);
+        });
+
+        listener.start();
     }
 
     /**

@@ -1,9 +1,10 @@
+import { Log } from 'hlf-node-utils';
 import { QueuePusherService } from './../awasqs/queuepusher.service';
 import { AssetDto } from './../../models/routes/asset.model';
 import { InvokeResult } from './../../models/invokeresult.model';
 import { ChainMethod } from './chainmethods.enum';
 import { Component, InternalServerErrorException } from '@nestjs/common';
-import { RequestHelper } from 'hlf-node-utils';
+import { RequestHelper } from '../../modules/chain/services/requesthelper';
 import * as Yup from 'yup';
 
 @Component()
@@ -41,16 +42,19 @@ export class AssetsService {
         // TODO: authentication check and userid
         const userId = 'bob';
         const schema = Yup.object().shape({
-            name: yup.string().required(),
+            name: Yup.string().required(),
             description: Yup.string().required()
         });
 
         return this.requestHelper.validateRequest(schema, assetDto)
             .then(params => {
-                return this.queuePusherService.pushToQueue(ChainMethod.createNewAsset, params, userId);
-            })
-            .then(result => {
-                return result;
+                return this.queuePusherService.add(ChainMethod.createNewAsset, [params], userId)
+                    .then(result => {
+                        return result;
+                    })
+                    .catch(error => {
+                        throw new InternalServerErrorException();
+                    });
             })
             .catch(error => {
                 throw new InternalServerErrorException();

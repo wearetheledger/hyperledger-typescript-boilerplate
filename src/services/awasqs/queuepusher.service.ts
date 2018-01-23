@@ -19,16 +19,16 @@ export class QueuePusherService {
      * @param {string} userId 
      * @memberof TransactionService
      */
-    pushToQueue(chainMethod: ChainMethod, params: any, userId: string): Promise<InvokeResult> {
+    add(chainMethod: ChainMethod, params: any, userId: string): Promise<InvokeResult> {
 
-        Utils.stringifyParams(params);
+        const paramsString = Utils.serializeJson(params);
 
         // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#sendMessage-property
         const msgConfig = {
-            MessageBody: params,
+            MessageBody: paramsString,
             QueueUrl: this.queueListenerService.queryUrl,
             DelaySeconds: 0,
-            MessageDeduplicationId: params,
+            MessageDeduplicationId: paramsString,
             MessageGroupId: userId,
             // MessageAttributes: {
             //     '<String>': {
@@ -51,10 +51,10 @@ export class QueuePusherService {
         return new Promise((resolve, reject) => {
             this.queueListenerService.sqs.sendMessage(msgConfig, (error: AWSError, data: SQS.Types.SendMessageResult) => {
                 if (error) {
-                    Log.awssqs.error(`Failed to push Transaction on Queue: ${error.message}`);
+                    Log.awssqs.error(`Failed to push Transaction to Queue: ${error.message} : ${Utils.deserializeJson(params)}`);
                     reject({ success: false, queueData: error });
                 } else {
-                    Log.awssqs.info(`Transaction pushed on Queue: ${chainMethod}`);
+                    Log.awssqs.info(`Transaction pushed to Queue: ${chainMethod} : ${Utils.deserializeJson(params)}`);
                     resolve({ success: true, queueData: data });
                 }
             });

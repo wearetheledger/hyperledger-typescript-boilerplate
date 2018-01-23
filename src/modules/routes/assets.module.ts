@@ -1,4 +1,4 @@
-import { HlfModule } from './../hlf.module';
+import { ChainModule } from './../chain/chain.module';
 import { QueueModule } from './../queue.module';
 import { AssetsService } from './../../services/routes/assets.service';
 import { Module } from '@nestjs/common';
@@ -13,7 +13,7 @@ import { AssetsController } from '../../controllers/assets.controller';
     ],
     modules: [
         QueueModule,
-        HlfModule
+        ChainModule
     ],
 })
 export class AssetsModule { }

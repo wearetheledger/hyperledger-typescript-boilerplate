@@ -34,8 +34,8 @@ async function bootstrap() {
      * Swagger implementation
      */
     const options = new DocumentBuilder()
-        .setTitle('Chainservice example')
-        .setDescription('The Chainservice API description')
+        .setTitle('Chainservice API')
+        .setDescription('The Chainservice API')
         .setVersion('1.0')
         .addTag('Chainservice')
         .build();
