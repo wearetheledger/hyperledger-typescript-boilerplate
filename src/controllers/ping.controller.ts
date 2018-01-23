@@ -1,5 +1,5 @@
 import { PingService } from './../services/routes/ping.service';
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller('')
 export class PingController {
@@ -15,7 +15,7 @@ export class PingController {
      * @memberof PingController
      */
     @Get()
-    ping( @Param() params: {}): string {
+    ping(): string {
         return this.pingService.ping();
     }
 }
