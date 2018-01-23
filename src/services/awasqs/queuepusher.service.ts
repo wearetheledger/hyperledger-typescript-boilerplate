@@ -15,20 +15,20 @@ export class QueuePusherService {
      * trigger pusher message when successful
      * 
      * @param {ChainMethod} chainMethod 
-     * @param {*} payload 
+     * @param {any[]} params 
      * @param {string} userId 
      * @memberof TransactionService
      */
-    pushToQueue(chainMethod: ChainMethod, payload: any, userId: string): Promise<InvokeResult> {
+    pushToQueue(chainMethod: ChainMethod, params: any, userId: string): Promise<InvokeResult> {
 
-        Utils.stringifyParams(payload);
+        Utils.stringifyParams(params);
 
         // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#sendMessage-property
-        const params = {
-            MessageBody: payload,
+        const msgConfig = {
+            MessageBody: params,
             QueueUrl: this.queueListenerService.queryUrl,
             DelaySeconds: 0,
-            MessageDeduplicationId: payload,
+            MessageDeduplicationId: params,
             MessageGroupId: userId,
             // MessageAttributes: {
             //     '<String>': {
@@ -49,7 +49,7 @@ export class QueuePusherService {
         };
 
         return new Promise((resolve, reject) => {
-            this.queueListenerService.sqs.sendMessage(params, (error: AWSError, data: SQS.Types.SendMessageResult) => {
+            this.queueListenerService.sqs.sendMessage(msgConfig, (error: AWSError, data: SQS.Types.SendMessageResult) => {
                 if (error) {
                     Log.awssqs.error(`Failed to push Transaction on Queue: ${error.message}`);
                     reject({ success: false, queueData: error });
