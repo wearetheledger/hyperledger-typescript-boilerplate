@@ -5,7 +5,7 @@
     "scripts": {
         "start": "node index.js",
         "start:watch": "nodemon",
-        "prestart:prod": "npm run lint && tsc",
+        "prestart:prod": "tsc",
         "start:prod": "node dist/server.js",
         "lint": "tslint -c tslint.json './src/**/*.ts'",
         "test": "npm run lint && mocha --reporter spec",
