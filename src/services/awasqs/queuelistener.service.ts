@@ -8,7 +8,8 @@ import * as Consumer from 'sqs-consumer';
 @Component()
 export class QueueListenerService {
 
-    private sqs = new SQS();
+    public sqs = new SQS();
+    public queryUrl;
 
     // private retries = 0;
     // private maxRetries = 10;
@@ -31,6 +32,7 @@ export class QueueListenerService {
      */
     init() {
         this.getQueryUrl().then(queryUrl => {
+            this.queryUrl = queryUrl;
             Log.awssqs.info(`Chain is up, attempting to listen to AWS QUEUE: ${EnvConfig.AWS_QUEUE_NAME}`);
             this.listen(queryUrl);
         });

@@ -1,3 +1,4 @@
+import { QueuePusherService } from './../awasqs/queuepusher.service';
 import { AssetDto } from './../../models/routes/asset.model';
 import { InvokeResult } from './../../models/invokeresult.model';
 import { ChainMethod } from './chainmethods.enum';
@@ -7,7 +8,9 @@ import { RequestHelper } from 'hlf-node-utils';
 @Component()
 export class AssetsService {
 
-    constructor(private requestHelper: RequestHelper) { }
+    constructor(
+        private requestHelper: RequestHelper,
+        private queuePusherService: QueuePusherService) { }
 
     /**
      * Get all assets
@@ -32,7 +35,16 @@ export class AssetsService {
      * @returns {Promise<InvokeResult>} 
      * @memberof AssetsService
      */
-    create(assetDto: AssetDto): any {
-        // push transaction onto awssqs here
+    create(assetDto: AssetDto): Promise<InvokeResult> {
+        // this is an invoke, push transaction onto awssqs here
+        // TODO: authentication check and userid
+        const userId = 'bob';
+        return this.queuePusherService.pushToQueue(ChainMethod.createNewAsset, assetDto, userId)
+            .then(result => {
+                return result;
+            })
+            .catch(error => {
+                throw new InternalServerErrorException();
+            });
     }
 }

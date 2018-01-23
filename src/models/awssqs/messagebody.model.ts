@@ -1,4 +1,4 @@
-import { ChainMethod } from './../routes/chainmethods.enum';
+import { ChainMethod } from './../../services/routes/chainmethods.enum';
 
 export interface MessageBody {
     payload: string;
