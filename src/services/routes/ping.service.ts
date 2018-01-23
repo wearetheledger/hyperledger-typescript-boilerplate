@@ -1,8 +1,8 @@
+import { QueueListenerService } from './../awasqs/queuelistener.service';
 import { FabricOptions } from 'hlf-node-utils/dist/models/fabricoptions.model';
-import { HlfClient } from 'hlf-node-utils';
+import { HlfClient, Log } from 'hlf-node-utils';
 import { EnvConfig } from './../../config/env';
 import { Component } from '@nestjs/common';
-import { Observable } from 'rxjs';
 
 @Component()
 export class PingService {
@@ -13,7 +13,9 @@ export class PingService {
      * @param {HlfClient} hlfClient 
      * @memberof PingService
      */
-    constructor(private hlfClient: HlfClient) {
+    constructor(
+        private hlfClient: HlfClient,
+        private queueListenerService: QueueListenerService) {
 
         this.hlfClient.setOptions(<FabricOptions>{
             walletPath: `./src/config/creds`,
@@ -24,10 +26,13 @@ export class PingService {
             ordererUrl: `grpc://${EnvConfig.ORDERER_HOST}:7050`
         });
 
-        this.hlfClient.init();
+        this.hlfClient.init().then(result => {
+            Log.awssqs.info(`Starting Queue Listener...`);
+            this.queueListenerService.init();
+        });
     }
 
-    ping() {
-        return Observable.of('Chain-service is alive!');
+    ping(): string {
+        return 'Chain-service is alive!';
     }
 }

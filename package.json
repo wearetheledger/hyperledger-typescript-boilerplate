@@ -5,10 +5,10 @@
     "scripts": {
         "start": "node index.js",
         "start:watch": "nodemon",
-        "prestart:prod": "tsc",
+        "prestart:prod": "npm run lint && tsc",
         "start:prod": "node dist/server.js",
         "lint": "tslint -c tslint.json './src/**/*.ts'",
-        "test": "npm run lint && npm run build && mocha --reporter spec",
+        "test": "npm run lint && mocha --reporter spec",
         "clean": "rm -rf node_modules && rm -rf dist"
     },
     "repository": {

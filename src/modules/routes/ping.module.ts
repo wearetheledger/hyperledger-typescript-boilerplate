@@ -1,4 +1,5 @@
-import { HlfClient } from 'hlf-node-utils';
+import { QueueListenerService } from './../../services/awasqs/queuelistener.service';
+import { HlfClient, RequestHelper } from 'hlf-node-utils';
 import { PingController } from './../../controllers/ping.controller';
 import { PingService } from './../../services/routes/ping.service';
 import { Module } from '@nestjs/common';
@@ -9,8 +10,12 @@ import { Module } from '@nestjs/common';
     ],
     components: [
         PingService,
-        HlfClient
+        HlfClient,
+        RequestHelper,
+        QueueListenerService,
     ],
-    modules: [],
+    modules: [
+        
+    ],
 })
 export class PingModule { }
