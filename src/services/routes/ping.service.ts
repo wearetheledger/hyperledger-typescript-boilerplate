@@ -16,7 +16,7 @@ export class PingService {
     constructor(private hlfClient: HlfClient) {
 
         this.hlfClient.setOptions(<FabricOptions>{
-            walletPath: `./../../config/creds`,
+            walletPath: `./src/config/creds`,
             userId: 'PeerAdmin',
             channelId: 'mychannel',
             networkUrl: `grpc://${EnvConfig.PEER_HOST}:7051`,
