@@ -1,4 +1,3 @@
-import { QueueModule } from './queue.module';
 import { EnvConfig } from './../config/env';
 import { Log } from 'hlf-node-utils';
 import { AssetsModule } from './routes/assets.module';
@@ -9,9 +8,8 @@ import { Module } from '@nestjs/common';
     controllers: [],
     components: [],
     modules: [
-        AssetsModule,
         PingModule,
-        QueueModule
+        AssetsModule,
     ],
 })
 export class ApplicationModule {

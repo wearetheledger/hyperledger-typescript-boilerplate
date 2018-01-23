@@ -1,4 +1,5 @@
-import { RequestHelper } from 'hlf-node-utils';
+import { HlfModule } from './../hlf.module';
+import { QueueModule } from './../queue.module';
 import { AssetsService } from './../../services/routes/assets.service';
 import { Module } from '@nestjs/common';
 import { AssetsController } from '../../controllers/assets.controller';
@@ -9,8 +10,10 @@ import { AssetsController } from '../../controllers/assets.controller';
     ],
     components: [
         AssetsService,
-        RequestHelper
     ],
-    modules: [],
+    modules: [
+        QueueModule,
+        HlfModule
+    ],
 })
 export class AssetsModule { }

@@ -23,6 +23,7 @@ export class QueuePusherService {
 
         Utils.stringifyParams(payload);
 
+        // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#sendMessage-property
         const params = {
             MessageBody: payload,
             QueueUrl: this.queueListenerService.queryUrl,

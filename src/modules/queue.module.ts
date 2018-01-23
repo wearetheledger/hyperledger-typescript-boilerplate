@@ -14,5 +14,9 @@ import { Module } from '@nestjs/common';
     ],
     modules: [
     ],
+    exports: [
+        QueueListenerService,
+        QueuePusherService
+    ]
 })
 export class QueueModule { }
