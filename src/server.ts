@@ -6,6 +6,15 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { config as awsConfig } from 'aws-sdk';
 import * as bodyParser from 'body-parser';
 
+/**
+ * Set AWS Credentials
+ */
+awsConfig.update({
+    accessKeyId: EnvConfig.AWS_ACCESS_KEY,
+    secretAccessKey: EnvConfig.AWS_SECRET_ACCESS_KEY,
+    region: EnvConfig.AWS_REGION
+});
+
 async function bootstrap() {
 
     const app = await NestFactory.create(ApplicationModule);
@@ -19,15 +28,6 @@ async function bootstrap() {
         res.header('Access-Control-Allow-Origin', '*');
         res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
         next();
-    });
-
-    /**
-     * Set AWS Credentials
-     */
-    awsConfig.update({
-        accessKeyId: EnvConfig.AWS_ACCESS_KEY,
-        secretAccessKey: EnvConfig.AWS_SECRET_ACCESS_KEY,
-        region: EnvConfig.AWS_REGION
     });
 
     /**

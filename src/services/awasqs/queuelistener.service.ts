@@ -32,8 +32,7 @@ export class QueueListenerService {
      */
     init() {
         this.getQueryUrl().then(queryUrl => {
-            this.queryUrl = queryUrl;
-            Log.awssqs.info(`Chain is up, attempting to listen to AWS QUEUE: ${EnvConfig.AWS_QUEUE_NAME}`);
+            Log.awssqs.info(`Chain is up, listening to AWS queue: ${EnvConfig.AWS_QUEUE_NAME}`);
             this.listen(queryUrl);
         });
     }
@@ -73,10 +72,49 @@ export class QueueListenerService {
                 QueueName: EnvConfig.AWS_QUEUE_NAME
             }, (error: AWSError, data: SQS.Types.GetQueueUrlResult) => {
                 if (error) {
+                    this.createNewQueue()
+                        .then(result => {
+                            this.queryUrl = data.QueueUrl;
+                            Log.awssqs.info('Got queue url: ' + data.QueueUrl);
+                            resolve(data.QueueUrl);
+                        })
+                        .catch(createerror => {
+                            Log.awssqs.error(createerror.message);
+                            reject(createerror);
+                        });
+                } else {
+                    this.queryUrl = data.QueueUrl;
+                    Log.awssqs.info('Got queue url: ' + data.QueueUrl);
+                    resolve(data.QueueUrl);
+                }
+            });
+        });
+    }
+
+    /**
+     * Cretae new queue if no queueu exists
+     * 
+     * @returns 
+     * @memberof QueueListenerService
+     */
+    createNewQueue() {
+        const params = {
+            QueueName: EnvConfig.AWS_QUEUE_NAME,
+            Attributes: {
+                'FifoQueue': 'true',
+                'RedrivePolicy':
+                    '{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-1:336081765760:TLD-test-deadletter.fifo\",\"maxReceiveCount\":\"10\"}',
+            }
+        };
+        Log.awssqs.info('Creating new queue');
+        return new Promise((resolve, reject) => {
+            this.sqs.createQueue(params, (error: AWSError, data: SQS.Types.CreateQueueResult) => {
+                if (error) {
                     Log.awssqs.error(error.message);
                     reject(error);
                 } else {
-                    Log.awssqs.info('Got queue url: ' + data.QueueUrl);
+                    this.queryUrl = data.QueueUrl;
+                    Log.awssqs.info('Created new queue url: ' + data.QueueUrl);
                     resolve(data.QueueUrl);
                 }
             });
