@@ -9,6 +9,7 @@ export class PingController {
 
     @Get()
     ping( @Param() params: {}): Observable<string> {
+        
         return this.pingService.ping();
     }
 }

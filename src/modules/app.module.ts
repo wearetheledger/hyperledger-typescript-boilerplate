@@ -1,3 +1,5 @@
+import { EnvConfig } from './../config/env';
+import { Log } from 'hlf-node-utils';
 import { AssetsModule } from './routes/assets.module';
 import { PingModule } from './routes/ping.module';
 import { Module } from '@nestjs/common';
@@ -10,4 +12,11 @@ import { Module } from '@nestjs/common';
         PingModule
     ],
 })
-export class ApplicationModule { }
+export class ApplicationModule {
+    constructor() {
+        // list env keys in cli
+        for (let propName of Object.keys(EnvConfig)) {
+            Log.config.debug(`${propName}:  ${EnvConfig[propName]}`);
+        }
+    }
+}

@@ -1,3 +1,4 @@
+import { HlfClient } from 'hlf-node-utils';
 import { PingController } from './../../controllers/ping.controller';
 import { PingService } from './../../services/routes/ping.service';
 import { Module } from '@nestjs/common';
@@ -7,7 +8,8 @@ import { Module } from '@nestjs/common';
         PingController
     ],
     components: [
-        PingService
+        PingService,
+        HlfClient
     ],
     modules: [],
 })

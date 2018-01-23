@@ -1,3 +1,4 @@
+import { RequestHelper } from 'hlf-node-utils';
 import { AssetsService } from './../../services/routes/assets.service';
 import { Module } from '@nestjs/common';
 import { AssetsController } from '../../controllers/assets.controller';
@@ -7,7 +8,8 @@ import { AssetsController } from '../../controllers/assets.controller';
         AssetsController
     ],
     components: [
-        AssetsService
+        AssetsService,
+        RequestHelper
     ],
     modules: [],
 })

@@ -11,12 +11,18 @@ async function bootstrap() {
 
     app.use(bodyParser.json());
 
+    /**
+     * Headers setup
+     */
     app.use((req, res, next) => {
         res.header('Access-Control-Allow-Origin', '*');
         res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
         next();
     });
 
+    /**
+     * Swagger implementation
+     */
     const options = new DocumentBuilder()
         .setTitle('Chainservice example')
         .setDescription('The Chainservice API description')
@@ -25,17 +31,6 @@ async function bootstrap() {
         .build();
     const document = SwaggerModule.createDocument(app, options);
     SwaggerModule.setup('/api', app, document);
-
-    //   chainService.init()
-    //     .then(() => {
-    //       return chainService.query('ping', [], EnvConfig.CHAINCODE_NAME);
-    //     })
-    //     .then(() => {
-    //       Utils.logger.info('Hyperledger fabric connected successfully');
-    //     })
-    //     .catch((err) => {
-    //       Utils.errorMessage('Error starting hyperledger fabric', err);
-    //     });
 
     await app.listen(+EnvConfig.PORT, () => {
         Log.config.info(`Chain-service started on PORT ${EnvConfig.PORT}`);
