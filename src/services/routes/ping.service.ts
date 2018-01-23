@@ -1,9 +1,10 @@
 import { Component } from '@nestjs/common';
+import { Observable } from 'rxjs';
 
 @Component()
 export class PingService {
 
     ping() {
-        return 'Chain-service is alive!';
+        return Observable.of('Chain-service is alive!');
     }
 }

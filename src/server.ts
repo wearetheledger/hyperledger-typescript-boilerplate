@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { ApplicationModule } from './modules/app.module';
 import { Log } from 'hlf-node-utils';
 import * as bodyParser from 'body-parser';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
 
@@ -15,6 +16,15 @@ async function bootstrap() {
         res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
         next();
     });
+
+    const options = new DocumentBuilder()
+        .setTitle('Chainservice example')
+        .setDescription('The Chainservice API description')
+        .setVersion('1.0')
+        .addTag('Chainservice')
+        .build();
+    const document = SwaggerModule.createDocument(app, options);
+    SwaggerModule.setup('/api', app, document);
 
     //   chainService.init()
     //     .then(() => {

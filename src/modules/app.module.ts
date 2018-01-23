@@ -1,4 +1,4 @@
-import { AssetModule } from './routes/asset.module';
+import { AssetsModule } from './routes/assets.module';
 import { PingModule } from './routes/ping.module';
 import { Module } from '@nestjs/common';
 
@@ -6,7 +6,7 @@ import { Module } from '@nestjs/common';
     controllers: [],
     components: [],
     modules: [
-        AssetModule,
+        AssetsModule,
         PingModule
     ],
 })
