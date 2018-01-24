@@ -8,6 +8,12 @@ import { InvokeResult } from '../../routes/invokeresult.model';
 @Component()
 export class RequestHelper {
 
+    /**
+     * Creates an instance of RequestHelper.
+     * @param {HlfClient} hlfClient 
+     * @param {QueuePusherService} queuePusherService 
+     * @memberof RequestHelper
+     */
     constructor(
         private hlfClient: HlfClient,
         private queuePusherService: QueuePusherService) { }
@@ -30,7 +36,7 @@ export class RequestHelper {
             })
             .catch(error => {
                 Log.config.error(`${chainMethod} error`, error);
-                throw new Error(`${chainMethod} error`);
+                return error;
             });
     }
 
@@ -39,10 +45,12 @@ export class RequestHelper {
      * 
      * @param {ChainMethod} chainMethod 
      * @param {any[]} params 
+     * @param {string} userId 
      * @returns {Promise<any>} 
      * @memberof RequestHelper
      */
-    public queryRequest(chainMethod: ChainMethod, params: any[]): Promise<any> {
+    public queryRequest(chainMethod: ChainMethod, params: any[], userId: string): Promise<any> {
+        // TODO: rework params to pass through identity to chaincode
         Utils.stringifyParams(params);
         return this.hlfClient.query(chainMethod, params)
             .then((response) => {
@@ -51,7 +59,7 @@ export class RequestHelper {
             })
             .catch(error => {
                 Log.grpc.error(`${chainMethod} error`, error);
-                throw error;
+                return error;
             });
     }
 
@@ -67,7 +75,7 @@ export class RequestHelper {
             .then(params => params)
             .catch((error) => {
                 Log.config.error('Validation error', error);
-                throw error;
+                return error;
             });
     }
 

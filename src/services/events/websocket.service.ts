@@ -7,8 +7,12 @@ import { PusherOptions } from './pusheroptions.model';
 @Component()
 export class WebSocketService {
 
-    private pusher = null;
+    private pusher;
 
+    /**
+     * Creates an instance of WebSocketService.
+     * @memberof WebSocketService
+     */
     constructor() {
         this.setOptions({
             appId: EnvConfig.PUSHER_APP_ID,
@@ -40,7 +44,7 @@ export class WebSocketService {
      */
     trigger(channel: string, eventName: string, data: any): void {
         if (this.pusher) {
-            return this.pusher.trigger(channel, eventName, data);
+            this.pusher.trigger(channel, eventName, data);
         } else {
             Log.pusher.error('Pusher options not set.');
         }

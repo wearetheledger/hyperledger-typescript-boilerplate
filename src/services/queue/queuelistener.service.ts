@@ -13,10 +13,6 @@ export class QueueListenerService {
     public sqs = new SQS();
     public queryUrl;
 
-    // private retries = 0;
-    // private maxRetries = 10;
-    // private retryInterval = 10000;
-
     /**
      * Creates an instance of QueueService.
      * @param {RequestHelper} requestHelper 
@@ -53,13 +49,16 @@ export class QueueListenerService {
             handleMessage: (message, done) => {
                 Log.awssqs.info(`Handling new queue item form ${EnvConfig.AWS_QUEUE_NAME}: ${message.Body}`);
                 const body = <MessageBody>Utils.deserializeJson(message.Body);
-                this.hlfClient.invoke(body.chainMethod, [body.payload], body.userId)
+                // TODO: rework payload to pass through identity to chaincode
+                this.hlfClient.invoke(body.chainMethod, [body.payload])
                     .then(result => {
                         // notify frontend of succesful transaction
                         this.webSocketService.trigger(body.userId, body.chainMethod, body.payload);
                         done();
                     })
                     .catch(error => {
+                        // notify frontend of failed transaction
+                        this.webSocketService.trigger(body.userId, body.chainMethod, { success: false });
                         Log.awssqs.error(error.message);
                         done();
                     });

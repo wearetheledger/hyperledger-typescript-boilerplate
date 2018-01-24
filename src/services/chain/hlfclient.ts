@@ -7,6 +7,8 @@ import { ChainMethod } from '../../routes/chainmethods.enum';
 @Component()
 export class HlfClient extends ChainService {
 
+    // TODO: refactor
+
     /**
      * set hlf options
      * 

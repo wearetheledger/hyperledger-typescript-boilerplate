@@ -26,7 +26,7 @@ export class AssetsService {
      * @memberof AssetsService
      */
     getAll(): Promise<AssetDto[]> {
-        return this.requestHelper.queryRequest(ChainMethod.getAllAssets, [])
+        return this.requestHelper.queryRequest(ChainMethod.getAllAssets, [], userId)
             .then(result => {
                 return result;
             })

@@ -6,6 +6,8 @@ import { util } from 'type-util';
 @Component()
 export abstract class ChainService {
 
+    // TODO: refactor
+    
     protected options: {
         walletPath: string;
         userId: string;

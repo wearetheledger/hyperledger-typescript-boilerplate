@@ -4,6 +4,11 @@ import { PingService } from './ping.service';
 @Controller('')
 export class PingController {
 
+    /**
+     * Creates an instance of PingController.
+     * @param {PingService} pingService 
+     * @memberof PingController
+     */
     constructor(private pingService: PingService) { }
 
     /**

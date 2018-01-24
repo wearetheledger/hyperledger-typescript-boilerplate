@@ -10,6 +10,11 @@ import { ChainMethod } from '../../routes/chainmethods.enum';
 @Component()
 export class QueuePusherService {
 
+    /**
+     * Creates an instance of QueuePusherService.
+     * @param {QueueListenerService} queueListenerService 
+     * @memberof QueuePusherService
+     */
     constructor(private queueListenerService: QueueListenerService) { }
 
     /**
