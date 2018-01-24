@@ -1,3 +1,4 @@
+import { WebSocketService } from './../socket/websocket.service';
 import { MessageBody } from './../../models/awssqs/messagebody.model';
 import { EnvConfig } from './../../config/env';
 import { Component } from '@nestjs/common';
@@ -21,7 +22,8 @@ export class QueueListenerService {
      * @memberof QueueService
      */
     constructor(
-        private requestHelper: RequestHelper
+        private requestHelper: RequestHelper,
+        private webSocketService: WebSocketService
     ) { }
 
     /**
@@ -48,16 +50,16 @@ export class QueueListenerService {
             queueUrl: this.queryUrl,
             handleMessage: (message, done) => {
                 Log.awssqs.info(`Handling new queue item form ${EnvConfig.AWS_QUEUE_NAME}: ${message.Body}`);
-                // TODO: notify frontend of succesful push on queue
                 const body = <MessageBody>Utils.deserializeJson(message.Body);
                 this.requestHelper.invokeRequest([body.payload], message.event)
                     .then(result => {
-                        // TODO: notify frontend of succesful transaction
+                        // notify frontend of succesful transaction
+                        this.webSocketService.trigger(body.userId, body.event, body.payload);
                         done();
                     })
                     .catch(error => {
-                        done();
                         Log.awssqs.error(error.message);
+                        done();
                     });
             }
         });

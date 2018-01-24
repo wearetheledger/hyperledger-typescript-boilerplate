@@ -36,8 +36,11 @@ export class EnvConfig {
     public static PUSHER_CLUSTER = process.env['PUSHER_CLUSTER'];
     public static CHAINCODE_NAME = process.env['CHAINCODE_NAME'] || 'mycc';
 
-    //GRPC
+    // GRPC
     public static JWKSURI = process.env['CHAINCODE_NAME'] || 'mycc';
     public static ISSUER = process.env['CHAINCODE_NAME'] || 'mycc';
+
+    // SOCKETCLUSTERPORT
+    public static SOCKETCLUSTERPORT = process.env['SOCKETCLUSTERPORT'] || 8000;
 
 }
