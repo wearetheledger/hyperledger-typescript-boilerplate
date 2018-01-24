@@ -1,10 +1,11 @@
-import { QueuePusherService } from './../awasqs/queuepusher.service';
-import { AssetDto } from './../../models/routes/asset.model';
-import { InvokeResult } from './../../models/invokeresult.model';
-import { ChainMethod } from './chainmethods.enum';
+
 import { Component, InternalServerErrorException, BadRequestException } from '@nestjs/common';
-import { RequestHelper } from '../../modules/chain/services/requesthelper';
 import * as Yup from 'yup';
+import { RequestHelper } from '../../chain/requesthelper';
+import { QueuePusherService } from '../../queue/queuepusher.service';
+import { ChainMethod } from '../chainmethods.enum';
+import { AssetDto } from './asset.model';
+import { InvokeResult } from '../invokeresult.model';
 
 @Component()
 export class AssetsService {

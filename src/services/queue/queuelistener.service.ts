@@ -1,10 +1,10 @@
-import { WebSocketService } from './../socket/websocket.service';
-import { MessageBody } from './../../models/awssqs/messagebody.model';
+import { WebSocketService } from './../events/websocket.service';
 import { EnvConfig } from './../../config/env';
 import { Component } from '@nestjs/common';
 import { Log, Utils, RequestHelper } from 'hlf-node-utils';
 import { SQS, AWSError } from 'aws-sdk';
 import * as Consumer from 'sqs-consumer';
+import { MessageBody } from './messagebody.model';
 
 @Component()
 export class QueueListenerService {
@@ -32,7 +32,7 @@ export class QueueListenerService {
      * 
      * @memberof QueueService
      */
-    init() {
+    public init() {
         this.getQueryUrl().then(queryUrl => {
             Log.awssqs.info(`Chain is up, listening to AWS queue: ${EnvConfig.AWS_QUEUE_NAME}`);
             this.listen();
@@ -42,10 +42,11 @@ export class QueueListenerService {
     /**
      * start listeneing for sqs messages
      * 
+     * @private
      * @param {string} queryUrl 
      * @memberof QueueService
      */
-    listen(): void {
+    private listen(): void {
         const listener = Consumer.create({
             queueUrl: this.queryUrl,
             handleMessage: (message, done) => {
@@ -74,10 +75,11 @@ export class QueueListenerService {
     /**
      * get AWS SQS queue url
      * 
+     * @private
      * @returns {Promise<string>} 
      * @memberof QueueService
      */
-    getQueryUrl(): Promise<string> {
+    private getQueryUrl(): Promise<string> {
         return new Promise((resolve, reject) => {
             this.sqs.getQueueUrl({
                 QueueName: EnvConfig.AWS_QUEUE_NAME
@@ -103,12 +105,13 @@ export class QueueListenerService {
     }
 
     /**
-     * Cretae new queue if no queueu exists
+     * Create new queue if no queueu exists
      * 
+     * @private
      * @returns 
      * @memberof QueueListenerService
      */
-    createNewQueue() {
+    private createNewQueue() {
         const params = {
             QueueName: EnvConfig.AWS_QUEUE_NAME,
             Attributes: {
@@ -131,24 +134,4 @@ export class QueueListenerService {
             });
         });
     }
-
-    /**
-     * Retry aws queue initialization
-     * 
-     * @param {any} err 
-     * @memberof QueueService
-     */
-    // retryInit(error): void {
-    //     if (error.message === 'Connect Failed') {
-    //         if (this.maxRetries <= this.retries) {
-    //             Log.awssqs.error(`After retrying ${this.maxRetries} times, still no luck. Bye!`);
-    //         } else {
-    //             Log.awssqs.info(`Chain not responding, retrying in ${this.retryInterval / 1000} seconds. (Attempt ${this.retries})`);
-    //             setTimeout(() => {
-    //                 this.retries++;
-    //                 this.init();
-    //             }, this.retryInterval);
-    //         }
-    //     }
-    // }
 }

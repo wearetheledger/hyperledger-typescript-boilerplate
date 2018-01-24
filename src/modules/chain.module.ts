@@ -1,7 +1,7 @@
-import { ChainService } from './services/chain.service';
 import { Module } from '@nestjs/common';
-import { RequestHelper } from './services/requesthelper';
-import { HlfClient } from './services/hlfclient';
+import { ChainService } from '../services/chain/chain.service';
+import { RequestHelper } from '../services/chain/requesthelper';
+import { HlfClient } from '../services/chain/hlfclient';
 
 @Module({
     components: [

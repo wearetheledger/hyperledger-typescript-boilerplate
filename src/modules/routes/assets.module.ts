@@ -1,8 +1,8 @@
-import { ChainModule } from './../chain/chain.module';
 import { QueueModule } from './../queue.module';
-import { AssetsService } from './../../services/routes/assets.service';
 import { Module } from '@nestjs/common';
 import { AssetsController } from '../../controllers/assets.controller';
+import { ChainModule } from '../chain.module';
+import { AssetsService } from '../../services/routes/assets/assets.service';
 
 @Module({
     controllers: [

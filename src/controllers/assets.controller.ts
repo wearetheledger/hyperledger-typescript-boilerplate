@@ -1,7 +1,7 @@
-import { InvokeResult } from './../models/invokeresult.model';
-import { AssetDto } from './../models/routes/asset.model';
-import { AssetsService } from './../services/routes/assets.service';
+
 import { Controller, Get, Param, Post, Body } from '@nestjs/common';
+import { AssetsService } from '../services/routes/assets/assets.service';
+import { AssetDto } from '../services/routes/assets/asset.model';
 
 @Controller('assets')
 export class AssetsController {

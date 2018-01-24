@@ -1,5 +1,5 @@
-import { PingService } from './../services/routes/ping.service';
 import { Controller, Get } from '@nestjs/common';
+import { PingService } from '../services/routes/ping/ping.service';
 
 @Controller('')
 export class PingController {

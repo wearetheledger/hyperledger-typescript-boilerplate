@@ -1,11 +1,11 @@
 import { EnvConfig } from './../../config/env';
-import { InvokeResult } from './../../models/invokeresult.model';
 import { QueueListenerService } from './queuelistener.service';
 import { ChainMethod } from './../routes/chainmethods.enum';
 import { Component } from '@nestjs/common';
 import { Log, Utils } from 'hlf-node-utils';
 import { SQS, AWSError } from 'aws-sdk';
 import * as ObjectHash from 'object-hash';
+import { InvokeResult } from '../routes/invokeresult.model';
 
 @Component()
 export class QueuePusherService {
@@ -21,7 +21,7 @@ export class QueuePusherService {
      * @param {string} userId 
      * @memberof TransactionService
      */
-    add(chainMethod: ChainMethod, params: any, userId: string): Promise<InvokeResult> {
+    public add(chainMethod: ChainMethod, params: any, userId: string): Promise<InvokeResult> {
 
         const paramsString = Utils.serializeJson(params);
         if (!paramsString) {
