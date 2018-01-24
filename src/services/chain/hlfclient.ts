@@ -2,6 +2,7 @@ import { Component } from '@nestjs/common';
 import { ChainService } from './chain.service';
 import hlf = require('fabric-client');
 import { FabricOptions, Log } from 'hlf-node-utils';
+import { ChainMethod } from '../../routes/chainmethods.enum';
 
 @Component()
 export class HlfClient extends ChainService {
@@ -46,15 +47,18 @@ export class HlfClient extends ChainService {
     }
 
     /**
-     * query hlf
-     * @param fcnRequest
-     * @param argsRequest
-     * @param ccId
+     * Query hlf
+     * 
+     * @param {ChainMethod} chainMethod 
+     * @param {string[]} params 
+     * @param {string} [channelId='mycc'] 
+     * @returns {Promise<any>} 
+     * @memberof HlfClient
      */
-    query(fcnRequest: string, argsRequest: string[], ccId = 'mycc'): Promise<any> {
+    query(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
         return Promise.resolve()
             .then(() => {
-                return this.newQuery(fcnRequest, argsRequest, ccId);
+                return this.newQuery(chainMethod, params, channelId);
             }).then((queryResponses: Buffer[]) => {
                 return this.getQueryResponse(queryResponses);
             }).catch((err) => {
@@ -64,16 +68,16 @@ export class HlfClient extends ChainService {
 
     /**
      * invoke 
-     * @param {any} fcnRequest 
-     * @param {any} argsRequest 
-     * @param {any} ccId 
+     * @param {ChainMethod} chainMethod 
+     * @param { string[]} params 
+     * @param {string} channelId 
      * @returns 
      * @memberof ChainService
      */
-    invoke(fcnRequest: string, argsRequest: string[], ccId = 'mycc'): Promise<any> {
+    invoke(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
         return Promise.resolve()
             .then(() => {
-                return this.sendTransactionProposal(fcnRequest, argsRequest, ccId);
+                return this.sendTransactionProposal(chainMethod, params, channelId);
             }).then((results: ProposalResponseObject) => {
                 if (this.isProposalGood(results)) {
                     this.logSuccessfulProposalResponse(results);

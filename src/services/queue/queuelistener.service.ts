@@ -5,6 +5,7 @@ import { Log, Utils, RequestHelper } from 'hlf-node-utils';
 import { SQS, AWSError } from 'aws-sdk';
 import * as Consumer from 'sqs-consumer';
 import { MessageBody } from './messagebody.model';
+import { HlfClient } from '../chain/hlfclient';
 
 @Component()
 export class QueueListenerService {
@@ -22,8 +23,8 @@ export class QueueListenerService {
      * @memberof QueueService
      */
     constructor(
-        private requestHelper: RequestHelper,
-        private webSocketService: WebSocketService
+        private webSocketService: WebSocketService,
+        private hlfClient: HlfClient,
     ) { }
 
     /**
@@ -52,10 +53,10 @@ export class QueueListenerService {
             handleMessage: (message, done) => {
                 Log.awssqs.info(`Handling new queue item form ${EnvConfig.AWS_QUEUE_NAME}: ${message.Body}`);
                 const body = <MessageBody>Utils.deserializeJson(message.Body);
-                this.requestHelper.invokeRequest([body.payload], message.event)
+                this.hlfClient.invoke(body.chainMethod, [body.payload], body.userId)
                     .then(result => {
                         // notify frontend of succesful transaction
-                        this.webSocketService.trigger(body.userId, body.event, body.payload);
+                        this.webSocketService.trigger(body.userId, body.chainMethod, body.payload);
                         done();
                     })
                     .catch(error => {

@@ -10,6 +10,12 @@ import { QueuePusherService } from '../../services/queue/queuepusher.service';
 @Component()
 export class AssetsService {
 
+    /**
+     * Creates an instance of AssetsService.
+     * @param {RequestHelper} requestHelper 
+     * @param {QueuePusherService} queuePusherService 
+     * @memberof AssetsService
+     */
     constructor(
         private requestHelper: RequestHelper,
         private queuePusherService: QueuePusherService) { }
@@ -21,7 +27,7 @@ export class AssetsService {
      * @memberof AssetsService
      */
     getAll(): Promise<AssetDto[]> {
-        return this.requestHelper.queryRequest([], ChainMethod.getAllAssets)
+        return this.requestHelper.queryRequest(ChainMethod.getAllAssets, [])
             .then(result => {
                 return result;
             })

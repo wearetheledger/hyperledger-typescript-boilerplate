@@ -1,51 +1,57 @@
 import { Utils, Log } from 'hlf-node-utils';
 import { Component } from '@nestjs/common';
 import { HlfClient } from './hlfclient';
+import { QueuePusherService } from '../queue/queuepusher.service';
+import { ChainMethod } from '../../routes/chainmethods.enum';
+import { InvokeResult } from '../../routes/invokeresult.model';
 
 @Component()
 export class RequestHelper {
 
-    constructor(private hlfClient: HlfClient) { }
+    constructor(
+        private hlfClient: HlfClient,
+        private queuePusherService: QueuePusherService) { }
 
     /**
-     * send chaincode request and validate Schema
-     * @param {any} schema 
-     * @param {any} body 
-     * @param {RouteQueries} routeQuery 
-     * @returns {Promise<any>} 
-     * @memberof RoutesHelper
+     * Pass transaction request to aws queue
+     * 
+     * @param {ChainMethod} chainMethod 
+     * @param {any[]} params 
+     * @param {string} userId 
+     * @returns {Promise<{ success: boolean }>} 
+     * @memberof RequestHelper
      */
-    public invokeRequest(params: any[], routeQuery: string): Promise<{ success: boolean }> {
+    public invokeRequest(chainMethod: ChainMethod, params: any[], userId: string): Promise<InvokeResult> {
         Utils.stringifyParams(params);
-        return this.hlfClient.invoke(routeQuery, params, )
-            .then(() => {
+        return this.queuePusherService.add(chainMethod, params, userId)
+            .then((response) => {
                 Log.config.info('Valid transaction');
-                return { success: true };
+                return response;
             })
-            .catch(err => {
-                Log.config.error(`${routeQuery} error`, err);
-                throw new Error(`${routeQuery} error`);
+            .catch(error => {
+                Log.config.error(`${chainMethod} error`, error);
+                throw new Error(`${chainMethod} error`);
             });
     }
 
     /**
-     * queryRequest
-     * @param {any} schema 
-     * @param {any} body 
-     * @param {RouteQueries} routeQuery 
+     * Query hlf chain and return response
+     * 
+     * @param {ChainMethod} chainMethod 
+     * @param {any[]} params 
      * @returns {Promise<any>} 
-     * @memberof RoutesHelper
+     * @memberof RequestHelper
      */
-    public queryRequest(params: any[], routeQuery: string, schema?: Schema): Promise<any> {
+    public queryRequest(chainMethod: ChainMethod, params: any[]): Promise<any> {
         Utils.stringifyParams(params);
-        return this.hlfClient.query(routeQuery, params)
-            .then((resp) => {
+        return this.hlfClient.query(chainMethod, params)
+            .then((response) => {
                 Log.config.info('Valid query');
-                return resp;
+                return response;
             })
-            .catch(err => {
-                Log.grpc.error(`${routeQuery} error`, err);
-                throw err;
+            .catch(error => {
+                Log.grpc.error(`${chainMethod} error`, error);
+                throw error;
             });
     }
 
@@ -56,12 +62,12 @@ export class RequestHelper {
      * @returns {Promise<any>} 
      * @memberof RequestHelper
      */
-    public validateRequest(schema: Schema, body): Promise<any> {
+    public validateRequest(schema: Schema, body): Promise<any[]> {
         return schema.validate(body)
             .then(params => params)
-            .catch((err) => {
-                Log.config.error('Validation error', err);
-                throw err;
+            .catch((error) => {
+                Log.config.error('Validation error', error);
+                throw error;
             });
     }
 

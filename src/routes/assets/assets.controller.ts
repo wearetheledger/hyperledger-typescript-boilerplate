@@ -6,6 +6,11 @@ import { AssetDto } from './asset.model';
 @Controller('assets')
 export class AssetsController {
 
+    /**
+     * Creates an instance of AssetsController.
+     * @param {AssetsService} assetsService 
+     * @memberof AssetsController
+     */
     constructor(
         private assetsService: AssetsService) { }
 
