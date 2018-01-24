@@ -13,8 +13,6 @@ import { HlfClient } from '../services/chain/hlfclient';
         ChainService,
         RequestHelper,
         HlfClient
-    ],
-    modules: [
     ]
 })
 export class ChainModule { }

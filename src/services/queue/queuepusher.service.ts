@@ -1,11 +1,11 @@
 import { EnvConfig } from './../../config/env';
 import { QueueListenerService } from './queuelistener.service';
-import { ChainMethod } from './../routes/chainmethods.enum';
 import { Component } from '@nestjs/common';
 import { Log, Utils } from 'hlf-node-utils';
 import { SQS, AWSError } from 'aws-sdk';
 import * as ObjectHash from 'object-hash';
-import { InvokeResult } from '../routes/invokeresult.model';
+import { InvokeResult } from '../../routes/invokeresult.model';
+import { ChainMethod } from '../../routes/chainmethods.enum';
 
 @Component()
 export class QueuePusherService {

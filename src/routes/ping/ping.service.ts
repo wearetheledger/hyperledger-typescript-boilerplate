@@ -1,9 +1,9 @@
 import { FabricOptions } from 'hlf-node-utils/dist/models/fabricoptions.model';
 import { Component } from '@nestjs/common';
 import { Log } from 'hlf-node-utils';
-import { HlfClient } from '../../chain/hlfclient';
-import { QueueListenerService } from '../../queue/queuelistener.service';
-import { EnvConfig } from '../../../config/env';
+import { HlfClient } from '../../services/chain/hlfclient';
+import { QueueListenerService } from '../../services/queue/queuelistener.service';
+import { EnvConfig } from '../../config/env';
 
 @Component()
 export class PingService {

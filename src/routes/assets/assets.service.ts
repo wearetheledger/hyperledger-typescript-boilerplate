@@ -1,11 +1,11 @@
 
 import { Component, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import * as Yup from 'yup';
-import { RequestHelper } from '../../chain/requesthelper';
-import { QueuePusherService } from '../../queue/queuepusher.service';
 import { ChainMethod } from '../chainmethods.enum';
 import { AssetDto } from './asset.model';
 import { InvokeResult } from '../invokeresult.model';
+import { RequestHelper } from '../../services/chain/requesthelper';
+import { QueuePusherService } from '../../services/queue/queuepusher.service';
 
 @Component()
 export class AssetsService {

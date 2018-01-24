@@ -1,8 +1,8 @@
-import { PingController } from './../../controllers/ping.controller';
 import { Module } from '@nestjs/common';
 import { QueueModule } from '../queue.module';
 import { ChainModule } from '../chain.module';
-import { PingService } from '../../services/routes/ping/ping.service';
+import { PingController } from '../../routes/ping/ping.controller';
+import { PingService } from '../../routes/ping/ping.service';
 
 @Module({
     controllers: [
