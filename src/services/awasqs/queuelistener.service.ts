@@ -49,14 +49,16 @@ export class QueueListenerService {
             handleMessage: (message, done) => {
                 Log.awssqs.info(`Handling new queue item form ${EnvConfig.AWS_QUEUE_NAME}: ${message.Body}`);
                 // TODO: notify frontend of succesful push on queue
-                // const body = <MessageBody>Utils.deserializeJson(message.Body);
-                // this.requestHelper.invokeRequest([body.payload], message.event)
-                //     .then(result => {
-                //         // TODO: notify frontend of succesful transaction
-                //     })
-                //     .catch(error => {
-                //         Log.awssqs.error(error.message);
-                //     });
+                const body = <MessageBody>Utils.deserializeJson(message.Body);
+                this.requestHelper.invokeRequest([body.payload], message.event)
+                    .then(result => {
+                        // TODO: notify frontend of succesful transaction
+                        done();
+                    })
+                    .catch(error => {
+                        done();
+                        Log.awssqs.error(error.message);
+                    });
             }
         });
 
