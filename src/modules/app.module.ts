@@ -1,15 +1,27 @@
+import { EventsModule } from './events.module';
+import { ChainModule } from './chain.module';
+import { QueueModule } from './queue.module';
 import { EnvConfig } from './../config/env';
 import { Log } from 'hlf-node-utils';
-import { AssetsModule } from './routes/assets.module';
-import { PingModule } from './routes/ping.module';
 import { Module } from '@nestjs/common';
+import { PingService } from '../routes/ping/ping.service';
+import { PingController } from '../routes/ping/ping.controller';
+import { AssetsController } from '../routes/assets/assets.controller';
+import { AssetsService } from '../routes/assets/assets.service';
 
 @Module({
-    controllers: [],
-    components: [],
+    controllers: [
+        PingController,
+        AssetsController
+    ],
+    components: [
+        PingService,
+        AssetsService
+    ],
     modules: [
-        PingModule,
-        AssetsModule,
+        ChainModule,
+        QueueModule,
+        EventsModule
     ],
 })
 export class ApplicationModule {

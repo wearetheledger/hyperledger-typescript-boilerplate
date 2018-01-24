@@ -1,6 +1,6 @@
 import { Utils, Log } from 'hlf-node-utils';
-import { HlfClient } from 'hlf-node-utils';
 import { Component } from '@nestjs/common';
+import { HlfClient } from './hlfclient';
 
 @Component()
 export class RequestHelper {

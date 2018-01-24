@@ -37,11 +37,12 @@ export abstract class ChainService {
     }
 
     protected isUserEnrolled(user): boolean {
-        Log.hlf.info('Check user is enrolled, and set a query URL in the network');
+        Log.hlf.info('Checking if user is enrolled');
         if (user === undefined || user == null || user.isEnrolled() === false) {
-            Log.hlf.error('User not defined, or not enrolled. Or network is down.');
+            Log.hlf.error('User not defined, or not enrolled. Or network is down');
             return false;
         }
+        Log.hlf.info('User is enrolled, setting query URL in the network');
         return true;
     }
 
