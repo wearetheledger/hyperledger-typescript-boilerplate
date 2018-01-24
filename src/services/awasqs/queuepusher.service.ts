@@ -1,9 +1,11 @@
+import { EnvConfig } from './../../config/env';
 import { InvokeResult } from './../../models/invokeresult.model';
 import { QueueListenerService } from './queuelistener.service';
 import { ChainMethod } from './../routes/chainmethods.enum';
 import { Component } from '@nestjs/common';
 import { Log, Utils } from 'hlf-node-utils';
 import { SQS, AWSError } from 'aws-sdk';
+import * as ObjectHash from 'object-hash';
 
 @Component()
 export class QueuePusherService {
@@ -22,13 +24,16 @@ export class QueuePusherService {
     add(chainMethod: ChainMethod, params: any, userId: string): Promise<InvokeResult> {
 
         const paramsString = Utils.serializeJson(params);
+        if (!paramsString) {
+            return Promise.resolve({ success: false, queueData: <AWSError>{ message: `JSON Parse Error` } });
+        }
 
         // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#sendMessage-property
         const msgConfig = {
-            MessageBody: paramsString,
+            MessageBody: <string>paramsString,
             QueueUrl: this.queueListenerService.queryUrl,
             DelaySeconds: 0,
-            MessageDeduplicationId: paramsString,
+            MessageDeduplicationId: ObjectHash.sha1(params),
             MessageGroupId: userId,
             // MessageAttributes: {
             //     '<String>': {
@@ -51,10 +56,10 @@ export class QueuePusherService {
         return new Promise((resolve, reject) => {
             this.queueListenerService.sqs.sendMessage(msgConfig, (error: AWSError, data: SQS.Types.SendMessageResult) => {
                 if (error) {
-                    Log.awssqs.error(`Failed to push Transaction to Queue: ${error.message} : ${Utils.deserializeJson(params)}`);
+                    Log.awssqs.error(`Failed to push Transaction to Queue ${EnvConfig.AWS_QUEUE_NAME}: ${error.message}`);
                     reject({ success: false, queueData: error });
                 } else {
-                    Log.awssqs.info(`Transaction pushed to Queue: ${chainMethod} : ${Utils.deserializeJson(params)}`);
+                    Log.awssqs.info(`Transaction pushed to Queue ${EnvConfig.AWS_QUEUE_NAME}: ${chainMethod}`);
                     resolve({ success: true, queueData: data });
                 }
             });

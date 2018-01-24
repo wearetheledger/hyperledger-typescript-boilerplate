@@ -1,9 +1,8 @@
-import { Log } from 'hlf-node-utils';
 import { QueuePusherService } from './../awasqs/queuepusher.service';
 import { AssetDto } from './../../models/routes/asset.model';
 import { InvokeResult } from './../../models/invokeresult.model';
 import { ChainMethod } from './chainmethods.enum';
-import { Component, InternalServerErrorException } from '@nestjs/common';
+import { Component, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { RequestHelper } from '../../modules/chain/services/requesthelper';
 import * as Yup from 'yup';
 
@@ -26,7 +25,7 @@ export class AssetsService {
                 return result;
             })
             .catch(error => {
-                throw new InternalServerErrorException();
+                throw new InternalServerErrorException(`Query Failed`);
             });
     }
 
@@ -53,11 +52,11 @@ export class AssetsService {
                         return result;
                     })
                     .catch(error => {
-                        throw new InternalServerErrorException();
+                        throw new InternalServerErrorException(`Failed to add to AWS queue`);
                     });
             })
             .catch(error => {
-                throw new InternalServerErrorException();
+                throw new BadRequestException(`Invalid DTO`);
             });
 
     }
