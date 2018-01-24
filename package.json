@@ -1,5 +1,5 @@
 {
-    "name": "template-nest-chainservice",
+    "name": "hyperledger-typescript-boilerplate",
     "version": "1.0.0",
     "description": "",
     "scripts": {
@@ -13,14 +13,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wearetheledger/template-nest-chainservice.git"
+        "url": "git+https://github.com/wearetheledger/hyperledger-typescript-boilerplate.git"
     },
     "author": "theledger",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/wearetheledger/template-nest-chainservice/issues"
+        "url": "https://github.com/wearetheledger/hyperledger-typescript-boilerplate/issues"
     },
-    "homepage": "https://github.com/wearetheledger/template-nest-chainservice#readme",
+    "homepage": "https://github.com/wearetheledger/hyperledger-typescript-boilerplate#readme",
     "dependencies": {
         "@nestjs/common": "^4.0.0",
         "@nestjs/core": "^4.0.0",
