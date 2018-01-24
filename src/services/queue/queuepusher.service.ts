@@ -13,15 +13,14 @@ export class QueuePusherService {
     constructor(private queueListenerService: QueueListenerService) { }
 
     /**
-     * invoke chaincode
-     * trigger pusher message when successful
+     * Add transaction data onto aws queue
      * 
      * @param {ChainMethod} chainMethod 
      * @param {any[]} params 
      * @param {string} userId 
      * @memberof TransactionService
      */
-    public add(chainMethod: ChainMethod, params: any, userId: string): Promise<InvokeResult> {
+    public add(chainMethod: ChainMethod, params: any[], userId: string): Promise<InvokeResult> {
 
         const paramsString = Utils.serializeJson(params);
         if (!paramsString) {
@@ -57,10 +56,10 @@ export class QueuePusherService {
             this.queueListenerService.sqs.sendMessage(msgConfig, (error: AWSError, data: SQS.Types.SendMessageResult) => {
                 if (error) {
                     Log.awssqs.error(`Failed to push Transaction to Queue ${EnvConfig.AWS_QUEUE_NAME}: ${error.message}`);
-                    reject({ success: false, queueData: error });
+                    return resolve({ success: false, queueData: error });
                 } else {
                     Log.awssqs.info(`Transaction pushed to Queue ${EnvConfig.AWS_QUEUE_NAME}: ${chainMethod}`);
-                    resolve({ success: true, queueData: data });
+                    return resolve({ success: true, queueData: data });
                 }
             });
         });

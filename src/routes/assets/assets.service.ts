@@ -17,8 +17,7 @@ export class AssetsService {
      * @memberof AssetsService
      */
     constructor(
-        private requestHelper: RequestHelper,
-        private queuePusherService: QueuePusherService) { }
+        private requestHelper: RequestHelper) { }
 
     /**
      * Get all assets
@@ -54,7 +53,7 @@ export class AssetsService {
 
         return this.requestHelper.validateRequest(schema, assetDto)
             .then(params => {
-                return this.queuePusherService.add(ChainMethod.createNewAsset, [params], userId)
+                return this.requestHelper.invokeRequest(ChainMethod.createNewAsset, [params], userId)
                     .then(result => {
                         return result;
                     })
