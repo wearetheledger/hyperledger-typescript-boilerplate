@@ -38,7 +38,7 @@ export class QueuePusherService {
             QueueUrl: this.queueListenerService.queryUrl,
             DelaySeconds: 0,
             MessageDeduplicationId: ObjectHash.sha1(params),
-            MessageGroupId: userId,
+            MessageGroupId: userId ? userId : Math.floor(+new Date() / 1000).toString(),
             // MessageAttributes: {
             //     '<String>': {
             //         DataType: 'STRING_VALUE', /* required */

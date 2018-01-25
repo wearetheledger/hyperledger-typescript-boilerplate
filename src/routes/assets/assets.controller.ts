@@ -3,7 +3,6 @@ import { Controller, Get, Post, Body, Headers } from '@nestjs/common';
 import { AssetsService } from './assets.service';
 import { AssetDto } from './asset.model';
 import { InvokeResult } from '../invokeresult.model';
-import { Log } from 'hlf-node-utils';
 
 @Controller('assets')
 export class AssetsController {
@@ -26,7 +25,7 @@ export class AssetsController {
      */
     @Get()
     getAll( @Headers() headerParams: string): Promise<AssetDto[]> {
-        return this.assetsService.getAll(headerParams[`userId`]);
+        return this.assetsService.getAll(headerParams[`access_token`]);
     }
 
     /**
@@ -39,7 +38,7 @@ export class AssetsController {
      */
     @Post()
     create( @Body() assetDto: AssetDto, @Headers() headerParams: string): Promise<InvokeResult> {
-        return this.assetsService.create(assetDto, headerParams[`userId`]);
+        return this.assetsService.create(assetDto, headerParams[`access_token`]);
     }
 
 }

@@ -8,6 +8,8 @@ import { InvokeResult } from '../../routes/invokeresult.model';
 @Component()
 export class RequestHelper {
 
+    // TODO: refactor invokes accrding to https://docs.nestjs.com/recipes/cqrs
+    
     /**
      * Creates an instance of RequestHelper.
      * @param {HlfClient} hlfClient 

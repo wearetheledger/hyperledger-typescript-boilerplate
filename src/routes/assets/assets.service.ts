@@ -5,7 +5,6 @@ import { ChainMethod } from '../chainmethods.enum';
 import { AssetDto } from './asset.model';
 import { InvokeResult } from '../invokeresult.model';
 import { RequestHelper } from '../../services/chain/requesthelper';
-import { QueuePusherService } from '../../services/queue/queuepusher.service';
 
 @Component()
 export class AssetsService {
@@ -13,7 +12,6 @@ export class AssetsService {
     /**
      * Creates an instance of AssetsService.
      * @param {RequestHelper} requestHelper 
-     * @param {QueuePusherService} queuePusherService 
      * @memberof AssetsService
      */
     constructor(
