@@ -3,13 +3,15 @@ import { ChainModule } from './chain.module';
 import { QueueModule } from './queue.module';
 import { EnvConfig } from './../config/env';
 import { Log, FabricOptions } from 'hlf-node-utils';
-import { Module } from '@nestjs/common';
+import { Module, MiddlewaresConsumer, RequestMethod } from '@nestjs/common';
 import { PingService } from '../routes/ping/ping.service';
 import { PingController } from '../routes/ping/ping.controller';
 import { AssetsController } from '../routes/assets/assets.controller';
 import { AssetsService } from '../routes/assets/assets.service';
 import { HlfClient } from '../services/chain/hlfclient';
 import { QueueListenerService } from '../services/queue/queuelistener.service';
+import { NestModule } from '@nestjs/common/interfaces';
+import { AuthenticationMiddleware } from '../middleware/authentication.middleware';
 
 @Module({
     controllers: [
@@ -26,13 +28,13 @@ import { QueueListenerService } from '../services/queue/queuelistener.service';
         EventsModule
     ],
 })
-export class ApplicationModule {
+export class ApplicationModule implements NestModule {
 
     /**
-     * Creates an instance of PingService.
-     * Will init the hlf client
+     * Creates an instance of ApplicationModule.
      * @param {HlfClient} hlfClient 
-     * @memberof PingService
+     * @param {QueueListenerService} queueListenerService 
+     * @memberof ApplicationModule
      */
     constructor(
         private hlfClient: HlfClient,
@@ -52,9 +54,22 @@ export class ApplicationModule {
             this.queueListenerService.init();
         });
 
-         // list env keys in cli
-         for (let propName of Object.keys(EnvConfig)) {
+        // list env keys in cli
+        for (let propName of Object.keys(EnvConfig)) {
             Log.config.debug(`${propName}:  ${EnvConfig[propName]}`);
         }
+    }
+
+    /**
+     * Protected routes
+     * 
+     * @param {MiddlewaresConsumer} consumer 
+     * @memberof ApplicationModule
+     */
+    configure(consumer: MiddlewaresConsumer): void {
+        consumer.apply(AuthenticationMiddleware).forRoutes(
+            { path: '/assets', method: RequestMethod.ALL },
+            // { path: '/**', method: RequestMethod.ALL }
+        );
     }
 }
