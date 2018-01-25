@@ -20,13 +20,14 @@ export class AssetsService {
         private requestHelper: RequestHelper) { }
 
     /**
-     * Get all assets
+     * get all assets
      * 
+     * @param {string} userId 
      * @returns {Promise<AssetDto[]>} 
      * @memberof AssetsService
      */
-    getAll(): Promise<AssetDto[]> {
-        const userId = 'bob';
+    getAll(userId: string): Promise<AssetDto[]> {
+        // this is a query, query chaincode directly
         return this.requestHelper.queryRequest(ChainMethod.getAllAssets, [], userId)
             .then(result => {
                 return result;
@@ -37,21 +38,20 @@ export class AssetsService {
     }
 
     /**
-     * Create new asset
+     * create new asset
      * 
      * @param {AssetDto} assetDto 
+     * @param {string} userId 
      * @returns {Promise<InvokeResult>} 
      * @memberof AssetsService
      */
-    create(assetDto: AssetDto): Promise<InvokeResult> {
-        // this is an invoke, push transaction onto awssqs here
-        // TODO: authentication check and userid
-        const userId = 'bob';
+    create(assetDto: AssetDto, userId: string): Promise<InvokeResult> {
         const schema = Yup.object().shape({
             name: Yup.string().required(),
             description: Yup.string().required()
         });
 
+        // this is an invoke, push transaction onto awssqs here
         return this.requestHelper.validateRequest(schema, assetDto)
             .then(params => {
                 return this.requestHelper.invokeRequest(ChainMethod.createNewAsset, [params], userId)

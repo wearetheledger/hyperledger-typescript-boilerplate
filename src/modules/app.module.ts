@@ -40,6 +40,12 @@ export class ApplicationModule implements NestModule {
         private hlfClient: HlfClient,
         private queueListenerService: QueueListenerService) {
 
+        // list env keys in cli
+        for (let propName of Object.keys(EnvConfig)) {
+            Log.config.debug(`${propName}:  ${EnvConfig[propName]}`);
+        }
+
+        // set hlf client options
         this.hlfClient.setOptions(<FabricOptions>{
             walletPath: `./src/config/creds`,
             userId: 'PeerAdmin',
@@ -49,15 +55,12 @@ export class ApplicationModule implements NestModule {
             ordererUrl: `grpc://${EnvConfig.ORDERER_HOST}:7050`
         });
 
+        // init hlf client
         this.hlfClient.init().then(result => {
             Log.awssqs.info(`Starting Queue Listener...`);
             this.queueListenerService.init();
         });
 
-        // list env keys in cli
-        for (let propName of Object.keys(EnvConfig)) {
-            Log.config.debug(`${propName}:  ${EnvConfig[propName]}`);
-        }
     }
 
     /**
@@ -68,7 +71,7 @@ export class ApplicationModule implements NestModule {
      */
     configure(consumer: MiddlewaresConsumer): void {
         consumer.apply(AuthenticationMiddleware).forRoutes(
-            { path: '/assets', method: RequestMethod.ALL },
+            { path: '/protectedroute', method: RequestMethod.ALL },
             // { path: '/**', method: RequestMethod.ALL }
         );
     }

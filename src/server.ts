@@ -41,6 +41,9 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, options);
     SwaggerModule.setup('/api', app, document);
 
+    /**
+     * Start Chainservice API
+     */
     await app.listen(+EnvConfig.PORT, () => {
         Log.config.info(`Chain-service started on PORT ${EnvConfig.PORT}`);
     });

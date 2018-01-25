@@ -1,7 +1,9 @@
 
-import { Controller, Get, Param, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Headers } from '@nestjs/common';
 import { AssetsService } from './assets.service';
 import { AssetDto } from './asset.model';
+import { InvokeResult } from '../invokeresult.model';
+import { Log } from 'hlf-node-utils';
 
 @Controller('assets')
 export class AssetsController {
@@ -15,27 +17,29 @@ export class AssetsController {
         private assetsService: AssetsService) { }
 
     /**
-     * Returns all stored assets
+     * Get all assets
      * 
      * @param {{}} params 
+     * @param {string} [headerParams] 
      * @returns {Promise<AssetDto[]>} 
      * @memberof AssetsController
      */
     @Get()
-    getAll( @Param() params: {}): Promise<AssetDto[]> {
-        return this.assetsService.getAll();
+    getAll( @Headers() headerParams: string): Promise<AssetDto[]> {
+        return this.assetsService.getAll(headerParams[`userId`]);
     }
 
     /**
-     * Creates new Asset
+     * Create new asset
      * 
      * @param {AssetDto} assetDto 
-     * @returns {Promise<InvokeResult>} 
+     * @param {string} [headerParams] 
+     * @returns {*} 
      * @memberof AssetsController
      */
     @Post()
-    create( @Body() assetDto: AssetDto): any {
-        return this.assetsService.create(assetDto);
+    create( @Body() assetDto: AssetDto, @Headers() headerParams: string): Promise<InvokeResult> {
+        return this.assetsService.create(assetDto, headerParams[`userId`]);
     }
 
 }
