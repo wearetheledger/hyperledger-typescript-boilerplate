@@ -1,8 +1,7 @@
 import { Log } from 'hlf-node-utils';
 import { Component } from '@nestjs/common';
 import hlf = require('fabric-client');
-import { util } from 'type-util';
-import { HlfInfo, HlfErrors } from './messages.enum';
+import { HlfInfo, HlfErrors } from './logging.enum';
 
 @Component()
 export abstract class ChainService {
@@ -24,14 +23,14 @@ export abstract class ChainService {
     protected txId: any;
 
     protected newDefaultKeyValueStore(walletPath: string): Promise<IKeyValueStore> {
-        Log.hlf.debug(`WALLET PATH: ${this.options.walletPath}`);
+        Log.hlf.debug(HlfInfo.WALLET_PATH, this.options.walletPath);
         Log.hlf.info(HlfInfo.CREATING_CLIENT);
         return hlf.newDefaultKeyValueStore({ path: walletPath });
     }
 
     protected setStateStore(wallet: IKeyValueStore): void {
-        Log.hlf.info('Set wallet path, and associate user ', this.options.userId, ' with application');
-        Log.hlf.info(`WALLET: ${JSON.stringify(wallet)}`);
+        Log.hlf.info(HlfInfo.SET_WALLET_PATH, this.options.userId);
+        Log.hlf.info(HlfInfo.WALLET, JSON.stringify(wallet));
         this.client.setStateStore(wallet);
     }
 
@@ -45,19 +44,19 @@ export abstract class ChainService {
             Log.hlf.error(HlfErrors.NO_ENROLLED_USER);
             return false;
         }
-        Log.hlf.info('User is enrolled, setting query URL in the network');
+        Log.hlf.info(HlfInfo.USER_ENROLLED);
         return true;
     }
 
     protected handleError(err): Promise<any> {
-        Log.hlf.error('Caught Error', err);
-        return Promise.reject(new Error('Blockchain is not running'));
+        Log.hlf.error(err);
+        return Promise.reject(err);
     }
 
     protected newQuery(requestFunction: string, requestArguments: string[], chaincodeId: string): Promise<Buffer[]> {
-        Log.hlf.info('Make query');
+        Log.hlf.info(HlfInfo.MAKE_QUERY);
         const transactionId = this.client.newTransactionID();
-        Log.hlf.info('Assigning transaction_id: ', transactionId.getTransactionID());
+        Log.hlf.info(HlfInfo.ASSIGNING_TRANSACTION_ID, transactionId.getTransactionID());
         const request: ChaincodeQueryRequest = {
             chaincodeId: chaincodeId,
             txId: transactionId,
@@ -69,20 +68,20 @@ export abstract class ChainService {
 
     protected getQueryResponse(queryResponses: Buffer[]): object {
         if (!queryResponses.length) {
-            Log.hlf.info('No payloads were returned from query');
+            Log.hlf.info(HlfInfo.NO_PAYLOADS_RETURNED);
         } else {
-            Log.hlf.info('Query result count = ', queryResponses.length);
+            Log.hlf.info(HlfInfo.PAYLOAD_RESULT_COUNT, queryResponses.length);
+            if (queryResponses[0] instanceof Error) {
+                return this.handleError(queryResponses[0].toString());
+            }
         }
-        if (queryResponses[0] instanceof Error) {
-            throw new Error(queryResponses[0].toString());
-        }
-        Log.hlf.info('Response is ', queryResponses[0].toString());
+        Log.hlf.info(HlfInfo.RESPONSE_IS, queryResponses[0].toString());
         return JSON.parse(queryResponses[0].toString());
     }
 
     protected sendTransactionProposal(requestFunction: string, requestArguments: string[], chaincodeId: string): Promise<ProposalResponseObject> {
         this.txId = this.client.newTransactionID();
-        Log.hlf.info('Assigning transaction_id: ', this.txId._transaction_id);
+        Log.hlf.info(HlfInfo.ASSIGNING_TRANSACTION_ID, this.txId._transaction_id);
 
         let request: ChaincodeInvokeRequest = {
             targets: this.targets,
@@ -101,26 +100,20 @@ export abstract class ChainService {
         if (proposalResponses && proposalResponses[0].response &&
             proposalResponses[0].response.status === 200) {
             isProposalGood = true;
-            Log.hlf.info('transaction proposal was good');
+            Log.hlf.info(HlfInfo.GOOD_TRANSACTION_PROPOSAL);
         } else {
-            Log.hlf.error('transaction proposal was bad');
+            Log.hlf.error(HlfErrors.BAD_TRANSACTION_PROPOSAL);
         }
         return isProposalGood;
     }
 
     protected logSuccessfulProposalResponse(results): void {
         let proposalResponses = results[0];
-        Log.hlf.info(util.format(
-            'Successfully sent Proposal and received ProposalResponse: Status - %s, message - "%s", metadata - "%s"',
-            proposalResponses[0].response.status, proposalResponses[0].response.message));
+        Log.hlf.info(HlfInfo.SUCCESFULLY_SENT_PROPOSAL, proposalResponses[0].response.status, proposalResponses[0].response.message);
     }
 
     protected extractRequestFromProposalResponse(results: ProposalResponseObject): TransactionRequest {
-        return {
-            proposalResponses: results[0],
-            proposal: results[1],
-            header: results[2],
-        };
+        return { proposalResponses: results[0], proposal: results[1], header: results[2] };
     }
 
     protected registerTxEvent(): Promise<any> {
@@ -135,7 +128,7 @@ export abstract class ChainService {
         return new Promise((resolve, reject) => {
             let handle = setTimeout(() => {
                 eh.disconnect();
-                Log.hlf.error('The transaction has timed out: ' + transactionID);
+                Log.hlf.error(HlfErrors.TRANSACTION_TIMED_OUT, transactionID);
                 reject();
             }, 30000);
             eh.registerTxEvent(transactionID, (tx, code) => {
@@ -143,10 +136,10 @@ export abstract class ChainService {
                 eh.unregisterTxEvent(transactionID);
                 eh.disconnect();
                 if (code !== 'VALID') {
-                    Log.hlf.error('The transaction was invalid, code = ' + code);
+                    Log.hlf.error(HlfErrors.INVALID_TRANSACTION, code);
                     reject();
                 } else {
-                    Log.hlf.info('The transaction has been committed on peer ' + eh.getPeerAddr());
+                    Log.hlf.info(HlfInfo.COMMITTED_ON_PEER, eh.getPeerAddr());
                     resolve();
                 }
             });
@@ -155,11 +148,11 @@ export abstract class ChainService {
 
     protected concatEventPromises(sendPromise, eventPromises): Promise<any> {
         return Promise.all([sendPromise].concat(eventPromises)).then((results) => {
-            Log.hlf.info('Event promise all complete and testing complete');
+            Log.hlf.info(HlfInfo.EVENT_PROMISES_COMPLETE);
             return results[0]; // the first returned value is from the 'sendPromise' which is from the 'sendTransaction()' call
         }).catch((err) => {
-            Log.hlf.error(`Failed to send transaction and get notifications within the timeout period: ${err}`);
-            throw new Error(`Failed to send transaction and get notifications within the timeout period: ${err}`);
+            Log.hlf.error(HlfErrors.FAILED_TO_SEND_TX, err);
+            return this.handleError(err);
         });
     }
 }

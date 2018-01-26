@@ -33,12 +33,12 @@ export class RequestHelper {
         Utils.stringifyParams(params);
         return this.queuePusherService.add(chainMethod, params, userId)
             .then((response) => {
-                Log.config.info('Valid transaction');
+                Log.config.info('Valid transaction object');
                 return response;
             })
             .catch(error => {
-                Log.config.error(`${chainMethod} error`, error);
-                return error;
+                Log.config.error(`${chainMethod}`, error);
+                return Promise.reject(error);
             });
     }
 
@@ -56,12 +56,12 @@ export class RequestHelper {
         Utils.stringifyParams(params);
         return this.hlfClient.query(chainMethod, params)
             .then((response) => {
-                Log.config.info('Valid query');
+                Log.config.info('Valid query object');
                 return response;
             })
             .catch(error => {
-                Log.grpc.error(`${chainMethod} error`, error);
-                return error;
+                Log.grpc.error(`${chainMethod}`, error);
+                return Promise.reject(error);
             });
     }
 
@@ -76,8 +76,8 @@ export class RequestHelper {
         return schema.validate(body)
             .then(params => params)
             .catch((error) => {
-                Log.config.error('Validation error', error);
-                return error;
+                Log.config.error('Validation', error);
+                return Promise.reject(error);
             });
     }
 

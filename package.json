@@ -41,7 +41,6 @@
         "fabric-client": "^1.0.2",
         "googleapis": "^22.2.0",
         "hlf-node-utils": "wearetheledger/hlf-node-utils",
-        "ioredis": "^3.1.4",
         "jwks-rsa": "^1.2.1",
         "object-hash": "^1.2.0",
         "path": "^0.12.7",

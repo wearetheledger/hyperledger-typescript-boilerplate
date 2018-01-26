@@ -1,3 +1,4 @@
+import { HlfErrors, HlfInfo } from './logging.enum';
 import { Component } from '@nestjs/common';
 import { ChainService } from './chain.service';
 import hlf = require('fabric-client');
@@ -25,11 +26,9 @@ export class HlfClient extends ChainService {
      * @memberof ChainService
      */
     init(): Promise<any> {
-        return Promise.resolve()
-            .then(() => {
-                this.client = new hlf();
-                return this.newDefaultKeyValueStore(this.options.walletPath);
-            }).then((wallet: IKeyValueStore) => {
+        this.client = new hlf();
+        return this.newDefaultKeyValueStore(this.options.walletPath)
+            .then((wallet: IKeyValueStore) => {
                 this.setStateStore(wallet);
                 return this.client.getUserContext(this.options.userId, true);
             }).then((user: User) => {
@@ -40,11 +39,9 @@ export class HlfClient extends ChainService {
                     this.channel.addOrderer(this.client.newOrderer(this.options.ordererUrl));
                     this.targets.push(peerObj);
                 }
-                return true;
-            }, error => {
-                this.handleError(error);
+                return Promise.resolve(true);
             }).catch((err) => {
-                this.handleError(err);
+                return Promise.reject(err);
             });
     }
 
@@ -58,18 +55,17 @@ export class HlfClient extends ChainService {
      * @memberof HlfClient
      */
     query(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
-        return Promise.resolve()
-            .then(() => {
-                return this.newQuery(chainMethod, params, channelId);
-            }).then((queryResponses: Buffer[]) => {
+        return this.newQuery(chainMethod, params, channelId)
+            .then((queryResponses: Buffer[]) => {
                 return this.getQueryResponse(queryResponses);
             }).catch((err) => {
-                this.handleError(err);
+                return Promise.reject(err);
             });
     }
 
     /**
      * invoke 
+     * 
      * @param {ChainMethod} chainMethod 
      * @param { string[]} params 
      * @param {string} channelId 
@@ -77,10 +73,8 @@ export class HlfClient extends ChainService {
      * @memberof ChainService
      */
     invoke(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
-        return Promise.resolve()
-            .then(() => {
-                return this.sendTransactionProposal(chainMethod, params, channelId);
-            }).then((results: ProposalResponseObject) => {
+        return this.sendTransactionProposal(chainMethod, params, channelId)
+            .then((results: ProposalResponseObject) => {
                 if (this.isProposalGood(results)) {
                     this.logSuccessfulProposalResponse(results);
                     let request: TransactionRequest = this.extractRequestFromProposalResponse(results);
@@ -90,23 +84,17 @@ export class HlfClient extends ChainService {
                     let sendPromise = this.channel.sendTransaction(request);
                     return this.concatEventPromises(sendPromise, eventPromises);
                 } else {
-                    Log.hlf.error('Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...');
-                    throw new Error('Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...');
+                    return this.handleError(HlfErrors.FAILED_TO_SEND_PROPOSAL);
                 }
-            }, (err) => {
-                Log.hlf.error(err);
-                throw new Error('Failed to send proposal due to error: ' + err.stack ? err.stack : err);
             }).then((response) => {
                 if (response.status === 'SUCCESS') {
-                    Log.hlf.info('Successfully sent transaction to the orderer.');
+                    Log.hlf.info(HlfInfo.SUCCESSSFULLY_SENT_TO_ORDERER);
                     return this.txId.getTransactionID();
                 } else {
-                    Log.hlf.error(`${response.status}`);
-                    throw new Error(`Failed to order the transaction. Error code: ${response.status}`);
+                    return this.handleError(response.status);
                 }
-            }, (err) => {
-                Log.hlf.error(err);
-                throw new Error('Failed to send transaction due to error: ' + err.stack ? err.stack : err);
+            }).catch((err) => {
+                return Promise.reject(err);
             });
     }
 }
