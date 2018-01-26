@@ -6,6 +6,7 @@ import { SQS, AWSError } from 'aws-sdk';
 import * as ObjectHash from 'object-hash';
 import { InvokeResult } from '../../routes/invokeresult.model';
 import { ChainMethod } from '../../routes/chainmethods.enum';
+import { MessageBody } from './messagebody.model';
 
 @Component()
 export class QueuePusherService {
@@ -27,14 +28,19 @@ export class QueuePusherService {
      */
     public add(chainMethod: ChainMethod, params: any[], userId: string): Promise<InvokeResult> {
 
-        const paramsString = Utils.serializeJson(params);
+
+        const paramsString = Utils.stringifyParams(params);
         if (!paramsString) {
             return Promise.resolve({ success: false, queueData: <AWSError>{ message: `JSON Parse Error` } });
         }
-
+        const message: MessageBody = {
+            chainMethod: chainMethod,
+            payload: paramsString.toString(),
+            userId: userId
+        };
         // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#sendMessage-property
         const msgConfig = {
-            MessageBody: <string>paramsString,
+            MessageBody: Utils.serializeJson(message).toString(),
             QueueUrl: this.queueListenerService.queryUrl,
             DelaySeconds: 0,
             MessageDeduplicationId: ObjectHash.sha1(params),

@@ -45,11 +45,11 @@ export class QueueListenerService {
      */
     private listen(): void {
         // If you want to remove all the messages from the queue on every new startup
-        // this.sqs.purgeQueue({
-        //     QueueUrl: this.queryUrl
-        // }, () => {
-        //     Log.awssqs.info(`SQS queue purged: ${EnvConfig.AWS_QUEUE_NAME}`);
-        // });
+        this.sqs.purgeQueue({
+            QueueUrl: this.queryUrl
+        }, () => {
+            Log.awssqs.info(`SQS queue purged: ${EnvConfig.AWS_QUEUE_NAME}`);
+        });
 
         const listener = Consumer.create({
             queueUrl: this.queryUrl,
@@ -57,17 +57,15 @@ export class QueueListenerService {
                 Log.awssqs.debug(`Handling new queue item form ${EnvConfig.AWS_QUEUE_NAME}:`, message);
                 const body = <MessageBody>Utils.deserializeJson(message.Body);
                 // TODO: rework payload to pass through identity to chaincode
-                this.hlfClient.invoke(body.chainMethod, [body.payload])
+                this.hlfClient.invoke(body.chainMethod, [Utils.deserializeJson(body.payload).toString()])
                     .then(result => {
-                        Log.awssqs.info('Transaction successful');
-                        Log.awssqs.info(result);
+                        Log.awssqs.info('HLF Transaction successful, pushing result to frontend...');
                         // notify frontend of succesful transaction
                         this.webSocketService.trigger(body.userId, body.chainMethod, body.payload);
                         done();
                     })
                     .catch(error => {
-                        Log.awssqs.error('Transaction failed');
-                        Log.awssqs.error(error.message);
+                        Log.awssqs.error('HLF Transaction failed');
                         // notify frontend of failed transaction
                         this.webSocketService.trigger(body.userId, body.chainMethod, { success: false });
                         done();
@@ -76,9 +74,6 @@ export class QueueListenerService {
         });
 
         listener.on('error', (error) => {
-            Log.awssqs.error(error.message);
-        });
-        listener.on('processing_error', (error) => {
             Log.awssqs.error(error.message);
         });
 

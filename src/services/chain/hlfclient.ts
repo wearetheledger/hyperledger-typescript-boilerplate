@@ -58,7 +58,7 @@ export class HlfClient extends ChainService {
     query(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
         return this.newQuery(chainMethod, params, channelId)
             .then((queryResponses: Buffer[]) => {
-                return this.getQueryResponse(queryResponses);
+                return Promise.resolve(this.getQueryResponse(queryResponses));
             }).catch((err) => {
                 return Promise.reject(err);
             });
@@ -89,19 +89,19 @@ export class HlfClient extends ChainService {
                     let eventPromises = [];
                     eventPromises.push(txPromise);
                     let sendPromise = this.channel.sendTransaction(request);
-                    return this.concatEventPromises(sendPromise, eventPromises);
+                    return Promise.resolve(this.concatEventPromises(sendPromise, eventPromises));
                 } else {
                     return this.handleError(HlfErrors.FAILED_TO_SEND_PROPOSAL);
                 }
             }).then((response) => {
                 if (response.status === 'SUCCESS') {
                     Log.hlf.info(HlfInfo.SUCCESSSFULLY_SENT_TO_ORDERER);
-                    return this.txId.getTransactionID();
+                    return Promise.resolve(this.txId.getTransactionID());
                 } else {
                     return this.handleError(response.status);
                 }
             }).catch((err) => {
-                return this.handleError(err);
+                return Promise.reject(err);
             });
     }
 }
