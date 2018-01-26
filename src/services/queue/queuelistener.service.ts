@@ -55,20 +55,20 @@ export class QueueListenerService {
             queueUrl: this.queryUrl,
             handleMessage: (message, done) => {
                 Log.awssqs.debug(`Handling new queue item form ${EnvConfig.AWS_QUEUE_NAME}:`, message);
-                const body = <MessageBody>Utils.deserializeJson(message.Body);
+                const { chainMethod, payload, userId } = <MessageBody>Utils.deserializeJson(message.Body);
                 // TODO: rework payload to pass through identity to chaincode
-                this.hlfClient.invoke(body.chainMethod, [Utils.deserializeJson(body.payload).toString()])
+                this.hlfClient.invoke(chainMethod, [payload])
                     .then(result => {
                         Log.awssqs.info('HLF Transaction successful, pushing result to frontend...');
-                        // notify frontend of succesful transaction
-                        this.webSocketService.trigger(body.userId, body.chainMethod, body.payload);
                         done();
+                        // notify frontend of succesful transaction
+                        this.webSocketService.trigger(userId, chainMethod, payload);
                     })
                     .catch(error => {
                         Log.awssqs.error('HLF Transaction failed');
-                        // notify frontend of failed transaction
-                        this.webSocketService.trigger(body.userId, body.chainMethod, { success: false });
                         done();
+                        // notify frontend of failed transaction
+                        this.webSocketService.trigger(userId, chainMethod, { success: false });
                     });
             }
         });

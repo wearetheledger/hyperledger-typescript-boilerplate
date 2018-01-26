@@ -28,14 +28,9 @@ export class QueuePusherService {
      */
     public add(chainMethod: ChainMethod, params: any[], userId: string): Promise<InvokeResult> {
 
-
-        const paramsString = Utils.stringifyParams(params);
-        if (!paramsString) {
-            return Promise.resolve({ success: false, queueData: <AWSError>{ message: `JSON Parse Error` } });
-        }
         const message: MessageBody = {
             chainMethod: chainMethod,
-            payload: paramsString.toString(),
+            payload: params,
             userId: userId
         };
         // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#sendMessage-property

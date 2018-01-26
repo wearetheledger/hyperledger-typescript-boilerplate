@@ -1,7 +1,7 @@
 import { ChainMethod } from '../../routes/chainmethods.enum';
 
 export interface MessageBody {
-    payload: string;
+    payload: any;
     chainMethod: ChainMethod;
     userId: string;
 }
