@@ -23,14 +23,13 @@ export abstract class ChainService {
     protected txId: any;
 
     protected newDefaultKeyValueStore(walletPath: string): Promise<IKeyValueStore> {
-        Log.hlf.debug(HlfInfo.WALLET_PATH, this.options.walletPath);
         Log.hlf.info(HlfInfo.CREATING_CLIENT);
         return hlf.newDefaultKeyValueStore({ path: walletPath });
     }
 
     protected setStateStore(wallet: IKeyValueStore): void {
         Log.hlf.info(HlfInfo.SET_WALLET_PATH, this.options.userId);
-        Log.hlf.info(HlfInfo.WALLET, JSON.stringify(wallet));
+        Log.hlf.debug(HlfInfo.WALLET, JSON.stringify(wallet));
         this.client.setStateStore(wallet);
     }
 
@@ -56,7 +55,7 @@ export abstract class ChainService {
     protected newQuery(requestFunction: string, requestArguments: string[], chaincodeId: string): Promise<Buffer[]> {
         Log.hlf.info(HlfInfo.MAKE_QUERY);
         const transactionId = this.client.newTransactionID();
-        Log.hlf.info(HlfInfo.ASSIGNING_TRANSACTION_ID, transactionId.getTransactionID());
+        Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, transactionId.getTransactionID());
         const request: ChaincodeQueryRequest = {
             chaincodeId: chaincodeId,
             txId: transactionId,
@@ -68,20 +67,20 @@ export abstract class ChainService {
 
     protected getQueryResponse(queryResponses: Buffer[]): object {
         if (!queryResponses.length) {
-            Log.hlf.info(HlfInfo.NO_PAYLOADS_RETURNED);
+            Log.hlf.debug(HlfInfo.NO_PAYLOADS_RETURNED);
         } else {
-            Log.hlf.info(HlfInfo.PAYLOAD_RESULT_COUNT, queryResponses.length);
+            Log.hlf.debug(HlfInfo.PAYLOAD_RESULT_COUNT, queryResponses.length);
             if (queryResponses[0] instanceof Error) {
                 return this.handleError(queryResponses[0].toString());
             }
         }
-        Log.hlf.info(HlfInfo.RESPONSE_IS, queryResponses[0].toString());
+        Log.hlf.debug(HlfInfo.RESPONSE_IS, queryResponses[0].toString());
         return JSON.parse(queryResponses[0].toString());
     }
 
     protected sendTransactionProposal(requestFunction: string, requestArguments: string[], chaincodeId: string): Promise<ProposalResponseObject> {
         this.txId = this.client.newTransactionID();
-        Log.hlf.info(HlfInfo.ASSIGNING_TRANSACTION_ID, this.txId._transaction_id);
+        Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, this.txId._transaction_id);
 
         let request: ChaincodeInvokeRequest = {
             targets: this.targets,
@@ -100,7 +99,7 @@ export abstract class ChainService {
         if (proposalResponses && proposalResponses[0].response &&
             proposalResponses[0].response.status === 200) {
             isProposalGood = true;
-            Log.hlf.info(HlfInfo.GOOD_TRANSACTION_PROPOSAL);
+            Log.hlf.debug(HlfInfo.GOOD_TRANSACTION_PROPOSAL);
         } else {
             Log.hlf.error(HlfErrors.BAD_TRANSACTION_PROPOSAL);
         }
@@ -109,11 +108,7 @@ export abstract class ChainService {
 
     protected logSuccessfulProposalResponse(results): void {
         let proposalResponses = results[0];
-        Log.hlf.info(HlfInfo.SUCCESFULLY_SENT_PROPOSAL, proposalResponses[0].response.status, proposalResponses[0].response.message);
-    }
-
-    protected extractRequestFromProposalResponse(results: ProposalResponseObject): TransactionRequest {
-        return { proposalResponses: results[0], proposal: results[1], header: results[2] };
+        Log.hlf.debug(HlfInfo.SUCCESFULLY_SENT_PROPOSAL, proposalResponses[0].response.status, proposalResponses[0].response.message);
     }
 
     protected registerTxEvent(): Promise<any> {
@@ -123,6 +118,7 @@ export abstract class ChainService {
         let transactionID = this.txId.getTransactionID();
         let eh = this.client.newEventHub();
         eh.setPeerAddr(this.options.eventUrl);
+        Log.hlf.info(HlfInfo.CONNECTING_EVENTHUB);
         eh.connect();
 
         return new Promise((resolve, reject) => {
@@ -139,7 +135,7 @@ export abstract class ChainService {
                     Log.hlf.error(HlfErrors.INVALID_TRANSACTION, code);
                     reject();
                 } else {
-                    Log.hlf.info(HlfInfo.COMMITTED_ON_PEER, eh.getPeerAddr());
+                    Log.hlf.debug(HlfInfo.COMMITTED_ON_PEER, eh.getPeerAddr());
                     resolve();
                 }
             });

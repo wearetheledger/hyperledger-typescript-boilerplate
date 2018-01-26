@@ -9,7 +9,7 @@ import { InvokeResult } from '../../routes/invokeresult.model';
 export class RequestHelper {
 
     // TODO: refactor invokes accrding to https://docs.nestjs.com/recipes/cqrs
-    
+
     /**
      * Creates an instance of RequestHelper.
      * @param {HlfClient} hlfClient 
@@ -33,8 +33,8 @@ export class RequestHelper {
         Utils.stringifyParams(params);
         return this.queuePusherService.add(chainMethod, params, userId)
             .then((response) => {
-                Log.config.info('Valid transaction object');
-                return response;
+                Log.awssqs.debug('Invoke successfully added to SQS queue: ',response);
+                return Promise.resolve(response);
             })
             .catch(error => {
                 Log.config.error(`${chainMethod}`, error);
@@ -55,12 +55,12 @@ export class RequestHelper {
         // TODO: rework params to pass through identity to chaincode
         Utils.stringifyParams(params);
         return this.hlfClient.query(chainMethod, params)
-            .then((response) => {
-                Log.config.info('Valid query object');
-                return response;
+            .then((response) => {                
+                Log.hlf.debug('Query successfully executed: ',response);
+                return Promise.resolve(response);
             })
             .catch(error => {
-                Log.grpc.error(`${chainMethod}`, error);
+                Log.hlf.error(`${chainMethod}`, error);
                 return Promise.reject(error);
             });
     }
@@ -74,7 +74,10 @@ export class RequestHelper {
      */
     public validateRequest(schema: Schema, body): Promise<any[]> {
         return schema.validate(body)
-            .then(params => params)
+            .then(params => {
+                Log.config.debug('Valid object schema: ', params);
+                return Promise.resolve(params);
+            })
             .catch((error) => {
                 Log.config.error('Validation', error);
                 return Promise.reject(error);

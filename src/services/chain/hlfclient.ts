@@ -39,6 +39,7 @@ export class HlfClient extends ChainService {
                     this.channel.addOrderer(this.client.newOrderer(this.options.ordererUrl));
                     this.targets.push(peerObj);
                 }
+                Log.hlf.info(HlfInfo.INIT_SUCCESS);
                 return Promise.resolve(true);
             }).catch((err) => {
                 return Promise.reject(err);
@@ -75,9 +76,15 @@ export class HlfClient extends ChainService {
     invoke(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
         return this.sendTransactionProposal(chainMethod, params, channelId)
             .then((results: ProposalResponseObject) => {
+                Log.hlf.info(HlfInfo.CHECK_TRANSACTION_PROPOSAL);
                 if (this.isProposalGood(results)) {
                     this.logSuccessfulProposalResponse(results);
-                    let request: TransactionRequest = this.extractRequestFromProposalResponse(results);
+                    let request: TransactionRequest = {
+                        proposalResponses: results[0],
+                        proposal: results[1],
+                        header: results[2]
+                    };
+                    Log.hlf.info(HlfInfo.REGISTERING_TRANSACTION_EVENT);
                     let txPromise = this.registerTxEvent();
                     let eventPromises = [];
                     eventPromises.push(txPromise);
@@ -94,7 +101,7 @@ export class HlfClient extends ChainService {
                     return this.handleError(response.status);
                 }
             }).catch((err) => {
-                return Promise.reject(err);
+                return this.handleError(err);
             });
     }
 }

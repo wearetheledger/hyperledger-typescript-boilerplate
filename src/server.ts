@@ -45,7 +45,7 @@ async function bootstrap() {
      * Start Chainservice API
      */
     await app.listen(+EnvConfig.PORT, () => {
-        Log.config.info(`Chain-service started on PORT ${EnvConfig.PORT}`);
+        Log.config.info(`Started Chain-service on PORT ${EnvConfig.PORT}`);
     });
 
 }
