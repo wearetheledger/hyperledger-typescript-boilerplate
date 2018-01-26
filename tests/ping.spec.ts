@@ -18,39 +18,39 @@ describe('Tests', () => {
 /**
  * Set AWS Credentials
  */
-awsConfig.update({
-    accessKeyId: EnvConfig.AWS_ACCESS_KEY,
-    secretAccessKey: EnvConfig.AWS_SECRET_ACCESS_KEY,
-    region: EnvConfig.AWS_REGION
-});
+// awsConfig.update({
+//     accessKeyId: EnvConfig.AWS_ACCESS_KEY,
+//     secretAccessKey: EnvConfig.AWS_SECRET_ACCESS_KEY,
+//     region: EnvConfig.AWS_REGION
+// });
 
 
-describe('Ping', () => {
-    const server = express();
+// describe('Ping', () => {
+//     const server = express();
 
-    const pingService_ping = { ping: () => 'test' };
+//     const pingService_ping = { ping: () => 'test' };
 
-    beforeAll(async () => {
-        const module = await Test.createTestingModule({
-            imports: [ApplicationModule],
-        })
-            .overrideComponent(PingService).useValue(pingService_ping)
-            .compile();
+//     beforeAll(async () => {
+//         const module = await Test.createTestingModule({
+//             imports: [ApplicationModule],
+//         })
+//             .overrideComponent(PingService).useValue(pingService_ping)
+//             .compile();
 
-        const app = module.createNestApplication(server);
-        await app.init();
-    });
+//         const app = module.createNestApplication(server);
+//         await app.init();
+//     });
 
-    it(`/GET ping`, () => {
-        return request(server)
-            .get('/')
-            .expect(200)
-            .expect(pingService_ping.ping())
-            .then(()=>{
-                process.kill(process.pid);
-            });
-    });
+//     it(`/GET ping`, () => {
+//         return request(server)
+//             .get('/')
+//             .expect(200)
+//             .expect(pingService_ping.ping())
+//             .then(()=>{
+//                 process.kill(process.pid);
+//             });
+//     });
 
 
-});
+// });
 
