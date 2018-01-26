@@ -40,7 +40,6 @@
         "express-jwt": "^5.3.0",
         "fabric-client": "^1.0.2",
         "googleapis": "^22.2.0",
-        "grpc": "^1.7.1",
         "hlf-node-utils": "wearetheledger/hlf-node-utils",
         "ioredis": "^3.1.4",
         "jwks-rsa": "^1.2.1",
@@ -74,8 +73,8 @@
         "typescript": "^2.5.2"
     },
     "engines": {
-        "node": "^7",
-        "npm": "^4.2"
+        "node": "^8",
+        "npm": "^5.6"
     },
     "jest": {
         "moduleFileExtensions": [

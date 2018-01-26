@@ -2,12 +2,13 @@ import { Log } from 'hlf-node-utils';
 import { Component } from '@nestjs/common';
 import hlf = require('fabric-client');
 import { util } from 'type-util';
+import { HlfInfo, HlfErrors } from './messages.enum';
 
 @Component()
 export abstract class ChainService {
 
     // TODO: refactor
-    
+
     protected options: {
         walletPath: string;
         userId: string;
@@ -24,7 +25,7 @@ export abstract class ChainService {
 
     protected newDefaultKeyValueStore(walletPath: string): Promise<IKeyValueStore> {
         Log.hlf.debug(`WALLET PATH: ${this.options.walletPath}`);
-        Log.hlf.info('Create a client and set the wallet location');
+        Log.hlf.info(HlfInfo.CREATING_CLIENT);
         return hlf.newDefaultKeyValueStore({ path: walletPath });
     }
 
@@ -39,9 +40,9 @@ export abstract class ChainService {
     }
 
     protected isUserEnrolled(user): boolean {
-        Log.hlf.info('Checking if user is enrolled');
+        Log.hlf.info(HlfInfo.CHECK_USER_ENROLLED);
         if (user === undefined || user == null || user.isEnrolled() === false) {
-            Log.hlf.error('User not defined, or not enrolled. Or network is down');
+            Log.hlf.error(HlfErrors.NO_ENROLLED_USER);
             return false;
         }
         Log.hlf.info('User is enrolled, setting query URL in the network');

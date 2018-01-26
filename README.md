@@ -27,9 +27,9 @@ In order for this application to run, you should have set up an account on AWS t
 Be sure to have an up to date node.js configuration:
 ```
     "engines": {
-        "node": "^7",
-        "npm": "^4.2"
-    },
+        "node": "^8",
+        "npm": "^5.6"
+    }
 ```
 Install dependencies
 
