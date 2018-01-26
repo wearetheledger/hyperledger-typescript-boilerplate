@@ -63,6 +63,5 @@ export class AssetsService {
             .catch(error => {
                 throw new BadRequestException(`Invalid DTO`);
             });
-
     }
 }

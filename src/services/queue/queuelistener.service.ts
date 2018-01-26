@@ -1,11 +1,12 @@
 import { WebSocketService } from './../events/websocket.service';
 import { EnvConfig } from './../../config/env';
 import { Component } from '@nestjs/common';
-import { Log, Utils, RequestHelper } from 'hlf-node-utils';
+import { Log, Utils } from 'hlf-node-utils';
 import { SQS, AWSError } from 'aws-sdk';
 import * as Consumer from 'sqs-consumer';
 import { MessageBody } from './messagebody.model';
 import { HlfClient } from '../chain/hlfclient';
+import { RequestHelper } from '../chain/requesthelper';
 
 @Component()
 export class QueueListenerService {
@@ -45,11 +46,11 @@ export class QueueListenerService {
      */
     private listen(): void {
         // If you want to remove all the messages from the queue on every new startup
-        this.sqs.purgeQueue({
-            QueueUrl: this.queryUrl
-        }, () => {
-            Log.awssqs.info(`SQS queue purged: ${EnvConfig.AWS_QUEUE_NAME}`);
-        });
+        // this.sqs.purgeQueue({
+        //     QueueUrl: this.queryUrl
+        // }, () => {
+        //     Log.awssqs.info(`SQS queue purged: ${EnvConfig.AWS_QUEUE_NAME}`);
+        // });
 
         const listener = Consumer.create({
             queueUrl: this.queryUrl,
