@@ -1,4 +1,4 @@
 export enum ChainMethod {
-    'getAllAssets' = 'getAllAssets',
-    'createNewAsset' = 'createNewAsset'
+    'queryAllCars' = 'queryAllCars',
+    'createCar' = 'createCar'
 }

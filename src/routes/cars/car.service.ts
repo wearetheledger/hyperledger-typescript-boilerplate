@@ -2,31 +2,31 @@
 import { Component, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import * as Yup from 'yup';
 import { ChainMethod } from '../chainmethods.enum';
-import { AssetDto } from './asset.model';
+import { CarDto } from './car.model';
 import { InvokeResult } from '../invokeresult.model';
 import { RequestHelper } from '../../services/chain/requesthelper';
 
 @Component()
-export class AssetsService {
+export class CarService {
 
-    /**
-     * Creates an instance of AssetsService.
-     * @param {RequestHelper} requestHelper 
-     * @memberof AssetsService
-     */
-    constructor(
+/**
+ * Creates an instance of CarService.
+ * @param {RequestHelper} requestHelper 
+ * @memberof CarService
+ */
+constructor(
         private requestHelper: RequestHelper) { }
 
     /**
-     * get all assets
+     * get all cars
      * 
      * @param {string} userId 
-     * @returns {Promise<AssetDto[]>} 
+     * @returns {Promise<CarDto[]>} 
      * @memberof AssetsService
      */
-    getAll(userId: string): Promise<AssetDto[]> {
+    getAll(userId: string): Promise<CarDto[]> {
         // this is a query, query chaincode directly
-        return this.requestHelper.queryRequest(ChainMethod.getAllAssets, [], userId)
+        return this.requestHelper.queryRequest(ChainMethod.queryAllCars, [], userId)
             .then(result => {
                 return result;
             })
@@ -36,23 +36,26 @@ export class AssetsService {
     }
 
     /**
-     * create new asset
+     * create new car
      * 
-     * @param {AssetDto} assetDto 
+     * @param {CarDto} carDto 
      * @param {string} userId 
      * @returns {Promise<InvokeResult>} 
      * @memberof AssetsService
      */
-    create(assetDto: AssetDto, userId: string): Promise<InvokeResult> {
+    create(carDto: CarDto, userId: string): Promise<InvokeResult> {
         const schema = Yup.object().shape({
-            name: Yup.string().required(),
-            description: Yup.string().required()
+            Key: Yup.string().required(),
+            Make: Yup.string().required(),
+            Model: Yup.string().required(),
+            Colour: Yup.string().required(),
+            Owner: Yup.string().required()
         });
 
         // this is an invoke, push transaction onto awssqs here
-        return this.requestHelper.validateRequest(schema, assetDto)
+        return this.requestHelper.validateRequest(schema, carDto)
             .then(params => {
-                return this.requestHelper.invokeRequest(ChainMethod.createNewAsset, [params], userId)
+                return this.requestHelper.invokeRequest(ChainMethod.createCar, [params], userId)
                     .then(result => {
                         return result;
                     })

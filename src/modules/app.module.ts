@@ -6,21 +6,21 @@ import { Log, FabricOptions } from 'hlf-node-utils';
 import { Module, MiddlewaresConsumer, RequestMethod } from '@nestjs/common';
 import { PingService } from '../routes/ping/ping.service';
 import { PingController } from '../routes/ping/ping.controller';
-import { AssetsController } from '../routes/assets/assets.controller';
-import { AssetsService } from '../routes/assets/assets.service';
 import { HlfClient } from '../services/chain/hlfclient';
 import { QueueListenerService } from '../services/queue/queuelistener.service';
 import { NestModule } from '@nestjs/common/interfaces';
 import { AuthenticationMiddleware } from '../middleware/authentication.middleware';
+import { CarService } from '../routes/cars/car.service';
+import { CarController } from '../routes/cars/car.controller';
 
 @Module({
     controllers: [
         PingController,
-        AssetsController
+        CarController
     ],
     components: [
         PingService,
-        AssetsService
+        CarService
     ],
     modules: [
         ChainModule,
@@ -48,7 +48,7 @@ export class ApplicationModule implements NestModule {
         // set hlf client options
         this.hlfClient.setOptions(<FabricOptions>{
             walletPath: `./src/config/creds`,
-            userId: 'PeerAdmin',
+            userId: 'admin',
             channelId: 'mychannel',
             networkUrl: `grpc://${EnvConfig.PEER_HOST}:7051`,
             eventUrl: `grpc://${EnvConfig.PEER_HOST}:7053`,

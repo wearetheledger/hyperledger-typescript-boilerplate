@@ -26,8 +26,6 @@ export class EnvConfig {
     // FABRIC
     public static PEER_HOST = process.env['PEER_HOST'] || 'localhost';
     public static ORDERER_HOST = process.env['ORDERER_HOST'] || 'localhost';
-    public static LOCAL_CREDS = process.env['LOCAL_CREDS'] || false;
-    public static CHAINCODE_NAME = process.env['CHAINCODE_NAME'] || 'mycc';
 
     // PUSHER
     public static PUSHER_KEY = process.env['PUSHER_KEY'];
