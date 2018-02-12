@@ -8,7 +8,7 @@ import { InvokeResult } from '../../routes/invokeresult.model';
 @Component()
 export class RequestHelper {
 
-    // TODO: refactor invokes accrding to https://docs.nestjs.com/recipes/cqrs
+    // TODO: refactor invokes according to https://docs.nestjs.com/recipes/cqrs
 
     /**
      * Creates an instance of RequestHelper.
@@ -24,16 +24,19 @@ export class RequestHelper {
      * Pass transaction request to aws queue
      * 
      * @param {ChainMethod} chainMethod 
-     * @param {any[]} params 
+     * @param {any} params 
      * @param {string} userId 
-     * @returns {Promise<{ success: boolean }>} 
+     * @returns {Promise<InvokeResult>} 
      * @memberof RequestHelper
      */
-    public invokeRequest(chainMethod: ChainMethod, params: any[], userId: string): Promise<InvokeResult> {
-        Utils.stringifyParams(params);
-        return this.queuePusherService.add(chainMethod, params, userId)
+    public invokeRequest(chainMethod: ChainMethod, params: any, userId: string): Promise<InvokeResult> {
+        let stringifyParams: string[] = [];
+        Object.keys(params).reverse().forEach((key) => {
+            stringifyParams.push(params[key]);
+        });
+        return this.queuePusherService.add(chainMethod, stringifyParams, userId)
             .then((response) => {
-                Log.awssqs.debug('Invoke successfully added to SQS queue: ',response);
+                Log.awssqs.debug('Invoke successfully added to SQS queue: ', response);
                 return Promise.resolve(response);
             })
             .catch(error => {
@@ -52,11 +55,10 @@ export class RequestHelper {
      * @memberof RequestHelper
      */
     public queryRequest(chainMethod: ChainMethod, params: any[], userId: string): Promise<any> {
-        // TODO: rework params to pass through identity to chaincode
         Utils.stringifyParams(params);
         return this.hlfClient.query(chainMethod, params)
-            .then((response) => {                
-                Log.hlf.debug('Query successfully executed: ',response);
+            .then((response) => {
+                Log.hlf.debug('Query successfully executed: ', response);
                 return Promise.resolve(response);
             })
             .catch(error => {
@@ -67,6 +69,7 @@ export class RequestHelper {
 
     /**
      * validate requests with yup
+     * 
      * @param {Schema} schema 
      * @param {any} body 
      * @returns {Promise<any>} 

@@ -90,6 +90,7 @@ export abstract class ChainService {
             chainId: this.options.channelId,
             txId: this.txId
         };
+        
         return this.channel.sendTransactionProposal(request);
     }
 

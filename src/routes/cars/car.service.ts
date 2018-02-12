@@ -28,6 +28,7 @@ constructor(
         // this is a query, query chaincode directly
         return this.requestHelper.queryRequest(ChainMethod.queryAllCars, [], userId)
             .then(result => {
+                userId = 'demo';
                 return result;
             })
             .catch(error => {
@@ -51,11 +52,12 @@ constructor(
             Colour: Yup.string().required(),
             Owner: Yup.string().required()
         });
-
+        // TODO: comes from authentication object
+        userId = 'demo';
         // this is an invoke, push transaction onto awssqs here
         return this.requestHelper.validateRequest(schema, carDto)
             .then(params => {
-                return this.requestHelper.invokeRequest(ChainMethod.createCar, [params], userId)
+                return this.requestHelper.invokeRequest(ChainMethod.createCar, params, userId)
                     .then(result => {
                         return result;
                     })

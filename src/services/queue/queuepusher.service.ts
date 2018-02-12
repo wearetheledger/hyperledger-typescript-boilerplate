@@ -33,6 +33,7 @@ export class QueuePusherService {
             payload: params,
             userId: userId
         };
+        
         // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#sendMessage-property
         const msgConfig = {
             MessageBody: Utils.serializeJson(message).toString(),

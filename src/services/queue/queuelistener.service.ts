@@ -46,30 +46,31 @@ export class QueueListenerService {
      */
     private listen(): void {
         // If you want to remove all the messages from the queue on every new startup
-        // this.sqs.purgeQueue({
-        //     QueueUrl: this.queryUrl
-        // }, () => {
-        //     Log.awssqs.info(`SQS queue purged: ${EnvConfig.AWS_QUEUE_NAME}`);
-        // });
+        this.sqs.purgeQueue({
+            QueueUrl: this.queryUrl
+        }, () => {
+            Log.awssqs.info(`SQS queue purged: ${EnvConfig.AWS_QUEUE_NAME}`);
+        });
 
         const listener = Consumer.create({
             queueUrl: this.queryUrl,
             handleMessage: (message, done) => {
                 Log.awssqs.debug(`Handling new queue item form ${EnvConfig.AWS_QUEUE_NAME}:`, message);
                 const { chainMethod, payload, userId } = <MessageBody>Utils.deserializeJson(message.Body);
-                // TODO: rework payload to pass through identity to chaincode
-                this.hlfClient.invoke(chainMethod, [payload])
+                this.hlfClient.invoke(chainMethod, payload)
                     .then(result => {
                         Log.awssqs.info('HLF Transaction successful, pushing result to frontend...');
-                        done();
                         // notify frontend of succesful transaction
                         this.webSocketService.trigger(userId, chainMethod, payload);
+                        done();
+                        
                     })
                     .catch(error => {
                         Log.awssqs.error('HLF Transaction failed');
-                        done();
                         // notify frontend of failed transaction
                         this.webSocketService.trigger(userId, chainMethod, { success: false });
+                        done();
+                        
                     });
             }
         });

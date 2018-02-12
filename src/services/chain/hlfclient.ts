@@ -1,9 +1,9 @@
 import { HlfErrors, HlfInfo } from './logging.enum';
 import { Component } from '@nestjs/common';
 import { ChainService } from './chain.service';
-import hlf = require('fabric-client');
 import { FabricOptions, Log } from 'hlf-node-utils';
 import { ChainMethod } from '../../routes/chainmethods.enum';
+const fabricClient = require('fabric-client');
 
 @Component()
 export class HlfClient extends ChainService {
@@ -26,22 +26,38 @@ export class HlfClient extends ChainService {
      * @memberof ChainService
      */
     init(): Promise<any> {
-        this.client = new hlf();
-        return this.newDefaultKeyValueStore(this.options.walletPath)
+        console.log('Store path:' + this.options.walletPath);
+        this.client = new fabricClient();
+
+        return fabricClient.newDefaultKeyValueStore({
+            path: this.options.walletPath
+        })
             .then((wallet: IKeyValueStore) => {
-                this.setStateStore(wallet);
+                console.log(wallet);
+                // assign the store to the fabric client
+                this.client.setStateStore(wallet);
+                let cryptoSuite = fabricClient.newCryptoSuite();
+                // use the same location for the state store (where the users' certificate are kept)
+                // and the crypto store (where the users' keys are kept)
+                let cryptoStore = fabricClient.newCryptoKeyStore({ path: this.options.walletPath });
+                cryptoSuite.setCryptoKeyStore(cryptoStore);
+                this.client.setCryptoSuite(cryptoSuite);
+
                 return this.client.getUserContext(this.options.userId, true);
             }).then((user: User) => {
-                if (this.isUserEnrolled(user)) {
+                if (user && user.isEnrolled()) {
+                    this.client.setUserContext(user);
                     this.channel = this.client.newChannel(this.options.channelId);
                     const peerObj = this.client.newPeer(this.options.networkUrl);
                     this.channel.addPeer(peerObj);
                     this.channel.addOrderer(this.client.newOrderer(this.options.ordererUrl));
                     this.targets.push(peerObj);
+                    Log.hlf.info(HlfInfo.INIT_SUCCESS);
+                } else {
+                    return Promise.reject(HlfErrors.NO_ENROLLED_USER);
                 }
-                Log.hlf.info(HlfInfo.INIT_SUCCESS);
-                return Promise.resolve(true);
             }).catch((err) => {
+                console.log(err);
                 return Promise.reject(err);
             });
     }
@@ -55,11 +71,12 @@ export class HlfClient extends ChainService {
      * @returns {Promise<any>} 
      * @memberof HlfClient
      */
-    query(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
+    query(chainMethod: ChainMethod, params: string[], channelId = 'greencard'): Promise<any> {
         return this.newQuery(chainMethod, params, channelId)
             .then((queryResponses: Buffer[]) => {
                 return Promise.resolve(this.getQueryResponse(queryResponses));
             }).catch((err) => {
+                console.log(err);
                 return Promise.reject(err);
             });
     }
@@ -73,7 +90,7 @@ export class HlfClient extends ChainService {
      * @returns 
      * @memberof ChainService
      */
-    invoke(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
+    invoke(chainMethod: ChainMethod, params: string[], channelId = 'greencard'): Promise<any> {
         return this.sendTransactionProposal(chainMethod, params, channelId)
             .then((results: ProposalResponseObject) => {
                 Log.hlf.info(HlfInfo.CHECK_TRANSACTION_PROPOSAL);
