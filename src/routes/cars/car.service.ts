@@ -26,13 +26,13 @@ constructor(
      */
     getAll(userId: string): Promise<CarDto[]> {
         // this is a query, query chaincode directly
-        return this.requestHelper.queryRequest(ChainMethod.queryAllCars, [], userId)
+        return this.requestHelper.queryRequest(ChainMethod.queryAllCars, [])
             .then(result => {
                 userId = 'demo';
                 return result;
             })
             .catch(error => {
-                throw new InternalServerErrorException(`Query Failed`);
+                throw new InternalServerErrorException(error);
             });
     }
 
@@ -52,9 +52,7 @@ constructor(
             Colour: Yup.string().required(),
             Owner: Yup.string().required()
         });
-        // TODO: comes from authentication object
-        userId = 'demo';
-        // this is an invoke, push transaction onto awssqs here
+        // TODO: replace yup with validation pipe
         return this.requestHelper.validateRequest(schema, carDto)
             .then(params => {
                 return this.requestHelper.invokeRequest(ChainMethod.createCar, params, userId)
@@ -62,11 +60,11 @@ constructor(
                         return result;
                     })
                     .catch(error => {
-                        throw new InternalServerErrorException(`Failed to add to AWS queue`);
+                        throw new InternalServerErrorException(error);
                     });
             })
             .catch(error => {
-                throw new BadRequestException(`Invalid DTO`);
+                throw new BadRequestException(error);
             });
     }
 }

@@ -57,28 +57,44 @@ export class QueueListenerService {
             handleMessage: (message, done) => {
                 Log.awssqs.debug(`Handling new queue item form ${EnvConfig.AWS_QUEUE_NAME}:`, message);
                 const { chainMethod, payload, userId } = <MessageBody>Utils.deserializeJson(message.Body);
+                const pusherChannel = userId.replace(/[!|@#$%^&*]/g, '');
                 this.hlfClient.invoke(chainMethod, payload)
                     .then(result => {
                         Log.awssqs.info('HLF Transaction successful, pushing result to frontend...');
                         // notify frontend of succesful transaction
-                        this.webSocketService.trigger(userId, chainMethod, payload);
+                        this.webSocketService.triggerSuccess(pusherChannel, chainMethod, payload);
                         done();
-                        
                     })
                     .catch(error => {
-                        Log.awssqs.error('HLF Transaction failed');
+                        Log.awssqs.error('HLF Transaction failed:', error);
                         // notify frontend of failed transaction
-                        this.webSocketService.trigger(userId, chainMethod, { success: false });
-                        done();
-                        
+                        this.webSocketService.triggerError(pusherChannel, chainMethod, { success: false });
+                        done(error);
                     });
             }
         });
 
-        listener.on('error', (error) => {
-            Log.awssqs.error(error.message);
+        listener.on('error:', (error) => {
+            Log.awssqs.error(error);
         });
-
+        listener.on('processing_error', (error) => {
+            Log.awssqs.error('processing_error:', error);
+        });
+        listener.on('message_received', (data) => {
+            Log.awssqs.info('message_received', data);
+        });
+        listener.on('message_processed', (data) => {
+            Log.awssqs.info('message_processed:', data);
+        });
+        listener.on('response_processed', () => {
+            Log.awssqs.info('processed');
+        });
+        listener.on('stopped', () => {
+            Log.awssqs.error('stopped');
+        });
+        listener.on('empty', () => {
+            Log.awssqs.info('heartbeat...');
+        });
         listener.start();
     }
 

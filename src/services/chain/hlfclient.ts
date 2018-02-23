@@ -44,7 +44,8 @@ export class HlfClient extends ChainService {
                 this.client.setCryptoSuite(cryptoSuite);
 
                 return this.client.getUserContext(this.options.userId, true);
-            }).then((user: User) => {
+            })
+            .then((user: User) => {
                 if (user && user.isEnrolled()) {
                     this.client.setUserContext(user);
                     this.channel = this.client.newChannel(this.options.channelId);
@@ -56,7 +57,8 @@ export class HlfClient extends ChainService {
                 } else {
                     return Promise.reject(HlfErrors.NO_ENROLLED_USER);
                 }
-            }).catch((err) => {
+            })
+            .catch((err) => {
                 console.log(err);
                 return Promise.reject(err);
             });
@@ -72,10 +74,12 @@ export class HlfClient extends ChainService {
      * @memberof HlfClient
      */
     query(chainMethod: ChainMethod, params: string[], channelId = 'greencard'): Promise<any> {
+        Log.hlf.info(chainMethod, params);
         return this.newQuery(chainMethod, params, channelId)
             .then((queryResponses: Buffer[]) => {
                 return Promise.resolve(this.getQueryResponse(queryResponses));
-            }).catch((err) => {
+            })
+            .catch((err) => {
                 console.log(err);
                 return Promise.reject(err);
             });
@@ -91,6 +95,7 @@ export class HlfClient extends ChainService {
      * @memberof ChainService
      */
     invoke(chainMethod: ChainMethod, params: string[], channelId = 'greencard'): Promise<any> {
+        Log.hlf.info(chainMethod, params);
         return this.sendTransactionProposal(chainMethod, params, channelId)
             .then((results: ProposalResponseObject) => {
                 Log.hlf.info(HlfInfo.CHECK_TRANSACTION_PROPOSAL);
@@ -110,14 +115,16 @@ export class HlfClient extends ChainService {
                 } else {
                     return this.handleError(HlfErrors.FAILED_TO_SEND_PROPOSAL);
                 }
-            }).then((response) => {
+            })
+            .then((response) => {
                 if (response.status === 'SUCCESS') {
                     Log.hlf.info(HlfInfo.SUCCESSSFULLY_SENT_TO_ORDERER);
                     return Promise.resolve(this.txId.getTransactionID());
                 } else {
                     return this.handleError(response.status);
                 }
-            }).catch((err) => {
+            })
+            .catch((err) => {
                 return Promise.reject(err);
             });
     }

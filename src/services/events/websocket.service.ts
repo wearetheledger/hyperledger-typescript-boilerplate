@@ -7,7 +7,7 @@ import { PusherOptions } from './pusheroptions.model';
 @Component()
 export class WebSocketService {
 
-    private pusher;
+    public pusher;
 
     /**
      * Creates an instance of WebSocketService.
@@ -34,7 +34,7 @@ export class WebSocketService {
     }
 
     /**
-     * trigger pusher message
+     * trigger success pusher message
      * 
      * @param {string} channel 
      * @param {string} eventName 
@@ -42,9 +42,33 @@ export class WebSocketService {
      * @returns {void} 
      * @memberof PusherService
      */
-    trigger(channel: string, eventName: string, data: any): void {
+    triggerSuccess(channel: string, eventName: string, data: any): void {
         if (this.pusher) {
-            this.pusher.trigger(channel, eventName, data);
+            this.pusher.trigger(channel, 'success',
+                {
+                    event: eventName,
+                    data: data
+                });
+        } else {
+            Log.pusher.error('Pusher options not set.');
+        }
+    }
+
+    /**
+     * trigger error pusher message
+     * 
+     * @param {string} channel 
+     * @param {string} eventName 
+     * @param {*} data 
+     * @memberof WebSocketService
+     */
+    triggerError(channel: string, eventName: string, data: any): void {
+        if (this.pusher) {
+            this.pusher.trigger(channel, 'error',
+                {
+                    event: eventName,
+                    data: data
+                });
         } else {
             Log.pusher.error('Pusher options not set.');
         }

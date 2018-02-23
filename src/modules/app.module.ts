@@ -1,44 +1,44 @@
+import { CarService } from './../routes/cars/car.service';
 import { EventsModule } from './events.module';
 import { ChainModule } from './chain.module';
 import { QueueModule } from './queue.module';
 import { EnvConfig } from './../config/env';
-import { Log, FabricOptions } from 'hlf-node-utils';
-import { Module, MiddlewaresConsumer, RequestMethod } from '@nestjs/common';
+import { FabricOptions, Log } from 'hlf-node-utils';
+import { MiddlewaresConsumer, Module, RequestMethod } from '@nestjs/common';
 import { PingService } from '../routes/ping/ping.service';
 import { PingController } from '../routes/ping/ping.controller';
 import { HlfClient } from '../services/chain/hlfclient';
 import { QueueListenerService } from '../services/queue/queuelistener.service';
 import { NestModule } from '@nestjs/common/interfaces';
 import { AuthenticationMiddleware } from '../middleware/authentication.middleware';
-import { CarService } from '../routes/cars/car.service';
 import { CarController } from '../routes/cars/car.controller';
+import * as path from 'path';
 
 @Module({
     controllers: [
         PingController,
-        CarController
+        CarController,
     ],
     components: [
         PingService,
-        CarService
+        CarService,
     ],
     modules: [
         ChainModule,
         QueueModule,
-        EventsModule
+        EventsModule,
     ],
 })
 export class ApplicationModule implements NestModule {
 
     /**
      * Creates an instance of ApplicationModule.
-     * @param {HlfClient} hlfClient 
-     * @param {QueueListenerService} queueListenerService 
+     * @param {HlfClient} hlfClient
+     * @param {QueueListenerService} queueListenerService
      * @memberof ApplicationModule
      */
-    constructor(
-        private hlfClient: HlfClient,
-        private queueListenerService: QueueListenerService) {
+    constructor(private hlfClient: HlfClient,
+                private queueListenerService: QueueListenerService) {
 
         // list env keys in cli
         for (let propName of Object.keys(EnvConfig)) {
@@ -47,7 +47,7 @@ export class ApplicationModule implements NestModule {
 
         // set hlf client options
         this.hlfClient.setOptions(<FabricOptions>{
-            walletPath: `./src/config/creds`,
+            walletPath: path.resolve(__dirname, '..', 'config', `creds`),
             userId: 'admin',
             channelId: 'mychannel',
             networkUrl: `grpc://${EnvConfig.PEER_HOST}:7051`,
@@ -57,22 +57,23 @@ export class ApplicationModule implements NestModule {
 
         // init hlf client
         this.hlfClient.init().then(result => {
-            Log.awssqs.info(`Starting Queue Listener...`);
-            this.queueListenerService.init();
+            if (!EnvConfig.BYPASS_QUEUE) {
+                Log.awssqs.info(`Starting Queue Listener...`);
+                this.queueListenerService.init();
+            }
         });
-
     }
 
     /**
      * Protected routes
-     * 
-     * @param {MiddlewaresConsumer} consumer 
+     *
+     * @param {MiddlewaresConsumer} consumer
      * @memberof ApplicationModule
      */
     configure(consumer: MiddlewaresConsumer): void {
         consumer.apply(AuthenticationMiddleware).forRoutes(
             { path: '/protectedroute', method: RequestMethod.ALL },
-            // { path: '/**', method: RequestMethod.ALL }
+            // {path: '/cars', method: RequestMethod.ALL}
         );
     }
 }
