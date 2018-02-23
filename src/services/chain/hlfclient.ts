@@ -73,7 +73,7 @@ export class HlfClient extends ChainService {
      * @returns {Promise<any>} 
      * @memberof HlfClient
      */
-    query(chainMethod: ChainMethod, params: string[], channelId = 'greencard'): Promise<any> {
+    query(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
         Log.hlf.info(chainMethod, params);
         return this.newQuery(chainMethod, params, channelId)
             .then((queryResponses: Buffer[]) => {
@@ -94,7 +94,7 @@ export class HlfClient extends ChainService {
      * @returns 
      * @memberof ChainService
      */
-    invoke(chainMethod: ChainMethod, params: string[], channelId = 'greencard'): Promise<any> {
+    invoke(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
         Log.hlf.info(chainMethod, params);
         return this.sendTransactionProposal(chainMethod, params, channelId)
             .then((results: ProposalResponseObject) => {
