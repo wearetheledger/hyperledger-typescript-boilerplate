@@ -1,4 +1,4 @@
-import { EnvConfig } from './../../config/env';
+import { EnvConfig } from '../../config/env';
 import { QueueListenerService } from './queuelistener.service';
 import { Component } from '@nestjs/common';
 import { SQS, AWSError } from 'aws-sdk';

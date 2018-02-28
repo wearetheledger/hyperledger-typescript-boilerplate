@@ -1,13 +1,12 @@
-import { Json } from './../utils/json';
-import { WebSocketService } from './../events/websocket.service';
-import { EnvConfig } from './../../config/env';
+import { WebSocketService } from '../events/websocket.service';
+import { EnvConfig } from '../../config/env';
 import { Component } from '@nestjs/common';
-import { SQS, AWSError } from 'aws-sdk';
+import { AWSError, SQS } from 'aws-sdk';
 import * as Consumer from 'sqs-consumer';
 import { MessageBody } from './messagebody.model';
 import { HlfClient } from '../chain/hlfclient';
-import { RequestHelper } from '../chain/requesthelper';
 import { Log } from '../logging/log.service';
+import { Json } from '../utils/json';
 
 @Component()
 export class QueueListenerService {
@@ -17,48 +16,58 @@ export class QueueListenerService {
 
     /**
      * Creates an instance of QueueService.
-     * @param {RequestHelper} requestHelper 
      * @memberof QueueService
+     * @param webSocketService
+     * @param hlfClient
      */
-    constructor(
-        private webSocketService: WebSocketService,
-        private hlfClient: HlfClient,
-    ) { }
+    constructor(private webSocketService: WebSocketService,
+                private hlfClient: HlfClient) {
+    }
 
     /**
      * Check if hlf chain is up and
      * initialize aws queue listener
-     * 
+     *
      * @memberof QueueService
      */
     public init() {
-        this.getQueryUrl().then(queryUrl => {
-            Log.awssqs.info(`Chain is up, listening to AWS queue: ${EnvConfig.AWS_QUEUE_NAME}`);
-            this.listen();
-        });
+        this.getQueryUrl()
+            .then(queryUrl => {
+                Log.awssqs.info(`Chain is up, listening to AWS queue: ${EnvConfig.AWS_QUEUE_NAME}`);
+                this.queryUrl = queryUrl;
+
+                this.listen();
+            })
+            .catch(err => {
+                Log.awssqs.error(err.message);
+            });
     }
 
     /**
      * start listeneing for sqs messages
-     * 
+     *
      * @private
-     * @param {string} queryUrl 
      * @memberof QueueService
      */
     private listen(): void {
+
         // If you want to remove all the messages from the queue on every new startup
-        this.sqs.purgeQueue({
-            QueueUrl: this.queryUrl
-        }, () => {
-            Log.awssqs.info(`SQS queue purged: ${EnvConfig.AWS_QUEUE_NAME}`);
-        });
+        if (EnvConfig.PURGE_QUEUE_ON_STARTUP) {
+            this.sqs.purgeQueue({
+                QueueUrl: this.queryUrl
+            }, () => {
+                Log.awssqs.info(`SQS queue purged: ${EnvConfig.AWS_QUEUE_NAME}`);
+            });
+        }
 
         const listener = Consumer.create({
             queueUrl: this.queryUrl,
             handleMessage: (message, done) => {
-                Log.awssqs.debug(`Handling new queue item form ${EnvConfig.AWS_QUEUE_NAME}:`, message);
-                const { chainMethod, payload, userId } = <MessageBody>Json.deserializeJson(message.Body);
+                Log.awssqs.debug(`Handling new queue item from ${EnvConfig.AWS_QUEUE_NAME}:`, message);
+
+                const {chainMethod, payload, userId} = <MessageBody>Json.deserializeJson(message.Body);
                 const pusherChannel = userId.replace(/[!|@#$%^&*]/g, '');
+
                 this.hlfClient.invoke(chainMethod, payload)
                     .then(result => {
                         Log.awssqs.info('HLF Transaction successful, pushing result to frontend...');
@@ -69,7 +78,7 @@ export class QueueListenerService {
                     .catch(error => {
                         Log.awssqs.error('HLF Transaction failed:', error);
                         // notify frontend of failed transaction
-                        this.webSocketService.triggerError(pusherChannel, chainMethod, { success: false });
+                        this.webSocketService.triggerError(pusherChannel, chainMethod, {success: false});
                         done(error);
                     });
             }
@@ -101,64 +110,59 @@ export class QueueListenerService {
 
     /**
      * get AWS SQS queue url
-     * 
+     *
      * @private
-     * @returns {Promise<string>} 
+     * @returns {Promise<string>}
      * @memberof QueueService
      */
     private getQueryUrl(): Promise<string> {
-        return new Promise((resolve, reject) => {
-            this.sqs.getQueueUrl({
-                QueueName: EnvConfig.AWS_QUEUE_NAME
-            }, (error: AWSError, data: SQS.Types.GetQueueUrlResult) => {
-                if (error) {
-                    this.createNewQueue()
-                        .then(result => {
-                            this.queryUrl = data.QueueUrl;
-                            Log.awssqs.debug('Got queue url: ' + data.QueueUrl);
-                            resolve(data.QueueUrl);
-                        })
-                        .catch(createerror => {
-                            Log.awssqs.error(createerror.message);
-                            reject(createerror);
-                        });
-                } else {
-                    this.queryUrl = data.QueueUrl;
-                    Log.awssqs.debug('Got queue url: ' + data.QueueUrl);
-                    resolve(data.QueueUrl);
-                }
+
+        return this.sqs.getQueueUrl({
+            QueueName: EnvConfig.AWS_QUEUE_NAME
+        }).promise()
+            .then((data: SQS.Types.GetQueueUrlResult) => {
+
+                Log.awssqs.debug('Got queue url: ' + data.QueueUrl);
+                return data.QueueUrl;
+
+            }).catch((error: AWSError) => {
+                return this.createNewQueue()
+                    .then(result => {
+                        Log.awssqs.debug('Got queue url: ' + result);
+                        return result;
+                    });
             });
-        });
     }
 
     /**
      * Create new queue if no queueu exists
-     * 
+     *
      * @private
-     * @returns 
+     * @returns
      * @memberof QueueListenerService
      */
-    private createNewQueue() {
+    private createNewQueue(): Promise<string> {
         const params = {
             QueueName: EnvConfig.AWS_QUEUE_NAME,
             Attributes: {
                 'FifoQueue': 'true',
-                'RedrivePolicy':
-                    '{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-1:336081765760:TLD-test-deadletter.fifo\",\"maxReceiveCount\":\"10\"}',
             }
         };
-        Log.awssqs.info('Creating new queue');
-        return new Promise((resolve, reject) => {
-            this.sqs.createQueue(params, (error: AWSError, data: SQS.Types.CreateQueueResult) => {
-                if (error) {
-                    Log.awssqs.error(error.message);
-                    reject(error);
-                } else {
-                    this.queryUrl = data.QueueUrl;
-                    Log.awssqs.info('Created new queue url');
-                    resolve(data.QueueUrl);
-                }
+
+        if (EnvConfig.DEAD_LETTER_QUEUE_ARN) {
+            params.Attributes['RedrivePolicy'] = JSON.stringify({
+                deadLetterTargetArn: EnvConfig.DEAD_LETTER_QUEUE_ARN,
+                maxReceiveCount: 10
             });
-        });
+        }
+
+        Log.awssqs.info('Creating new queue');
+
+        return this.sqs.createQueue(params).promise()
+            .then((data: SQS.Types.CreateQueueResult) => {
+                Log.awssqs.info('Created new queue url');
+
+                return data.QueueUrl;
+            });
     }
 }

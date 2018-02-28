@@ -53,7 +53,7 @@ export class ApplicationModule implements NestModule {
         // set hlf client options
         this.hlfClient.setOptions(<FabricOptions>{
             walletPath: path.resolve(__dirname, '..', 'config', `creds`),
-            userId: 'PeerAdmin',
+            userId: 'admin',
             channelId: 'mychannel',
             networkUrl: `grpc://${EnvConfig.PEER_HOST}:7051`,
             eventUrl: `grpc://${EnvConfig.PEER_HOST}:7053`,
