@@ -29,7 +29,7 @@ export class HlfCaClient {
             .then((userFromStore) => {
                 if (userFromStore && userFromStore.isEnrolled()) {
                     this.adminUser = userFromStore;
-                    return Promise.resolve(this.adminUser.toString());
+                    return Promise.resolve(this.adminUser);
                 } else {
                     return this.caClient.enroll({
                         enrollmentID: enrollmentID,
@@ -51,7 +51,7 @@ export class HlfCaClient {
                 }
             }).then(() => {
                 Log.hlf.info(HlfInfo.ASSIGNED_ADMIN, this.adminUser.toString());
-                return Promise.resolve(this.adminUser.toString());
+                return Promise.resolve(this.adminUser);
             }).catch((err) => {
                 Log.hlf.error(HlfErrors.FAILED_TO_ENROLL_ADMIN, err);
                 return Promise.reject(err);

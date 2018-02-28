@@ -31,4 +31,3 @@ export enum HlfInfo {
     'CONNECTING_EVENTHUB' = 'Connecting eventhub...',
     'ASSIGNED_ADMIN' = 'Assigned the admin user to the fabric client: %s',
 }
-
