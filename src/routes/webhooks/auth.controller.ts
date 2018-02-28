@@ -1,4 +1,5 @@
 import { Auth0Service } from '../../services/webhooks/auth0.service';
+import { Auth0UserModel } from './models/auth0user.model';
 import { ApiUseTags } from '@nestjs/swagger';
 import { Body, Controller, Headers, Post, UnauthorizedException } from '@nestjs/common';
 
@@ -12,17 +13,13 @@ export class AuthController {
     }
 
     @Post('/register/auth0')
-    create(@Body() userObject, @Headers('origin') remoteUrl): string {
-        let data;
-
+    create(@Body() auth0UserModel: Auth0UserModel, @Headers('origin') remoteUrl): string {
         if (remoteUrl === this.auth0Url) {
-            data = this.auth0Service.getUserData(userObject);
+            this.auth0Service.enrollUser(auth0UserModel);
             return 'OK';
         } else {
             throw new UnauthorizedException();
         }
-
-        //this.chainService.createNewUser(data)
     }
 
 }

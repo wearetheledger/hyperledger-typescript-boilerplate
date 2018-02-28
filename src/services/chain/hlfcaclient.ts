@@ -1,3 +1,4 @@
+import { UserAttr } from './models/userattr.model';
 import { Log } from './../logging/log.service';
 import { Component } from '@nestjs/common';
 import { ChainService } from './chain.service';
@@ -58,7 +59,7 @@ export class HlfCaClient {
             });
     }
 
-    createUser(username: string, mspid: string, affiliation: string, attrs: { name: string; value: string; ecert?: boolean }[]): Promise<any> {
+    createUser(username: string, mspid: string, affiliation: string, attrs: UserAttr[]): Promise<any> {
         if (this.adminUser) {
             return this.caClient.register({
                 role: 'client', // since hlf 1.1
