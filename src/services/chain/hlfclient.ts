@@ -4,7 +4,7 @@ import { ChainService } from './chain.service';
 import { ChainMethod } from '../../routes/chainmethods.enum';
 import { Log } from '../logging/log.service';
 import { FabricOptions } from './fabricoptions.model';
-const fabricClient = require('fabric-client');
+import fabricClient = require('fabric-client');
 
 @Component()
 export class HlfClient extends ChainService {
@@ -30,9 +30,10 @@ export class HlfClient extends ChainService {
         console.log('Store path:' + this.options.walletPath);
         this.client = new fabricClient();
 
-        return fabricClient.newDefaultKeyValueStore({
-            path: this.options.walletPath
-        })
+        return fabricClient
+            .newDefaultKeyValueStore({
+                path: this.options.walletPath
+            })
             .then((wallet: IKeyValueStore) => {
                 console.log(wallet);
                 // assign the store to the fabric client
@@ -43,7 +44,6 @@ export class HlfClient extends ChainService {
                 let cryptoStore = fabricClient.newCryptoKeyStore({ path: this.options.walletPath });
                 cryptoSuite.setCryptoKeyStore(cryptoStore);
                 this.client.setCryptoSuite(cryptoSuite);
-
                 return this.client.getUserContext(this.options.userId, true);
             })
             .then((user: User) => {

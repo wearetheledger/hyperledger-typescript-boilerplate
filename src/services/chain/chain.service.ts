@@ -1,5 +1,4 @@
 import { Component } from '@nestjs/common';
-import hlf = require('fabric-client');
 import { HlfInfo, HlfErrors } from './logging.enum';
 import { Log } from '../logging/log.service';
 
@@ -8,7 +7,7 @@ export abstract class ChainService {
 
     // TODO: refactor
 
-    protected options: {
+    public options: {
         walletPath: string;
         userId: string;
         channelId: string;
@@ -17,14 +16,14 @@ export abstract class ChainService {
         ordererUrl: string;
     };
 
-    protected client: Client;
-    protected channel: Channel;
-    protected targets: Peer[] = [];
-    protected txId: any;
+    public client: Client;
+    public channel: Channel;
+    public targets: Peer[] = [];
+    public txId: any;
 
     protected newDefaultKeyValueStore(walletPath: string): Promise<IKeyValueStore> {
         Log.hlf.info(HlfInfo.CREATING_CLIENT);
-        return hlf.newDefaultKeyValueStore({ path: walletPath });
+        return this.client.newDefaultKeyValueStore({ path: walletPath });
     }
 
     protected setStateStore(wallet: IKeyValueStore): void {
