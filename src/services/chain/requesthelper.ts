@@ -1,4 +1,3 @@
-import { Log } from 'hlf-node-utils';
 import { Component } from '@nestjs/common';
 import { HlfClient } from './hlfclient';
 import { QueuePusherService } from '../queue/queuepusher.service';
@@ -6,6 +5,7 @@ import { ChainMethod } from '../../routes/chainmethods.enum';
 import { InvokeResult } from '../../routes/invokeresult.model';
 import { EnvConfig } from '../../config/env';
 import { WebSocketService } from '../events/websocket.service';
+import { Log } from '../logging/log.service';
 
 @Component()
 export class RequestHelper {

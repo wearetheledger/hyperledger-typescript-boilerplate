@@ -36,15 +36,16 @@
         "@types/object-hash": "^1.1.0",
         "@types/winston": "^2.3.7",
         "auth0": "^2.9.1",
+        "rxjs": "^5.4.0",
         "aws-sdk": "^2.140.0",
         "body-parser": "^1.18.2",
         "dotenv": "^4.0.0",
         "express-jwt": "^5.3.0",
+        "fabric-ca-client": "^1.0.4",
         "fabric-client": "^1.0.2",
         "googleapis": "^22.2.0",
         "grpc": "^1.8.4",
         "handlebars": "^4.0.11",
-        "hlf-node-utils": "wearetheledger/hlf-node-utils",
         "jwks-rsa": "^1.2.1",
         "jwt-decode": "^2.2.0",
         "object-hash": "^1.2.0",
@@ -54,7 +55,9 @@
         "sqs-consumer": "^3.7.0",
         "sqs-queue-parallel": "^0.1.6",
         "type-util": "^0.1.5",
-        "yup": "^0.23.0"
+        "yup": "^0.23.0",
+        "winston": "^2.4.0",
+        "winston-daily-rotate-file": "^1.7.2"
     },
     "devDependencies": {
         "@types/express": "^4.0.37",

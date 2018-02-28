@@ -1,7 +1,7 @@
-import { Log } from 'hlf-node-utils';
 import { Component } from '@nestjs/common';
 import hlf = require('fabric-client');
 import { HlfInfo, HlfErrors } from './logging.enum';
+import { Log } from '../logging/log.service';
 
 @Component()
 export abstract class ChainService {

@@ -4,7 +4,6 @@ import { EventsModule } from './events.module';
 import { ChainModule } from './chain.module';
 import { QueueModule } from './queue.module';
 import { EnvConfig } from './../config/env';
-import { FabricOptions, Log } from 'hlf-node-utils';
 import { MiddlewaresConsumer, Module, RequestMethod } from '@nestjs/common';
 import { PingService } from '../routes/ping/ping.service';
 import { PingController } from '../routes/ping/ping.controller';
@@ -15,6 +14,8 @@ import { AuthenticationMiddleware } from '../middleware/authentication.middlewar
 import { CarController } from '../routes/cars/car.controller';
 import * as path from 'path';
 import { Auth0Controller } from '../routes/webhooks/auth0.controller';
+import { FabricOptions } from '../services/chain/fabricoptions.model';
+import { Log } from '../services/logging/log.service';
 
 @Module({
     controllers: [

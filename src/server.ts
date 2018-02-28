@@ -1,10 +1,10 @@
 import { EnvConfig } from './config/env';
 import { NestFactory } from '@nestjs/core';
 import { ApplicationModule } from './modules/app.module';
-import { Log } from 'hlf-node-utils';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { config as awsConfig } from 'aws-sdk';
 import * as bodyParser from 'body-parser';
+import { Log } from './services/logging/log.service';
 
 /**
  * Set AWS Credentials

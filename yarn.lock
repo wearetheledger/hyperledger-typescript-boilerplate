@@ -59,12 +59,6 @@
     "@types/express" "*"
     "@types/node" "*"
 
-"@types/dotenv@^4.0.2":
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/@types/dotenv/-/dotenv-4.0.2.tgz#f2983f0afe9fd7f6eb8aef515a4d77f4cbaa0597"
-  dependencies:
-    "@types/node" "*"
-
 "@types/events@*":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@types/events/-/events-1.1.0.tgz#93b1be91f63c184450385272c47b6496fd028e02"
@@ -125,10 +119,6 @@
 "@types/node@^7.0.18":
   version "7.0.55"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-7.0.55.tgz#7bb6215ff9425a1d714106be9f0d3e0e28829288"
-
-"@types/node@^8.5.8":
-  version "8.5.9"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-8.5.9.tgz#7155cfb4ae405bca4dd8df1a214c339e939109bf"
 
 "@types/object-hash@^1.1.0":
   version "1.1.0"
@@ -1794,9 +1784,9 @@ eyes@0.1.x:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/eyes/-/eyes-0.1.8.tgz#62cf120234c683785d902348a800ef3e0cc20bc0"
 
-fabric-ca-client@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/fabric-ca-client/-/fabric-ca-client-1.0.2.tgz#a965e263a0f679ad55087aef8a53a6e09ada2931"
+fabric-ca-client@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/fabric-ca-client/-/fabric-ca-client-1.0.4.tgz#94efac125c75e60561b698dc41939993af995e89"
   dependencies:
     bn.js "^4.11.3"
     elliptic "^6.2.3"
@@ -1805,7 +1795,7 @@ fabric-ca-client@^1.0.2:
     jsrsasign "^6.2.2"
     jssha "^2.1.0"
     nconf "^0.8.4"
-    sjcl "1.0.3"
+    sjcl "1.0.7"
     sjcl-codec "0.1.1"
     url "^0.11.0"
     util "^0.10.3"
@@ -2372,26 +2362,6 @@ hawk@~6.0.2:
 he@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
-
-hlf-node-utils@wearetheledger/hlf-node-utils:
-  version "1.0.0"
-  resolved "https://codeload.github.com/wearetheledger/hlf-node-utils/tar.gz/6cfdbb8d5b3bc057d0bb679075ef3ca51bbf129a"
-  dependencies:
-    "@types/body-parser" "^1.16.8"
-    "@types/dotenv" "^4.0.2"
-    "@types/node" "^8.5.8"
-    "@types/winston" "^2.3.7"
-    dotenv "^4.0.0"
-    fabric-ca-client "^1.0.2"
-    fabric-client "^1.0.2"
-    path "^0.12.7"
-    pusher "^1.5.1"
-    rxjs "^5.4.0"
-    type-util "^0.1.5"
-    typescript "^2.6.2"
-    winston "^2.4.0"
-    winston-daily-rotate-file "^1.7.2"
-    yup "^0.23.0"
 
 hmac-drbg@^1.0.0:
   version "1.0.1"
@@ -4764,6 +4734,10 @@ sjcl@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sjcl/-/sjcl-1.0.3.tgz#4ed486498ed6b742b5d4a21902268116f054a709"
 
+sjcl@1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/sjcl/-/sjcl-1.0.7.tgz#32b365a50dc9bba26b88ba3c9df8ea34217d9f45"
+
 slash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
@@ -5374,7 +5348,7 @@ type-util@^0.1.5:
     jshint "^2.9.2"
     lodash "*"
 
-typescript@^2.5.2, typescript@^2.6.2:
+typescript@^2.5.2:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.6.2.tgz#3c5b6fd7f6de0914269027f03c0946758f7673a4"
 

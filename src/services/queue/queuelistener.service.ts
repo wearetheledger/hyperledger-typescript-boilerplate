@@ -1,12 +1,13 @@
+import { Json } from './../utils/json';
 import { WebSocketService } from './../events/websocket.service';
 import { EnvConfig } from './../../config/env';
 import { Component } from '@nestjs/common';
-import { Log, Utils } from 'hlf-node-utils';
 import { SQS, AWSError } from 'aws-sdk';
 import * as Consumer from 'sqs-consumer';
 import { MessageBody } from './messagebody.model';
 import { HlfClient } from '../chain/hlfclient';
 import { RequestHelper } from '../chain/requesthelper';
+import { Log } from '../logging/log.service';
 
 @Component()
 export class QueueListenerService {
@@ -56,7 +57,7 @@ export class QueueListenerService {
             queueUrl: this.queryUrl,
             handleMessage: (message, done) => {
                 Log.awssqs.debug(`Handling new queue item form ${EnvConfig.AWS_QUEUE_NAME}:`, message);
-                const { chainMethod, payload, userId } = <MessageBody>Utils.deserializeJson(message.Body);
+                const { chainMethod, payload, userId } = <MessageBody>Json.deserializeJson(message.Body);
                 const pusherChannel = userId.replace(/[!|@#$%^&*]/g, '');
                 this.hlfClient.invoke(chainMethod, payload)
                     .then(result => {

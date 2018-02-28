@@ -1,8 +1,8 @@
 import { EnvConfig } from './../../config/env';
-import { Log } from 'hlf-node-utils';
 import { Component } from '@nestjs/common';
 import * as Pusher from 'pusher';
 import { PusherOptions } from './pusheroptions.model';
+import { Log } from '../logging/log.service';
 
 @Component()
 export class WebSocketService {
