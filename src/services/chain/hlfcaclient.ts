@@ -83,8 +83,7 @@ export class HlfCaClient {
                 }).catch((err) => {
                     Log.hlf.error(HlfErrors.FAILED_TO_REGISTER, username);
                     if (err.toString().indexOf('Authorization') > -1) {
-                        console.error('Authorization failures may be caused by having admin credentials from a previous CA instance.\n' +
-                            'Try again after deleting the contents of the store directory ');
+                        Log.hlf.error(HlfErrors.AUTH_FAILURES);
                     }
                     return Promise.reject(err);
                 });

@@ -5,9 +5,11 @@ export enum HlfErrors {
     'INVALID_TRANSACTION' = 'The transaction was invalid, code: %s',
     'FAILED_TO_SEND_TX' = 'Failed to send transaction and get notifications within the timeout period: %s',
     'FAILED_TO_SEND_PROPOSAL' = 'Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...',
-    'FAILED_TO_ENROLL_ADMIN' = 'Failed to enroll admin: %s' ,
-    'FAILED_TO_REGISTER' = 'Failed to reguster: %s' ,
-    'NO_ADMIN_USER' = 'No Admin user present' ,
+    'FAILED_TO_ENROLL_ADMIN' = 'Failed to enroll admin: %s',
+    'FAILED_TO_REGISTER' = 'Failed to reguster: %s',
+    'NO_ADMIN_USER' = 'No Admin user present',
+    // tslint:disable-next-line:max-line-length
+    'AUTH_FAILURES' = 'Authorization failures may be caused by having admin credentials from a previous CA instance.\n Try again after deleting the contents of the store directory ',
 }
 
 export enum HlfInfo {
