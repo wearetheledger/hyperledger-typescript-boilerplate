@@ -5,12 +5,13 @@ export enum HlfErrors {
     'INVALID_TRANSACTION' = 'The transaction was invalid, code: %s',
     'FAILED_TO_SEND_TX' = 'Failed to send transaction and get notifications within the timeout period: %s',
     'FAILED_TO_SEND_PROPOSAL' = 'Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...',
+    'FAILED_TO_ENROLL_ADMIN' = 'Failed to enroll admin: %s' ,
 }
 
 export enum HlfInfo {
     'CREATING_CLIENT' = 'Creating client and setting the wallet location...',
     'CHECK_USER_ENROLLED' = 'Checking if user is enrolled...',
-    'USER_ENROLLED' = 'User is enrolled, setting query URL in the network...',
+    'USER_ENROLLED' = 'User is enrolled: %s',
     'MAKE_QUERY' = 'Making query...',
     'INIT_SUCCESS' = 'Successfully instantiated HLF Client',
     'ASSIGNING_TRANSACTION_ID' = 'Assigning transaction_id: %s',
@@ -28,4 +29,6 @@ export enum HlfInfo {
     'CHECK_TRANSACTION_PROPOSAL' = 'Checking if transaction proposal is good...',
     'REGISTERING_TRANSACTION_EVENT' = 'Registering transaction event...',
     'CONNECTING_EVENTHUB' = 'Connecting eventhub...',
+    'ASSIGNED_ADMIN' = 'Assigned the admin user to the fabric client: %s',
 }
+

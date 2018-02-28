@@ -36,7 +36,7 @@ export abstract class ChainService {
             Log.hlf.error(HlfErrors.NO_ENROLLED_USER);
             return false;
         }
-        Log.hlf.info(HlfInfo.USER_ENROLLED);
+        Log.hlf.info(HlfInfo.USER_ENROLLED, user);
         return true;
     }
 

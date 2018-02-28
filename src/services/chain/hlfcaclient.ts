@@ -1,6 +1,7 @@
 import { Log } from './../logging/log.service';
 import { Component } from '@nestjs/common';
 import { ChainService } from './chain.service';
+import { HlfErrors, HlfInfo } from './logging.enum';
 const CaClient = require('fabric-ca-client');
 
 @Component()
@@ -23,37 +24,37 @@ export class HlfCaClient {
 
     }
 
-    createAdmin() {
+    createAdmin(enrollmentID: string, enrollmentSecret: string, username: string, mspid: string): Promise<any> {
         return this.chainService.client.getUserContext('admin', true)
             .then((userFromStore) => {
                 if (userFromStore && userFromStore.isEnrolled()) {
-                    Log.hlf.info('Successfully loaded admin from persistence');
                     this.adminUser = userFromStore;
-                    return null;
+                    return Promise.resolve(this.adminUser.toString());
                 } else {
-                    // need to enroll it with CA server
                     return this.caClient.enroll({
-                        enrollmentID: 'admin',
-                        enrollmentSecret: 'adminpw'
+                        enrollmentID: enrollmentID,
+                        enrollmentSecret: enrollmentSecret
                     }).then((enrollment) => {
-                        Log.hlf.info('Successfully enrolled admin user "admin"');
+                        Log.hlf.info(HlfInfo.USER_ENROLLED, this.adminUser);
                         return this.chainService.client.createUser({
-                            username: 'admin',
-                            mspid: 'Org1MSP',
+                            username: username,
+                            mspid: mspid,
                             cryptoContent: { privateKeyPEM: enrollment.key.toBytes(), signedCertPEM: enrollment.certificate }
                         });
                     }).then((user) => {
                         this.adminUser = user;
                         return this.chainService.client.setUserContext(this.adminUser);
                     }).catch((err) => {
-                        Log.hlf.error('Failed to enroll and persist admin. Error: ' + err.stack ? err.stack : err);
-                        throw new Error('Failed to enroll admin');
+                        Log.hlf.error(HlfErrors.FAILED_TO_ENROLL_ADMIN, err);
+                        return Promise.reject(err);
                     });
                 }
             }).then(() => {
-                Log.hlf.info('Assigned the admin user to the fabric client ::' + this.adminUser.toString());
+                Log.hlf.info(HlfInfo.ASSIGNED_ADMIN, this.adminUser.toString());
+                return Promise.resolve(this.adminUser.toString());
             }).catch((err) => {
-                Log.hlf.error('Failed to enroll admin: ' + err);
+                Log.hlf.error(HlfErrors.FAILED_TO_ENROLL_ADMIN, err);
+                return Promise.reject(err);
             });
     }
 
