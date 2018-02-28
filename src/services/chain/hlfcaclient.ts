@@ -58,4 +58,39 @@ export class HlfCaClient {
             });
     }
 
+    createUser(username: string, mspid: string, affiliation: string, attrs: { name: string; value: string; ecert?: boolean }[]): Promise<any> {
+        if (this.adminUser) {
+            return this.caClient.register({
+                role: 'client', // since hlf 1.1
+                attrs: attrs, // since hlf 1.1
+                enrollmentID: username,
+                affiliation: affiliation
+            }, this.adminUser)
+                .then((secret) => {
+                    // next we need to enroll the user with CA server
+                    Log.hlf.info(HlfInfo.USER_REGISTERED, username);
+                    return this.caClient.enroll({ enrollmentID: username, enrollmentSecret: secret });
+                }).then((enrollment) => {
+                    Log.hlf.info(HlfInfo.USER_ENROLLED, username);
+                    return this.chainService.client.createUser(
+                        {
+                            username: username,
+                            mspid: mspid,
+                            cryptoContent: { privateKeyPEM: enrollment.key.toBytes(), signedCertPEM: enrollment.certificate }
+                        });
+                }).then((user) => {
+                    return Promise.resolve(user);
+                }).catch((err) => {
+                    Log.hlf.error(HlfErrors.FAILED_TO_REGISTER, username);
+                    if (err.toString().indexOf('Authorization') > -1) {
+                        console.error('Authorization failures may be caused by having admin credentials from a previous CA instance.\n' +
+                            'Try again after deleting the contents of the store directory ');
+                    }
+                    return Promise.reject(err);
+                });
+        } else {
+            return Promise.reject(HlfErrors.NO_ADMIN_USER);
+        }
+    }
+
 }

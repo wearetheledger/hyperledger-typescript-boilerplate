@@ -6,12 +6,15 @@ export enum HlfErrors {
     'FAILED_TO_SEND_TX' = 'Failed to send transaction and get notifications within the timeout period: %s',
     'FAILED_TO_SEND_PROPOSAL' = 'Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...',
     'FAILED_TO_ENROLL_ADMIN' = 'Failed to enroll admin: %s' ,
+    'FAILED_TO_REGISTER' = 'Failed to reguster: %s' ,
+    'NO_ADMIN_USER' = 'No Admin user present' ,
 }
 
 export enum HlfInfo {
     'CREATING_CLIENT' = 'Creating client and setting the wallet location...',
     'CHECK_USER_ENROLLED' = 'Checking if user is enrolled...',
     'USER_ENROLLED' = 'User is enrolled: %s',
+    'USER_REGISTERED' = 'User is registered: %s',
     'MAKE_QUERY' = 'Making query...',
     'INIT_SUCCESS' = 'Successfully instantiated HLF Client',
     'ASSIGNING_TRANSACTION_ID' = 'Assigning transaction_id: %s',
