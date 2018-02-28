@@ -7,7 +7,7 @@
         "start:watch": "nodemon",
         "build": "tsc -p ./tsconfig.json",
         "start:prod": "node dist/server.js",
-        "lint": "tslint -c tslint.json './src/**/*.ts'",
+        "lint": "tslint --fix -c tslint.json './src/**/*.ts'",
         "pretest": "npm run lint",
         "test": "jest",
         "clean": "rm -rf node_modules && rm -rf dist"
@@ -57,7 +57,9 @@
         "type-util": "^0.1.5",
         "yup": "^0.23.0",
         "winston": "^2.4.0",
-        "winston-daily-rotate-file": "^1.7.2"
+        "winston-daily-rotate-file": "^1.7.2",
+        "husky": "^0.15.0-rc.8"
+
     },
     "devDependencies": {
         "@types/express": "^4.0.37",
@@ -88,5 +90,10 @@
             "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
         },
         "testRegex": "/tests/.*\\.(ts)$"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "npm run lint"
+        }
     }
 }
