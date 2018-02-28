@@ -10,6 +10,6 @@ export class PingService {
      * @memberof PingService
      */
     ping(): string {
-        return 'Chain-service is alive!';
+        return 'Chain service api is up and running. (<a href="/api">Open Swagger</a>)';
     }
 }

@@ -1,3 +1,4 @@
+import { Auth0Service } from './../services/webhooks/auth0.service';
 import { CarService } from './../routes/cars/car.service';
 import { EventsModule } from './events.module';
 import { ChainModule } from './chain.module';
@@ -13,14 +14,17 @@ import { NestModule } from '@nestjs/common/interfaces';
 import { AuthenticationMiddleware } from '../middleware/authentication.middleware';
 import { CarController } from '../routes/cars/car.controller';
 import * as path from 'path';
+import { Auth0Controller } from '../routes/webhooks/auth0.controller';
 
 @Module({
     controllers: [
         PingController,
+        Auth0Controller,
         CarController,
     ],
     components: [
         PingService,
+        Auth0Service,
         CarService,
     ],
     modules: [
@@ -48,7 +52,7 @@ export class ApplicationModule implements NestModule {
         // set hlf client options
         this.hlfClient.setOptions(<FabricOptions>{
             walletPath: path.resolve(__dirname, '..', 'config', `creds`),
-            userId: 'admin',
+            userId: 'PeerAdmin',
             channelId: 'mychannel',
             networkUrl: `grpc://${EnvConfig.PEER_HOST}:7051`,
             eventUrl: `grpc://${EnvConfig.PEER_HOST}:7053`,
