@@ -7,7 +7,7 @@ export interface ProcessEnv {
 /**
  * node EnvConfig variables,
  * copy .env.example file, rename to .env
- * 
+ *
  * @export
  * @class EnvConfig
  */
@@ -22,7 +22,9 @@ export class EnvConfig {
     public static AWS_SECRET_ACCESS_KEY = process.env['AWS_SECRET_ACCESS_KEY'] || '';
     public static AWS_REGION = process.env['AWS_REGION'] || '';
     public static AWS_QUEUE_NAME = process.env['AWS_QUEUE_NAME'] || '';
-    public static BYPASS_QUEUE = process.env['BYPASS_QUEUE'] || '';
+    public static BYPASS_QUEUE = process.env['BYPASS_QUEUE'] || false;
+    public static PURGE_QUEUE_ON_STARTUP = process.env['PURGE_QUEUE_ON_STARTUP'] || false;
+    public static DEAD_LETTER_QUEUE_ARN = process.env['DEAD_LETTER_QUEUE_ARN'] || null;
 
     // FABRIC
     public static PEER_HOST = process.env['PEER_HOST'] || 'localhost';
@@ -35,9 +37,10 @@ export class EnvConfig {
     public static PUSHER_CLUSTER = process.env['PUSHER_CLUSTER'];
 
     // Auth0
-    public static AUTH0_CLIENT_SECRET = process.env['AUTH0_CLIENT_SECRET'];
     public static AUTH0_CLIENT_ID = process.env['AUTH0_CLIENT_ID'];
     public static AUTH0_DOMAIN = process.env['AUTH0_DOMAIN'];
-    public static AUTH0_AUDIENCE = process.env['AUTH0_AUDIENCE'];
+
+    // Logger
+    public static LOGGER_SQS_DEBUG = process.env['LOGGER_SQS_DEBUG'] || false;
 
 }

@@ -1,5 +1,6 @@
 import { Logger, LoggerInstance, transports } from 'winston';
 import 'winston-daily-rotate-file';
+import { EnvConfig } from '../../config/env';
 
 export class Loggers {
 
@@ -53,7 +54,7 @@ export class Loggers {
 
     public static awssqs: LoggerInstance = new Logger({
         transports: [new transports.Console({
-            level: 'debug',
+            level: EnvConfig.LOGGER_SQS_DEBUG ? 'debug' : 'info',
             prettyPrint: true,
             handleExceptions: true,
             json: false,
@@ -72,15 +73,15 @@ export class Loggers {
             label: 'Chain',
             colorize: true,
         }),
-        new transports.DailyRotateFile({
-            level: 'info',
-            filename: '/var/log/chain-service/chain-service.log',
-            datePattern: 'yyyy-MM-dd.',
-            prepend: true,
-            json: false,
-            handleExceptions: true,
-            maxFiles: 10
-        })],
+            new transports.DailyRotateFile({
+                level: 'info',
+                filename: '/var/log/chain-service/chain-service.log',
+                datePattern: 'yyyy-MM-dd.',
+                prepend: true,
+                json: false,
+                handleExceptions: true,
+                maxFiles: 10
+            })],
         exitOnError: false,
     });
 }

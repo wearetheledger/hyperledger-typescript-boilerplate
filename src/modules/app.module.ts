@@ -13,14 +13,14 @@ import { NestModule } from '@nestjs/common/interfaces';
 import { AuthenticationMiddleware } from '../middleware/authentication.middleware';
 import { CarController } from '../routes/cars/car.controller';
 import * as path from 'path';
-import { Auth0Controller } from '../routes/webhooks/auth0.controller';
+import { AuthController } from '../routes/webhooks/auth.controller';
 import { FabricOptions } from '../services/chain/fabricoptions.model';
 import { Log } from '../services/logging/log.service';
 
 @Module({
     controllers: [
         PingController,
-        Auth0Controller,
+        AuthController,
         CarController,
     ],
     components: [
@@ -55,6 +55,7 @@ export class ApplicationModule implements NestModule {
             walletPath: path.resolve(__dirname, '..', 'config', `creds`),
             userId: 'admin',
             channelId: 'mychannel',
+            chaincodeId: 'fabcar',
             networkUrl: `grpc://${EnvConfig.PEER_HOST}:7051`,
             eventUrl: `grpc://${EnvConfig.PEER_HOST}:7053`,
             ordererUrl: `grpc://${EnvConfig.ORDERER_HOST}:7050`

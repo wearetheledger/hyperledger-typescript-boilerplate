@@ -1,20 +1,14 @@
 import { Component } from '@nestjs/common';
-import { HlfInfo, HlfErrors } from './logging.enum';
+import { HlfErrors, HlfInfo } from './logging.enum';
 import { Log } from '../logging/log.service';
+import { FabricOptions } from './fabricoptions.model';
 
 @Component()
 export abstract class ChainService {
 
     // TODO: refactor
 
-    public options: {
-        walletPath: string;
-        userId: string;
-        channelId: string;
-        networkUrl: string;
-        eventUrl: string;
-        ordererUrl: string;
-    };
+    protected options: FabricOptions;
 
     public client: Client;
     public channel: Channel;
@@ -89,7 +83,7 @@ export abstract class ChainService {
             chainId: this.options.channelId,
             txId: this.txId
         };
-        
+
         return this.channel.sendTransactionProposal(request);
     }
 

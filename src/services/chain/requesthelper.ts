@@ -14,31 +14,33 @@ export class RequestHelper {
 
     /**
      * Creates an instance of RequestHelper.
-     * @param {HlfClient} hlfClient 
-     * @param {QueuePusherService} queuePusherService 
+     * @param {HlfClient} hlfClient
+     * @param {WebSocketService} webSocketService
+     * @param {QueuePusherService} queuePusherService
      * @memberof RequestHelper
      */
-    constructor(
-        private hlfClient: HlfClient,
-        private webSocketService: WebSocketService,
-        private queuePusherService: QueuePusherService) { }
+    constructor(private hlfClient: HlfClient,
+                private webSocketService: WebSocketService,
+                private queuePusherService: QueuePusherService) {
+    }
 
     /**
      * Pass transaction request to aws queue
-     * 
-     * @param {ChainMethod} chainMethod 
-     * @param {string[]} params 
-     * @param {string} userId 
-     * @returns {Promise<InvokeResult>} 
+     *
+     * @param {ChainMethod} chainMethod
+     * @param {string[]} params
+     * @param {string} userId
+     * @param invokeAlways - Workaround for message deduplication SQS
+     * @returns {Promise<InvokeResult>}
      * @memberof RequestHelper
      */
-    public invokeRequest(chainMethod: ChainMethod, params: string[], userId: string): Promise<InvokeResult | any> {
+    public invokeRequest(chainMethod: ChainMethod, params: string[], userId: string, invokeAlways = false): Promise<InvokeResult | any> {
         if (EnvConfig.BYPASS_QUEUE) {
             return this.hlfClient.invoke(chainMethod, params)
                 .then((response) => {
                     Log.hlf.debug('Invoke successfully executed: ', response);
                     this.webSocketService.triggerSuccess(userId, chainMethod, params);
-                    return Promise.resolve({ txHash: response });
+                    return Promise.resolve({txHash: response});
                 })
                 .catch(error => {
                     Log.hlf.error(`${chainMethod}`, error);
@@ -46,7 +48,7 @@ export class RequestHelper {
                     return Promise.reject(error);
                 });
         } else {
-            return this.queuePusherService.add(chainMethod, params, userId)
+            return this.queuePusherService.add(chainMethod, params, userId, invokeAlways)
                 .then((response) => {
                     Log.awssqs.debug('Invoke successfully added to SQS queue: ', response);
                     return Promise.resolve(response);
@@ -60,10 +62,10 @@ export class RequestHelper {
 
     /**
      * Query hlf chain and return response
-     * 
-     * @param {ChainMethod} chainMethod 
-     * @param {string[]} params 
-     * @returns {Promise<any>} 
+     *
+     * @param {ChainMethod} chainMethod
+     * @param {string[]} params
+     * @returns {Promise<any>}
      * @memberof RequestHelper
      */
     public queryRequest(chainMethod: ChainMethod, params: string[]): Promise<any> {
@@ -80,10 +82,10 @@ export class RequestHelper {
 
     /**
      * validate requests with yup
-     * 
-     * @param {Schema} schema 
-     * @param {any} body 
-     * @returns {Promise<any>} 
+     *
+     * @param {Schema} schema
+     * @param {any} body
+     * @returns {Promise<any>}
      * @memberof RequestHelper
      */
     public validateRequest(schema: Schema, body): Promise<any[]> {
