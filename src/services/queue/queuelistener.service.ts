@@ -88,22 +88,22 @@ export class QueueListenerService {
             Log.awssqs.error(error);
         });
         listener.on('processing_error', (error) => {
-            Log.awssqs.error('processing_error:', error);
+            Log.awssqs.debug('processing_error:', error);
         });
         listener.on('message_received', (data) => {
-            Log.awssqs.info('message_received', data);
+            Log.awssqs.debug('message_received', data);
         });
         listener.on('message_processed', (data) => {
-            Log.awssqs.info('message_processed:', data);
+            Log.awssqs.debug('message_processed:', data);
         });
         listener.on('response_processed', () => {
-            Log.awssqs.info('processed');
+            Log.awssqs.debug('processed');
         });
         listener.on('stopped', () => {
-            Log.awssqs.error('stopped');
+            Log.awssqs.debug('stopped');
         });
         listener.on('empty', () => {
-            Log.awssqs.info('heartbeat...');
+            Log.awssqs.debug('heartbeat...');
         });
         listener.start();
     }

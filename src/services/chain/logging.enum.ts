@@ -12,7 +12,7 @@ export enum HlfInfo {
     'CHECK_USER_ENROLLED' = 'Checking if user is enrolled...',
     'USER_ENROLLED' = 'User is enrolled, setting query URL in the network...',
     'MAKE_QUERY' = 'Making query...',
-    'INIT_SUCCESS' = 'Successfully instatiated HLF Client',
+    'INIT_SUCCESS' = 'Successfully instantiated HLF Client',
     'ASSIGNING_TRANSACTION_ID' = 'Assigning transaction_id: %s',
     'NO_PAYLOADS_RETURNED' = 'No payloads were returned from query',
     'PAYLOAD_RESULT_COUNT' = 'Query result count: %s',

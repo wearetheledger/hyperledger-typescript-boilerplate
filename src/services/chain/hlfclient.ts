@@ -4,6 +4,7 @@ import { ChainService } from './chain.service';
 import { ChainMethod } from '../../routes/chainmethods.enum';
 import { Log } from '../logging/log.service';
 import { FabricOptions } from './fabricoptions.model';
+
 const fabricClient = require('fabric-client');
 
 @Component()
@@ -13,8 +14,8 @@ export class HlfClient extends ChainService {
 
     /**
      * set hlf options
-     * 
-     * @param {FabricOptions} fabricoptions 
+     *
+     * @param {FabricOptions} fabricoptions
      * @memberof HlfClient
      */
     setOptions(fabricoptions: FabricOptions) {
@@ -23,7 +24,7 @@ export class HlfClient extends ChainService {
 
     /**
      * init
-     * @returns {Promise<any>} 
+     * @returns {Promise<any>}
      * @memberof ChainService
      */
     init(): Promise<any> {
@@ -40,7 +41,7 @@ export class HlfClient extends ChainService {
                 let cryptoSuite = fabricClient.newCryptoSuite();
                 // use the same location for the state store (where the users' certificate are kept)
                 // and the crypto store (where the users' keys are kept)
-                let cryptoStore = fabricClient.newCryptoKeyStore({ path: this.options.walletPath });
+                let cryptoStore = fabricClient.newCryptoKeyStore({path: this.options.walletPath});
                 cryptoSuite.setCryptoKeyStore(cryptoStore);
                 this.client.setCryptoSuite(cryptoSuite);
 
@@ -67,16 +68,16 @@ export class HlfClient extends ChainService {
 
     /**
      * Query hlf
-     * 
-     * @param {ChainMethod} chainMethod 
-     * @param {string[]} params 
-     * @param {string} [channelId='mycc'] 
-     * @returns {Promise<any>} 
+     *
+     * @param {ChainMethod} chainMethod
+     * @param {string[]} params
+     * @param {string} [chaincodeId='mycc']
+     * @returns {Promise<any>}
      * @memberof HlfClient
      */
-    query(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
+    query(chainMethod: ChainMethod, params: string[], chaincodeId = this.options.chaincodeId): Promise<any> {
         Log.hlf.info(chainMethod, params);
-        return this.newQuery(chainMethod, params, channelId)
+        return this.newQuery(chainMethod, params, chaincodeId)
             .then((queryResponses: Buffer[]) => {
                 return Promise.resolve(this.getQueryResponse(queryResponses));
             })
@@ -87,17 +88,17 @@ export class HlfClient extends ChainService {
     }
 
     /**
-     * invoke 
-     * 
-     * @param {ChainMethod} chainMethod 
-     * @param { string[]} params 
-     * @param {string} channelId 
-     * @returns 
+     * invoke
+     *
+     * @param {ChainMethod} chainMethod
+     * @param { string[]} params
+     * @param {string} chaincodeId
+     * @returns
      * @memberof ChainService
      */
-    invoke(chainMethod: ChainMethod, params: string[], channelId = 'mycc'): Promise<any> {
+    invoke(chainMethod: ChainMethod, params: string[], chaincodeId = this.options.chaincodeId): Promise<any> {
         Log.hlf.info(chainMethod, params);
-        return this.sendTransactionProposal(chainMethod, params, channelId)
+        return this.sendTransactionProposal(chainMethod, params, chaincodeId)
             .then((results: ProposalResponseObject) => {
                 Log.hlf.info(HlfInfo.CHECK_TRANSACTION_PROPOSAL);
                 if (this.isProposalGood(results)) {

@@ -1,21 +1,15 @@
 import { Component } from '@nestjs/common';
-import hlf = require('fabric-client');
-import { HlfInfo, HlfErrors } from './logging.enum';
+import { HlfErrors, HlfInfo } from './logging.enum';
 import { Log } from '../logging/log.service';
+import { FabricOptions } from './fabricoptions.model';
+import hlf = require('fabric-client');
 
 @Component()
 export abstract class ChainService {
 
     // TODO: refactor
 
-    protected options: {
-        walletPath: string;
-        userId: string;
-        channelId: string;
-        networkUrl: string;
-        eventUrl: string;
-        ordererUrl: string;
-    };
+    protected options: FabricOptions;
 
     protected client: Client;
     protected channel: Channel;
@@ -24,7 +18,7 @@ export abstract class ChainService {
 
     protected newDefaultKeyValueStore(walletPath: string): Promise<IKeyValueStore> {
         Log.hlf.info(HlfInfo.CREATING_CLIENT);
-        return hlf.newDefaultKeyValueStore({ path: walletPath });
+        return hlf.newDefaultKeyValueStore({path: walletPath});
     }
 
     protected setStateStore(wallet: IKeyValueStore): void {
@@ -90,7 +84,7 @@ export abstract class ChainService {
             chainId: this.options.channelId,
             txId: this.txId
         };
-        
+
         return this.channel.sendTransactionProposal(request);
     }
 

@@ -1,4 +1,3 @@
-
 import { Controller, Get, Post, Body, Headers } from '@nestjs/common';
 import { CarService } from './car.service';
 import { CarDto } from './car.model';
@@ -14,8 +13,8 @@ export class CarController {
 
     /**
      * Creates an instance of CarController.
-     * @param {CarService} CarService 
      * @memberof CarController
+     * @param {CarService} carService
      */
     constructor(private carService: CarService) { }
 
@@ -30,11 +29,10 @@ export class CarController {
 
     /**
      * Get all cars
-     * 
-     * @param {{}} params 
-     * @param {string} [headerParams] 
-     * @returns {Promise<CarDto[]>} 
+     *
+     * @returns {Promise<CarDto[]>}
      * @memberof CarController
+     * @param auth
      */
     @Get()
     getAll(@Headers('authorization') auth): Promise<CarDto[]> {
@@ -45,7 +43,7 @@ export class CarController {
      * Create new car
      * 
      * @param {CarDto} carDto 
-     * @param {string} [headerParams] 
+     * @param auth
      * @returns {*} 
      * @memberof CarController
      */

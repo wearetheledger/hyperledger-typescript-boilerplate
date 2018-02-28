@@ -55,6 +55,7 @@ export class ApplicationModule implements NestModule {
             walletPath: path.resolve(__dirname, '..', 'config', `creds`),
             userId: 'admin',
             channelId: 'mychannel',
+            chaincodeId: 'fabcar',
             networkUrl: `grpc://${EnvConfig.PEER_HOST}:7051`,
             eventUrl: `grpc://${EnvConfig.PEER_HOST}:7053`,
             ordererUrl: `grpc://${EnvConfig.ORDERER_HOST}:7050`

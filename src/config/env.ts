@@ -40,4 +40,7 @@ export class EnvConfig {
     public static AUTH0_CLIENT_ID = process.env['AUTH0_CLIENT_ID'];
     public static AUTH0_DOMAIN = process.env['AUTH0_DOMAIN'];
 
+    // Logger
+    public static LOGGER_SQS_DEBUG = process.env['LOGGER_SQS_DEBUG'] || false;
+
 }
