@@ -31,11 +31,11 @@ export class Auth0Service {
             scope: 'read:users update:users'
         }, (err, response) => {
             if (err) {
-                Log.config.error(`Failed to generate Auth0 Access token:`, response.access_token);
-                throw new InternalServerErrorException(err);
+                Log.config.error(`Failed to generate Auth0 Access token:`, JSON.stringify(err));
+            }else{
+                this.auth0AccessToken = response.access_token;
+                Log.config.info(`Generated Auth0 Access token:`, response.access_token);
             }
-            this.auth0AccessToken = response.access_token;
-            Log.config.info(`Generated Auth0 Access token:`, response.access_token);
         });
     }
 
@@ -81,7 +81,7 @@ export class Auth0Service {
             })
             .then((resolvedAuth0UserModel: Auth0UserModel) => {
                 auth0UserModel = resolvedAuth0UserModel;
-                return this.hlfCaClient.getUserFromStore(resolvedAuth0UserModel.id)
+                return this.hlfCaClient.getUserFromStore(resolvedAuth0UserModel.id);
             })
             .then(storeUser => {
                 if (storeUser) {

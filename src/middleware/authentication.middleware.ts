@@ -12,7 +12,7 @@ export class AuthenticationMiddleware implements NestMiddleware {
                 cache: true,
                 rateLimit: true,
                 jwksRequestsPerMinute: 5,
-                jwksUri: `${EnvConfig.AUTH0_DOMAIN}.well-known/jwks.json`
+                jwksUri: `https://${EnvConfig.AUTH0_DOMAIN}.well-known/jwks.json`
             }),
             audience: EnvConfig.AUTH0_CLIENT_ID,
             issuer: `${EnvConfig.AUTH0_DOMAIN}`,
