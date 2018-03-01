@@ -10,14 +10,15 @@
 
 ### This is a starter template that interacts between Hyperledger Fabric Peers and a front end. Currently, this boilerplate provides the following features:
 
+- Connects out of the box with the [fabcar sample network](https://github.com/hyperledger/fabric-samples/tree/release/fabcar)
 - Express backend built with typescript using [Nest](https://github.com/kamilmysliwiec/nest) 
 - Restful routing to connect a custom frontend
 - Automatic OpenAPI (Swagger) generation
-- Hyperledger Fabric Client request abstraction inspired by [CQRS]
+- Fabric Client and Fabric Ca CLient abstraction
 (https://martinfowler.com/bliki/CQRS.html)
 - Frontend chain transaction notifications using [Pusher](https://pusher.com)
 - Solves Hyperledger [concurrency issues](https://medium.com/wearetheledger/hyperledger-fabric-concurrency-really-eccd901e4040) by using a FIFO AWS SQS queue.
-- Multifactor Authentication using [Auth0](https://auth0.com/)
+- Example Authentication using [Auth0](https://auth0.com/)
 
 
 
@@ -50,7 +51,7 @@ Install dependencies
 
 ### Work in progress and future plans:
 
-- Further Refactoring of the Hyperledger Fabric SDK abstraction layer using Typescript (WIP)
+- Further Refactoring of the Hyperledger Fabric Client & Ca SDK abstraction layer using Typescript (WIP)
 - Proper E2E Testing using [Jest](https://facebook.github.io/jest/), supertest and [Jasmine](https://jasmine.github.io/) (WIP)
 - Proper Error Handling and integration of 3rd party logging service
 - Websocket integration to replace pusher

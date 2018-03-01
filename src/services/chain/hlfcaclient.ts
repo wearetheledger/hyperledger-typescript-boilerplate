@@ -10,13 +10,15 @@ const CaClient = require('fabric-ca-client');
 @Component()
 export class HlfCaClient {
 
+    // TODO: improve typings
+
     public caClient;
     public adminUser;
 
     constructor(private hlfClient: HlfClient) {
     }
 
-    init(adminId: string, adminPw: string, mspid: string) {
+    init(adminId: string, adminPw: string, mspid: string): Promise<any> {
         if (!this.caClient) {
             // const cryptoSuite = this.chainService.client.getCryptoSuite();
             const tlsOptions = {
