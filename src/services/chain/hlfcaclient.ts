@@ -39,26 +39,14 @@ export class HlfCaClient {
                     this.adminUser = userFromStore;
                     return Promise.resolve(this.adminUser);
                 } else {
-                    return this.caClient.enroll({
-                        enrollmentID: enrollmentID,
-                        enrollmentSecret: enrollmentSecret
-                    }).then((enrollment) => {
-                        Log.hlf.info(HlfInfo.USER_ENROLLED, this.adminUser);
-                        return this.hlfClient.client.createUser({
-                            username: enrollmentID,
-                            mspid: mspid,
-                            cryptoContent: {
-                                privateKeyPEM: enrollment.key.toBytes(),
-                                signedCertPEM: enrollment.certificate
-                            }
+                    return this.enrollUser(enrollmentID, enrollmentSecret, mspid)
+                        .then((user) => {
+                            this.adminUser = user;
+                            return this.hlfClient.client.setUserContext(this.adminUser);
+                        }).catch((err) => {
+                            Log.hlf.error(HlfErrors.FAILED_TO_ENROLL_ADMIN, err);
+                            return Promise.reject(err);
                         });
-                    }).then((user) => {
-                        this.adminUser = user;
-                        return this.hlfClient.client.setUserContext(this.adminUser);
-                    }).catch((err) => {
-                        Log.hlf.error(HlfErrors.FAILED_TO_ENROLL_ADMIN, err);
-                        return Promise.reject(err);
-                    });
                 }
             }).then(() => {
                 Log.hlf.info(HlfInfo.ASSIGNED_ADMIN, this.adminUser.toString());
@@ -76,34 +64,41 @@ export class HlfCaClient {
                 attrs: attrs, // since hlf 1.1
                 enrollmentID: username,
                 affiliation: affiliation
-            }, this.adminUser)
-                .then((secret) => {
-                    // next we need to enroll the user with CA server
-                    Log.hlf.info(HlfInfo.USER_REGISTERED, username);
-                    return this.caClient.enroll({enrollmentID: username, enrollmentSecret: secret});
-                }).then((enrollment) => {
-                    Log.hlf.info(HlfInfo.USER_ENROLLED, username);
-                    return this.hlfClient.client.createUser(
-                        {
-                            username: username,
-                            mspid: mspid,
-                            cryptoContent: {
-                                privateKeyPEM: enrollment.key.toBytes(),
-                                signedCertPEM: enrollment.certificate
-                            }
-                        });
-                }).then((user) => {
-                    return Promise.resolve(user);
-                }).catch((err) => {
-                    Log.hlf.error(HlfErrors.FAILED_TO_REGISTER, username);
-                    if (err.toString().indexOf('Authorization') > -1) {
-                        Log.hlf.error(HlfErrors.AUTH_FAILURES);
-                    }
-                    return Promise.reject(err);
-                });
+            }, this.adminUser).then((secret) => {
+                // next we need to enroll the user with CA server
+                Log.hlf.info(HlfInfo.USER_REGISTERED, username);
+                return this.enrollUser(username, secret, mspid)
+            }).then((user) => {
+                return Promise.resolve(user);
+            }).catch((err) => {
+                Log.hlf.error(HlfErrors.FAILED_TO_REGISTER, username);
+                if (err.toString().indexOf('Authorization') > -1) {
+                    Log.hlf.error(HlfErrors.AUTH_FAILURES);
+                }
+                return Promise.reject(err);
+            });
         } else {
             return Promise.reject(HlfErrors.NO_ADMIN_USER);
         }
+    }
+
+    enrollUser(enrollmentID: string, enrollmentSecret: string, mspid: string): Promise<any> {
+        return this.caClient.enroll({
+            enrollmentID: enrollmentID,
+            enrollmentSecret: enrollmentSecret
+        }).then((enrollment) => {
+            Log.hlf.info(HlfInfo.USER_ENROLLED, enrollmentID);
+            return this.hlfClient.client.createUser({
+                username: enrollmentID,
+                mspid: mspid,
+                cryptoContent: {
+                    privateKeyPEM: enrollment.key.toBytes(),
+                    signedCertPEM: enrollment.certificate
+                }
+            });
+        }).catch(error => {
+            return Promise.reject(error);
+        });
     }
 
 }
