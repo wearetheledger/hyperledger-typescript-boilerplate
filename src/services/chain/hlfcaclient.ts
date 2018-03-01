@@ -88,7 +88,6 @@ export class HlfCaClient {
         });
     }
 
-
     enrollUser(enrollmentID: string, enrollmentSecret: string, mspid: string): Promise<any> {
         return this.caClient.enroll({
             enrollmentID: enrollmentID,

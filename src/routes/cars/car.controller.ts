@@ -20,7 +20,6 @@ export class CarController {
         private auth0Service: Auth0Service
     ) { }
 
-
     /**
      * Get all cars
      *
