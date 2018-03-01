@@ -1,4 +1,3 @@
-import { Auth0Service } from './../services/webhooks/auth0.service';
 import { CarService } from './../routes/cars/car.service';
 import { EventsModule } from './events.module';
 import { ChainModule } from './chain.module';
@@ -13,26 +12,25 @@ import { NestModule } from '@nestjs/common/interfaces';
 import { AuthenticationMiddleware } from '../middleware/authentication.middleware';
 import { CarController } from '../routes/cars/car.controller';
 import * as path from 'path';
-import { AuthController } from '../routes/webhooks/auth.controller';
 import { FabricOptions } from '../services/chain/fabricoptions.model';
 import { Log } from '../services/logging/log.service';
 import { HlfCaClient } from '../services/chain/hlfcaclient';
+import { AuthenticationModule } from './authentication.module';
 
 @Module({
     controllers: [
         PingController,
-        AuthController,
         CarController,
     ],
     components: [
         PingService,
-        Auth0Service,
         CarService,
     ],
     modules: [
         ChainModule,
         QueueModule,
         EventsModule,
+        AuthenticationModule
     ],
 })
 export class ApplicationModule implements NestModule {
@@ -45,8 +43,8 @@ export class ApplicationModule implements NestModule {
      * @memberof ApplicationModule
      */
     constructor(private hlfClient: HlfClient,
-                private caClient: HlfCaClient,
-                private queueListenerService: QueueListenerService) {
+        private caClient: HlfCaClient,
+        private queueListenerService: QueueListenerService) {
 
         // list env keys in cli
         for (let propName of Object.keys(EnvConfig)) {
@@ -64,15 +62,15 @@ export class ApplicationModule implements NestModule {
             ordererUrl: `grpc://${EnvConfig.ORDERER_HOST}:7050`
         });
 
-        // init hlf client
+        // init hlf client and hlf ca client 
+        // assign admin user
         this.hlfClient.init()
             .then(result => {
                 if (!EnvConfig.BYPASS_QUEUE) {
                     Log.awssqs.info(`Starting Queue Listener...`);
                     this.queueListenerService.init();
                 }
-
-                return this.caClient.createAdmin('admin', 'adminpw', 'Org1MSP');
+                return this.caClient.init('admin', 'adminpw', 'Org1MSP');
             })
             .then(admin => {
                 Log.hlf.info(`Admin user created`);
@@ -87,7 +85,7 @@ export class ApplicationModule implements NestModule {
      */
     configure(consumer: MiddlewaresConsumer): void {
         consumer.apply(AuthenticationMiddleware).forRoutes(
-            {path: '/protectedroute', method: RequestMethod.ALL},
+            { path: '/protectedroute', method: RequestMethod.ALL },
             // {path: '/cars', method: RequestMethod.ALL}
         );
     }

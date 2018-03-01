@@ -1,8 +1,9 @@
+import { EnvConfig } from './../../config/env';
 import { UserAttr } from './models/userattr.model';
 import { Log } from './../logging/log.service';
 import { Component } from '@nestjs/common';
 import { HlfErrors, HlfInfo } from './logging.enum';
-import { HlfClient } from "./hlfclient";
+import { HlfClient } from './hlfclient';
 
 const CaClient = require('fabric-ca-client');
 
@@ -15,7 +16,7 @@ export class HlfCaClient {
     constructor(private hlfClient: HlfClient) {
     }
 
-    init() {
+    init(adminId: string, adminPw: string, mspid: string) {
         // const cryptoSuite = this.chainService.client.getCryptoSuite();
         const tlsOptions = {
             trustedRoots: [],
@@ -23,38 +24,33 @@ export class HlfCaClient {
         };
         // be sure to change the http to https when the CA is running TLS enabled
         const cryptoSuite = this.hlfClient.client.getCryptoSuite();
-        this.caClient = new CaClient('http://localhost:7054', tlsOptions, 'ca.example.com', cryptoSuite);
-
+        this.caClient = new CaClient(`http://${EnvConfig}:7054`, tlsOptions, 'ca.example.com', cryptoSuite);
+        // create admin
+        return this.createAdmin(adminId, adminPw, mspid);
     }
 
     createAdmin(enrollmentID: string, enrollmentSecret: string, mspid: string): Promise<any> {
-
-        if (!this.caClient) {
-            this.init();
-        }
-
-        return this.hlfClient.client.getUserContext('admin', true)
-            .then((userFromStore) => {
-                if (userFromStore && userFromStore.isEnrolled()) {
-                    this.adminUser = userFromStore;
-                    return Promise.resolve(this.adminUser);
-                } else {
-                    return this.enrollUser(enrollmentID, enrollmentSecret, mspid)
-                        .then((user) => {
-                            this.adminUser = user;
-                            return this.hlfClient.client.setUserContext(this.adminUser);
-                        }).catch((err) => {
-                            Log.hlf.error(HlfErrors.FAILED_TO_ENROLL_ADMIN, err);
-                            return Promise.reject(err);
-                        });
-                }
-            }).then(() => {
-                Log.hlf.info(HlfInfo.ASSIGNED_ADMIN, this.adminUser.toString());
-                return Promise.resolve(this.adminUser);
-            }).catch((err) => {
-                Log.hlf.error(HlfErrors.FAILED_TO_ENROLL_ADMIN, err);
-                return Promise.reject(err);
-            });
+        return this.getUserFromStore('admin').then(userFromStore => {
+            if (userFromStore) {
+                this.adminUser = userFromStore;
+                return this.hlfClient.client.setUserContext(this.adminUser);
+            } else {
+                return this.enrollUser(enrollmentID, enrollmentSecret, mspid)
+                    .then((user) => {
+                        this.adminUser = user;
+                        return this.hlfClient.client.setUserContext(this.adminUser);
+                    }).catch((err) => {
+                        Log.hlf.error(HlfErrors.FAILED_TO_ENROLL_ADMIN, err);
+                        return Promise.reject(err);
+                    });
+            }
+        }).then(() => {
+            Log.hlf.info(HlfInfo.ASSIGNED_ADMIN, this.adminUser.toString());
+            return Promise.resolve(this.adminUser);
+        }).catch((err) => {
+            Log.hlf.error(HlfErrors.FAILED_TO_ENROLL_ADMIN, err);
+            return Promise.reject(err);
+        });
     }
 
     createUser(username: string, mspid: string, affiliation: string, attrs: UserAttr[]): Promise<any> {
@@ -67,7 +63,7 @@ export class HlfCaClient {
             }, this.adminUser).then((secret) => {
                 // next we need to enroll the user with CA server
                 Log.hlf.info(HlfInfo.USER_REGISTERED, username);
-                return this.enrollUser(username, secret, mspid)
+                return this.enrollUser(username, secret, mspid);
             }).then((user) => {
                 return Promise.resolve(user);
             }).catch((err) => {
@@ -81,6 +77,17 @@ export class HlfCaClient {
             return Promise.reject(HlfErrors.NO_ADMIN_USER);
         }
     }
+
+    getUserFromStore(userId: string, checkPersistence = true): Promise<User> {
+        return this.hlfClient.client.getUserContext(userId, checkPersistence).then(userFromStore => {
+            if (userFromStore && userFromStore.isEnrolled()) {
+                return Promise.resolve(userFromStore);
+            } else {
+                return Promise.resolve(null);
+            }
+        });
+    }
+
 
     enrollUser(enrollmentID: string, enrollmentSecret: string, mspid: string): Promise<any> {
         return this.caClient.enroll({

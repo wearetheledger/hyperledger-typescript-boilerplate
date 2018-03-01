@@ -2,9 +2,8 @@ import { Controller, Get, Post, Body, Headers } from '@nestjs/common';
 import { CarService } from './car.service';
 import { CarDto } from './car.model';
 import { InvokeResult } from '../invokeresult.model';
-import * as jwtDecode from 'jwt-decode';
-import { JwtToken } from 'auth0';
 import { ApiUseTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Auth0Service } from '../../services/authentication/auth0/auth0.service';
 
 @ApiBearerAuth()
 @ApiUseTags('cars')
@@ -16,16 +15,11 @@ export class CarController {
      * @memberof CarController
      * @param {CarService} carService
      */
-    constructor(private carService: CarService) { }
+    constructor(
+        private carService: CarService,
+        private auth0Service: Auth0Service
+    ) { }
 
-    getUserId(auth) {
-        if (auth) {
-            const token: JwtToken = jwtDecode(auth.split(' ')[1]);
-            return token.sub.split('|')[1];
-        } else {
-            return 'dummyUserID';
-        }
-    }
 
     /**
      * Get all cars
@@ -36,7 +30,7 @@ export class CarController {
      */
     @Get()
     getAll(@Headers('authorization') auth): Promise<CarDto[]> {
-        return this.carService.getAll(this.getUserId(auth));
+        return this.carService.getAll(this.auth0Service.getUserId(auth));
     }
 
     /**
@@ -49,7 +43,7 @@ export class CarController {
      */
     @Post()
     create(@Body() carDto: CarDto, @Headers('authorization') auth): Promise<InvokeResult> {
-        return this.carService.create(carDto, this.getUserId(auth));
+        return this.carService.create(carDto, this.auth0Service.getUserId(auth));
     }
 
 }

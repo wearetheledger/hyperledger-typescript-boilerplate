@@ -29,6 +29,7 @@ export class EnvConfig {
     // FABRIC
     public static PEER_HOST = process.env['PEER_HOST'] || 'localhost';
     public static ORDERER_HOST = process.env['ORDERER_HOST'] || 'localhost';
+    public static CA_HOST = process.env['CA_HOST'] || 'localhost';
 
     // PUSHER
     public static PUSHER_KEY = process.env['PUSHER_KEY'];

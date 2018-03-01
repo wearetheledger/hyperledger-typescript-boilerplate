@@ -1,7 +1,10 @@
-import { Auth0UserModel } from '../../routes/webhooks/models/auth0user.model';
-import { HlfCaClient } from '../chain/hlfcaclient';
+
 import { Component } from '@nestjs/common';
-import { UserAttr } from '../chain/models/userattr.model';
+import * as jwtDecode from 'jwt-decode';
+import { JwtToken } from 'auth0';
+import { UserAttr } from '../../chain/models/userattr.model';
+import { HlfCaClient } from '../../chain/hlfcaclient';
+import { Auth0UserModel } from './auth0user.model';
 
 @Component()
 export class Auth0Service {
@@ -19,6 +22,18 @@ export class Auth0Service {
         ).then(user => {
             console.log(user);
         });
+    }
+
+    getUserId(auth) {
+        if (auth) {
+            let token: JwtToken = jwtDecode(auth.split(' ')[1]);
+            token = token.replace('|', '-');
+            // check if user certificate exists
+            // if ()
+                return token;
+        } else {
+            return 'dummyUserID';
+        }
     }
 
     private transformAttrs(auth0UserModel: Auth0UserModel): UserAttr[] {
@@ -39,4 +54,6 @@ export class Auth0Service {
                 };
             });
     }
+
+
 }
