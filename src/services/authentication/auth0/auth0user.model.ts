@@ -12,3 +12,5 @@ export class Auth0UserModel {
     // tslint:disable-next-line:variable-name
     readonly user_metadata: object;
 }
+
+
