@@ -29,7 +29,9 @@ export class CarController {
      */
     @Get()
     getAll(@Headers('authorization') auth): Promise<CarDto[]> {
-        return this.carService.getAll(this.auth0Service.getUserId(auth));
+        return this.auth0Service.getUserId(auth).then(userId => {
+            return this.carService.getAll(userId);
+        });
     }
 
     /**
@@ -42,7 +44,10 @@ export class CarController {
      */
     @Post()
     create(@Body() carDto: CarDto, @Headers('authorization') auth): Promise<InvokeResult> {
-        return this.carService.create(carDto, this.auth0Service.getUserId(auth));
+        return this.auth0Service.getUserId(auth).then(userId => {
+            return this.carService.create(carDto, userId);
+        });
+
     }
 
 }
