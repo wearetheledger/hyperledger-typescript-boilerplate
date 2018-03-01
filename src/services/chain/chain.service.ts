@@ -1,33 +1,28 @@
 import { Component } from '@nestjs/common';
 import { HlfErrors, HlfInfo } from './logging.enum';
 import { Log } from '../logging/log.service';
-import { FabricOptions } from './fabricoptions.model';
+import { HlfConfig } from './hlfconfig';
 
 @Component()
 export abstract class ChainService {
 
     // TODO: refactor
 
-    protected options: FabricOptions;
-
-    public client: Client;
-    public channel: Channel;
-    public targets: Peer[] = [];
-    public txId: any;
+    constructor(public hlfConfig: HlfConfig){}
 
     protected newDefaultKeyValueStore(walletPath: string): Promise<IKeyValueStore> {
         Log.hlf.info(HlfInfo.CREATING_CLIENT);
-        return this.client.newDefaultKeyValueStore({ path: walletPath });
+        return this.hlfConfig.client.newDefaultKeyValueStore({ path: walletPath });
     }
 
     protected setStateStore(wallet: IKeyValueStore): void {
-        Log.hlf.info(HlfInfo.SET_WALLET_PATH, this.options.userId);
+        Log.hlf.info(HlfInfo.SET_WALLET_PATH, this.hlfConfig.options.userId);
         Log.hlf.debug(HlfInfo.WALLET, JSON.stringify(wallet));
-        this.client.setStateStore(wallet);
+        this.hlfConfig.client.setStateStore(wallet);
     }
 
     protected getUserContext(userId: string): Promise<User> {
-        return this.client.getUserContext(userId, true);
+        return this.hlfConfig.client.getUserContext(userId, true);
     }
 
     protected isUserEnrolled(user): boolean {
@@ -46,8 +41,7 @@ export abstract class ChainService {
     }
 
     protected newQuery(requestFunction: string, requestArguments: string[], chaincodeId: string): Promise<Buffer[]> {
-        Log.hlf.info(HlfInfo.MAKE_QUERY);
-        const transactionId = this.client.newTransactionID();
+        const transactionId = this.hlfConfig.client.newTransactionID();
         Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, transactionId.getTransactionID());
         const request: ChaincodeQueryRequest = {
             chaincodeId: chaincodeId,
@@ -55,7 +49,7 @@ export abstract class ChainService {
             fcn: requestFunction,
             args: requestArguments,
         };
-        return this.channel.queryByChaincode(request);
+        return this.hlfConfig.channel.queryByChaincode(request);
     }
 
     protected getQueryResponse(queryResponses: Buffer[]): object {
@@ -72,19 +66,19 @@ export abstract class ChainService {
     }
 
     protected sendTransactionProposal(requestFunction: string, requestArguments: string[], chaincodeId: string): Promise<ProposalResponseObject> {
-        this.txId = this.client.newTransactionID();
-        Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, this.txId._transaction_id);
+        this.hlfConfig.txId = this.hlfConfig.client.newTransactionID();
+        Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, this.hlfConfig.txId._transaction_id);
 
         let request: ChaincodeInvokeRequest = {
-            targets: this.targets,
+            targets: this.hlfConfig.targets,
             chaincodeId: chaincodeId,
             fcn: requestFunction,
             args: requestArguments,
-            chainId: this.options.channelId,
-            txId: this.txId
+            chainId: this.hlfConfig.options.channelId,
+            txId: this.hlfConfig.txId
         };
 
-        return this.channel.sendTransactionProposal(request);
+        return this.hlfConfig.channel.sendTransactionProposal(request);
     }
 
     protected isProposalGood(results: ProposalResponseObject): boolean {
@@ -109,9 +103,9 @@ export abstract class ChainService {
         // set the transaction listener and set a timeout of 30sec
         // if the transaction did not get committed within the timeout period,
         // fail the test
-        let transactionID = this.txId.getTransactionID();
-        let eh = this.client.newEventHub();
-        eh.setPeerAddr(this.options.eventUrl);
+        let transactionID = this.hlfConfig.txId.getTransactionID();
+        let eh = this.hlfConfig.client.newEventHub();
+        eh.setPeerAddr(this.hlfConfig.options.eventUrl);
         Log.hlf.info(HlfInfo.CONNECTING_EVENTHUB);
         eh.connect();
 

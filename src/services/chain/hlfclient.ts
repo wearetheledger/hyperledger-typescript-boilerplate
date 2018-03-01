@@ -5,11 +5,16 @@ import { ChainMethod } from '../../routes/chainmethods.enum';
 import { Log } from '../logging/log.service';
 import { FabricOptions } from './fabricoptions.model';
 import fabricClient = require('fabric-client');
+import { HlfConfig } from './hlfconfig';
 
 @Component()
 export class HlfClient extends ChainService {
 
     // TODO: refactor
+
+    constructor(public hlfConfig: HlfConfig) {
+        super(hlfConfig);
+    }
 
     /**
      * set hlf options
@@ -18,7 +23,7 @@ export class HlfClient extends ChainService {
      * @memberof HlfClient
      */
     setOptions(fabricoptions: FabricOptions) {
-        this.options = fabricoptions;
+        this.hlfConfig.options = fabricoptions;
     }
 
     /**
@@ -27,29 +32,29 @@ export class HlfClient extends ChainService {
      * @memberof ChainService
      */
     init(): Promise<any> {
-        console.log('Store path:' + this.options.walletPath);
-        this.client = new fabricClient();
+        console.log('Store path:' + this.hlfConfig.options.walletPath);
+        this.hlfConfig.client = new fabricClient();
 
         return fabricClient
             .newDefaultKeyValueStore({
-                path: this.options.walletPath
+                path: this.hlfConfig.options.walletPath
             })
             .then((wallet: IKeyValueStore) => {
                 console.log(wallet);
                 // assign the store to the fabric client
-                this.client.setStateStore(wallet);
+                this.hlfConfig.client.setStateStore(wallet);
                 let cryptoSuite = fabricClient.newCryptoSuite();
                 // use the same location for the state store (where the users' certificate are kept)
                 // and the crypto store (where the users' keys are kept)
-                let cryptoStore = fabricClient.newCryptoKeyStore({path: this.options.walletPath});
+                let cryptoStore = fabricClient.newCryptoKeyStore({ path: this.hlfConfig.options.walletPath });
                 cryptoSuite.setCryptoKeyStore(cryptoStore);
-                this.client.setCryptoSuite(cryptoSuite);
+                this.hlfConfig.client.setCryptoSuite(cryptoSuite);
 
-                this.channel = this.client.newChannel(this.options.channelId);
-                const peerObj = this.client.newPeer(this.options.networkUrl);
-                this.channel.addPeer(peerObj);
-                this.channel.addOrderer(this.client.newOrderer(this.options.ordererUrl));
-                this.targets.push(peerObj);
+                this.hlfConfig.channel = this.hlfConfig.client.newChannel(this.hlfConfig.options.channelId);
+                const peerObj = this.hlfConfig.client.newPeer(this.hlfConfig.options.networkUrl);
+                this.hlfConfig.channel.addPeer(peerObj);
+                this.hlfConfig.channel.addOrderer(this.hlfConfig.client.newOrderer(this.hlfConfig.options.ordererUrl));
+                this.hlfConfig.targets.push(peerObj);
                 Log.hlf.info(HlfInfo.INIT_SUCCESS);
             })
             .catch((err) => {
@@ -67,8 +72,8 @@ export class HlfClient extends ChainService {
      * @returns {Promise<any>}
      * @memberof HlfClient
      */
-    query(chainMethod: ChainMethod, params: string[], chaincodeId = this.options.chaincodeId): Promise<any> {
-        Log.hlf.info(chainMethod, params);
+    query(chainMethod: ChainMethod, params: string[], chaincodeId = this.hlfConfig.options.chaincodeId): Promise<any> {
+        Log.hlf.info(HlfInfo.MAKE_QUERY, chainMethod, params);
         return this.newQuery(chainMethod, params, chaincodeId)
             .then((queryResponses: Buffer[]) => {
                 return Promise.resolve(this.getQueryResponse(queryResponses));
@@ -88,8 +93,8 @@ export class HlfClient extends ChainService {
      * @returns
      * @memberof ChainService
      */
-    invoke(chainMethod: ChainMethod, params: string[], chaincodeId = this.options.chaincodeId): Promise<any> {
-        Log.hlf.info(chainMethod, params);
+    invoke(chainMethod: ChainMethod, params: string[], chaincodeId = this.hlfConfig.options.chaincodeId): Promise<any> {
+        Log.hlf.info(HlfInfo.MAKE_INVOKE, chainMethod, params);
         return this.sendTransactionProposal(chainMethod, params, chaincodeId)
             .then((results: ProposalResponseObject) => {
                 Log.hlf.info(HlfInfo.CHECK_TRANSACTION_PROPOSAL);
@@ -104,7 +109,7 @@ export class HlfClient extends ChainService {
                     let txPromise = this.registerTxEvent();
                     let eventPromises = [];
                     eventPromises.push(txPromise);
-                    let sendPromise = this.channel.sendTransaction(request);
+                    let sendPromise = this.hlfConfig.channel.sendTransaction(request);
                     return Promise.resolve(this.concatEventPromises(sendPromise, eventPromises));
                 } else {
                     return this.handleError(HlfErrors.FAILED_TO_SEND_PROPOSAL);
@@ -113,7 +118,7 @@ export class HlfClient extends ChainService {
             .then((response) => {
                 if (response.status === 'SUCCESS') {
                     Log.hlf.info(HlfInfo.SUCCESSSFULLY_SENT_TO_ORDERER);
-                    return Promise.resolve(this.txId.getTransactionID());
+                    return Promise.resolve(this.hlfConfig.txId.getTransactionID());
                 } else {
                     return this.handleError(response.status);
                 }

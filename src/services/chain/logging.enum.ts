@@ -6,7 +6,7 @@ export enum HlfErrors {
     'FAILED_TO_SEND_TX' = 'Failed to send transaction and get notifications within the timeout period: %s',
     'FAILED_TO_SEND_PROPOSAL' = 'Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...',
     'FAILED_TO_ENROLL_ADMIN' = 'Failed to enroll admin: %s',
-    'FAILED_TO_REGISTER' = 'Failed to reguster: %s',
+    'FAILED_TO_REGISTER' = 'Failed to register: %s',
     'NO_ADMIN_USER' = 'No Admin user present',
     // tslint:disable-next-line:max-line-length
     'AUTH_FAILURES' = 'Authorization failures may be caused by having admin credentials from a previous CA instance.\n Try again after deleting the contents of the store directory ',
@@ -17,7 +17,8 @@ export enum HlfInfo {
     'CHECK_USER_ENROLLED' = 'Checking if user is enrolled...',
     'USER_ENROLLED' = 'User is enrolled: %s',
     'USER_REGISTERED' = 'User is registered: %s',
-    'MAKE_QUERY' = 'Making query...',
+    'MAKE_QUERY' = 'Making query:',
+    'MAKE_INVOKE' = 'Invoking chaincode:',
     'INIT_SUCCESS' = 'Successfully instantiated HLF Client',
     'ASSIGNING_TRANSACTION_ID' = 'Assigning transaction_id: %s',
     'NO_PAYLOADS_RETURNED' = 'No payloads were returned from query',
