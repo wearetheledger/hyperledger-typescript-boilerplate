@@ -17,14 +17,16 @@ export class HlfCaClient {
     }
 
     init(adminId: string, adminPw: string, mspid: string) {
-        // const cryptoSuite = this.chainService.client.getCryptoSuite();
-        const tlsOptions = {
-            trustedRoots: [],
-            verify: false
-        };
-        // be sure to change the http to https when the CA is running TLS enabled
-        const cryptoSuite = this.hlfClient.client.getCryptoSuite();
-        this.caClient = new CaClient(`http://${EnvConfig}:7054`, tlsOptions, 'ca.example.com', cryptoSuite);
+        if (!this.caClient) {
+            // const cryptoSuite = this.chainService.client.getCryptoSuite();
+            const tlsOptions = {
+                trustedRoots: [],
+                verify: false
+            };
+            // be sure to change the http to https when the CA is running TLS enabled
+            const cryptoSuite = this.hlfClient.client.getCryptoSuite();
+            this.caClient = new CaClient(`http://${EnvConfig.CA_HOST}:7054`, tlsOptions, 'ca.example.com', cryptoSuite);
+        }
         // create admin
         return this.createAdmin(adminId, adminPw, mspid);
     }
