@@ -6,9 +6,10 @@ import { JwtToken, AuthenticationClient } from 'auth0';
 import { UserAttr } from '../../chain/models/userattr.model';
 import { HlfCaClient } from '../../chain/hlfcaclient';
 import { Auth0UserModel } from './auth0user.model';
+import { IAuthService } from '../authentication.interface';
 
 @Component()
-export class Auth0Service {
+export class Auth0Service implements IAuthService {
 
     private auth0Client;
     private auth0AccessToken: string;
@@ -32,102 +33,85 @@ export class Auth0Service {
         }, (err, response) => {
             if (err) {
                 Log.config.error(`Failed to generate Auth0 Access token:`, JSON.stringify(err));
-            }else{
+            } else {
                 this.auth0AccessToken = response.access_token;
                 Log.config.info(`Generated Auth0 Access token:`, response.access_token);
             }
         });
     }
 
-    /**
-     * get user by authentication token
-     * fetch user information from Auth0 using the pregenerated API access token
-     * if user creds don't exist, generate user creds containing Auth0 metadata
-     * 
-     * @param {any} auth 
-     * @returns {Promise<string>} 
-     * @memberof Auth0Service
-     */
-    getUserId(auth): Promise<string> {
-        let auth0UserModel;
-        return Promise.resolve()
-            .then((): Promise<Auth0UserModel> => {
-                if (auth) {
-                    let token: JwtToken = jwtDecode(auth.split(' ')[1]);
-                    const userId = token.sub.replace('|', '-');
-                    return this.auth0Client.users
-                        .getInfo(this.auth0AccessToken, (err, userInfo: Auth0UserModel) => {
-                            if (err) {
-                                Log.config.error(`Unable to fetch User data from Auth0`, userId);
-                                throw new InternalServerErrorException(err);
-                            }
-                            return {
-                                id: userInfo.id,
-                                username: userInfo.username,
-                                email: userInfo.email,
-                                user_metadata: userInfo.user_metadata
-                            };
-                        });
-                } else {
-                    return Promise.resolve({
-                        id: 'guest',
-                        username: 'guest',
-                        email: null,
-                        user_metadata: {
-                            role: 'guest'
-                        }
-                    });
-                }
-            })
-            .then((resolvedAuth0UserModel: Auth0UserModel) => {
-                auth0UserModel = resolvedAuth0UserModel;
-                return this.hlfCaClient.getUserFromStore(resolvedAuth0UserModel.id);
-            })
-            .then(storeUser => {
-                if (storeUser) {
-                    return Promise.resolve(auth0UserModel.id);
-                } else {
-                    return this.hlfCaClient.createUser(
-                        auth0UserModel.id,
-                        'Org1MSP',
-                        'org1.department1',
-                        this.transformAttrs(auth0UserModel)
-                    );
-                }
-            })
-            .then(newUser => {
-                return Promise.resolve(auth0UserModel.id);
-            })
-            .catch(error => {
-                throw new InternalServerErrorException('Failed to create user certificates for: ' + auth0UserModel.id);
+    getCredsUserId(auth): string {
+        if (auth) {
+            let token: JwtToken = jwtDecode(auth.split(' ')[1]);
+            return token.sub.replace('|', '-');
+        } else {
+            return 'guest';
+        }
+    }
+
+    getAuthUserId(auth): string {
+        if (auth) {
+            let token: JwtToken = jwtDecode(auth.split(' ')[1]);
+            return token.sub;
+        } else {
+            return 'guest';
+        }
+    }
+
+    getUserFromStore(userId: string): Promise<any> {
+        return this.hlfCaClient.getUserFromStore(userId);
+    }
+
+    createUserCreds(userId: string): Promise<any> {
+        return this.getUserModel(userId)
+            .then((auth0UserModel: Auth0UserModel) => {
+                return this.hlfCaClient.createUser(
+                    auth0UserModel.id,
+                    'Org1MSP',
+                    'org1.department1',
+                    this.transformAttrs(auth0UserModel)
+                );
             });
     }
 
-    /**
-     * transform Auth0 metadata object to creds UserAttr
-     * 
-     * @private
-     * @param {Auth0UserModel} auth0UserModel 
-     * @returns {UserAttr[]} 
-     * @memberof Auth0Service
-     */
     private transformAttrs(auth0UserModel: Auth0UserModel): UserAttr[] {
-
         const object = {
             id: auth0UserModel.id,
             username: auth0UserModel.username,
             email: auth0UserModel.email,
             ...auth0UserModel.user_metadata,
         };
+        return Object
+            .keys(object)
+            .map(key => { return { name: key, value: object[key], ecert: true }; });
+    }
 
-        return Object.keys(object)
-            .map(key => {
-                return {
-                    name: key,
-                    value: object[key],
-                    ecert: true
-                };
+    private getUserModel(userId: string): Promise<Auth0UserModel> {
+        if (userId != 'guest') {
+            return this.getUserInfoFromAuth0(userId);
+        } else {
+            return Promise.resolve({
+                id: 'guest',
+                username: 'guest',
+                email: null,
+                user_metadata: {
+                    role: 'guest'
+                }
+            });
+        }
+    }
+
+    private getUserInfoFromAuth0(userId: string): Promise<Auth0UserModel> {
+        return this.auth0Client.users
+            .getInfo(this.auth0AccessToken, (err, userInfo: Auth0UserModel) => {
+                if (err) {
+                    Log.config.error(`Unable to fetch User data from Auth0`, userId);
+                    throw new InternalServerErrorException(err);
+                }
+                return userInfo;
             });
     }
+
+
 
 }
