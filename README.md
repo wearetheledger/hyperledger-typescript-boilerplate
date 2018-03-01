@@ -61,6 +61,10 @@ Install dependencies
 
 ** Feel free to contribute or make suggestions. **
 
+## Get in touch
+Interested in starting your own blockchain project, but don’t know how? 
+Do you need help starting your token sale or having one audited? Get in touch [https://theledger.be](https://theledger.be)
+
 
 
 
