@@ -1,7 +1,7 @@
 import { EnvConfig } from './config/env';
 import { NestFactory } from '@nestjs/core';
 import { ApplicationModule } from './modules/app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { config as awsConfig } from 'aws-sdk';
 import * as bodyParser from 'body-parser';
 import { Log } from './services/logging/log.service';
@@ -37,8 +37,9 @@ async function bootstrap() {
         .setTitle('Chainservice API')
         .setDescription('The Chainservice API')
         .setVersion('1.0')
-        .addTag('Chainservice')
+        .setExternalDoc('Github repo', 'https://github.com/wearetheledger/hyperledger-typescript-boilerplate')
         .build();
+
     const document = SwaggerModule.createDocument(app, options);
     SwaggerModule.setup('/api', app, document);
 

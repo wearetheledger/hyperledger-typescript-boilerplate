@@ -44,20 +44,13 @@ export class HlfClient extends ChainService {
                 let cryptoStore = fabricClient.newCryptoKeyStore({path: this.options.walletPath});
                 cryptoSuite.setCryptoKeyStore(cryptoStore);
                 this.client.setCryptoSuite(cryptoSuite);
-                return this.client.getUserContext(this.options.userId, true);
-            })
-            .then((user: User) => {
-                if (user && user.isEnrolled()) {
-                    this.client.setUserContext(user);
-                    this.channel = this.client.newChannel(this.options.channelId);
-                    const peerObj = this.client.newPeer(this.options.networkUrl);
-                    this.channel.addPeer(peerObj);
-                    this.channel.addOrderer(this.client.newOrderer(this.options.ordererUrl));
-                    this.targets.push(peerObj);
-                    Log.hlf.info(HlfInfo.INIT_SUCCESS);
-                } else {
-                    return Promise.reject(HlfErrors.NO_ENROLLED_USER);
-                }
+
+                this.channel = this.client.newChannel(this.options.channelId);
+                const peerObj = this.client.newPeer(this.options.networkUrl);
+                this.channel.addPeer(peerObj);
+                this.channel.addOrderer(this.client.newOrderer(this.options.ordererUrl));
+                this.targets.push(peerObj);
+                Log.hlf.info(HlfInfo.INIT_SUCCESS);
             })
             .catch((err) => {
                 console.log(err);

@@ -7,13 +7,15 @@ import { Body, Controller, Headers, Post, UnauthorizedException } from '@nestjs/
 @Controller('auth')
 export class AuthController {
 
-    private auth0Url = ``;
+    private auth0Url = `http://localhost:3000`; // TODO add env
 
     constructor(private auth0Service: Auth0Service) {
     }
 
     @Post('/register/auth0')
     create(@Body() auth0UserModel: Auth0UserModel, @Headers('origin') remoteUrl): string {
+        console.log(remoteUrl);
+
         if (remoteUrl === this.auth0Url) {
             this.auth0Service.enrollUser(auth0UserModel);
             return 'OK';

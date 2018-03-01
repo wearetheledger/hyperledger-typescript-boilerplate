@@ -16,6 +16,7 @@ import * as path from 'path';
 import { AuthController } from '../routes/webhooks/auth.controller';
 import { FabricOptions } from '../services/chain/fabricoptions.model';
 import { Log } from '../services/logging/log.service';
+import { HlfCaClient } from '../services/chain/hlfcaclient';
 
 @Module({
     controllers: [
@@ -39,10 +40,12 @@ export class ApplicationModule implements NestModule {
     /**
      * Creates an instance of ApplicationModule.
      * @param {HlfClient} hlfClient
+     * @param caClient
      * @param {QueueListenerService} queueListenerService
      * @memberof ApplicationModule
      */
     constructor(private hlfClient: HlfClient,
+                private caClient: HlfCaClient,
                 private queueListenerService: QueueListenerService) {
 
         // list env keys in cli
@@ -62,12 +65,18 @@ export class ApplicationModule implements NestModule {
         });
 
         // init hlf client
-        this.hlfClient.init().then(result => {
-            if (!EnvConfig.BYPASS_QUEUE) {
-                Log.awssqs.info(`Starting Queue Listener...`);
-                this.queueListenerService.init();
-            }
-        });
+        this.hlfClient.init()
+            .then(result => {
+                if (!EnvConfig.BYPASS_QUEUE) {
+                    Log.awssqs.info(`Starting Queue Listener...`);
+                    this.queueListenerService.init();
+                }
+
+                return this.caClient.createAdmin('admin', 'adminpw', 'Org1MSP');
+            })
+            .then(admin => {
+                Log.hlf.info(`Admin user created`);
+            });
     }
 
     /**
@@ -78,7 +87,7 @@ export class ApplicationModule implements NestModule {
      */
     configure(consumer: MiddlewaresConsumer): void {
         consumer.apply(AuthenticationMiddleware).forRoutes(
-            { path: '/protectedroute', method: RequestMethod.ALL },
+            {path: '/protectedroute', method: RequestMethod.ALL},
             // {path: '/cars', method: RequestMethod.ALL}
         );
     }

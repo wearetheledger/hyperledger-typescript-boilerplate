@@ -1,8 +1,9 @@
 import { UserAttr } from './models/userattr.model';
 import { Log } from './../logging/log.service';
 import { Component } from '@nestjs/common';
-import { ChainService } from './chain.service';
 import { HlfErrors, HlfInfo } from './logging.enum';
+import { HlfClient } from "./hlfclient";
+
 const CaClient = require('fabric-ca-client');
 
 @Component()
@@ -11,7 +12,8 @@ export class HlfCaClient {
     public caClient;
     public adminUser;
 
-    constructor(private chainService: ChainService) { }
+    constructor(private hlfClient: HlfClient) {
+    }
 
     init() {
         // const cryptoSuite = this.chainService.client.getCryptoSuite();
@@ -20,13 +22,18 @@ export class HlfCaClient {
             verify: false
         };
         // be sure to change the http to https when the CA is running TLS enabled
-        const cryptoSuite = this.chainService.client.getCryptoSuite();
+        const cryptoSuite = this.hlfClient.client.getCryptoSuite();
         this.caClient = new CaClient('http://localhost:7054', tlsOptions, 'ca.example.com', cryptoSuite);
 
     }
 
-    createAdmin(enrollmentID: string, enrollmentSecret: string, username: string, mspid: string): Promise<any> {
-        return this.chainService.client.getUserContext('admin', true)
+    createAdmin(enrollmentID: string, enrollmentSecret: string, mspid: string): Promise<any> {
+
+        if (!this.caClient) {
+            this.init();
+        }
+
+        return this.hlfClient.client.getUserContext('admin', true)
             .then((userFromStore) => {
                 if (userFromStore && userFromStore.isEnrolled()) {
                     this.adminUser = userFromStore;
@@ -37,14 +44,17 @@ export class HlfCaClient {
                         enrollmentSecret: enrollmentSecret
                     }).then((enrollment) => {
                         Log.hlf.info(HlfInfo.USER_ENROLLED, this.adminUser);
-                        return this.chainService.client.createUser({
-                            username: username,
+                        return this.hlfClient.client.createUser({
+                            username: enrollmentID,
                             mspid: mspid,
-                            cryptoContent: { privateKeyPEM: enrollment.key.toBytes(), signedCertPEM: enrollment.certificate }
+                            cryptoContent: {
+                                privateKeyPEM: enrollment.key.toBytes(),
+                                signedCertPEM: enrollment.certificate
+                            }
                         });
                     }).then((user) => {
                         this.adminUser = user;
-                        return this.chainService.client.setUserContext(this.adminUser);
+                        return this.hlfClient.client.setUserContext(this.adminUser);
                     }).catch((err) => {
                         Log.hlf.error(HlfErrors.FAILED_TO_ENROLL_ADMIN, err);
                         return Promise.reject(err);
@@ -70,14 +80,17 @@ export class HlfCaClient {
                 .then((secret) => {
                     // next we need to enroll the user with CA server
                     Log.hlf.info(HlfInfo.USER_REGISTERED, username);
-                    return this.caClient.enroll({ enrollmentID: username, enrollmentSecret: secret });
+                    return this.caClient.enroll({enrollmentID: username, enrollmentSecret: secret});
                 }).then((enrollment) => {
                     Log.hlf.info(HlfInfo.USER_ENROLLED, username);
-                    return this.chainService.client.createUser(
+                    return this.hlfClient.client.createUser(
                         {
                             username: username,
                             mspid: mspid,
-                            cryptoContent: { privateKeyPEM: enrollment.key.toBytes(), signedCertPEM: enrollment.certificate }
+                            cryptoContent: {
+                                privateKeyPEM: enrollment.key.toBytes(),
+                                signedCertPEM: enrollment.certificate
+                            }
                         });
                 }).then((user) => {
                     return Promise.resolve(user);
