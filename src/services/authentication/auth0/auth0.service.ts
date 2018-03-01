@@ -112,6 +112,4 @@ export class Auth0Service implements IAuthService {
             });
     }
 
-
-
 }
