@@ -112,7 +112,7 @@ export class HlfClient extends ChainService {
                     let sendPromise = this.hlfConfig.channel.sendTransaction(request);
                     return Promise.resolve(this.concatEventPromises(sendPromise, eventPromises));
                 } else {
-                    return this.handleError(HlfErrors.FAILED_TO_SEND_PROPOSAL);
+                    return this.handleError(results[0][0].message);
                 }
             })
             .then((response) => {

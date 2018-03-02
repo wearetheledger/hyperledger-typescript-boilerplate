@@ -212,6 +212,7 @@ interface ProposalResponse {
     response: ResponseObject;
     payload: Buffer;
     endorsement: any;
+    message?:any
 }
 
 type ProposalResponseObject = [Array<ProposalResponse>, Proposal, Header];
