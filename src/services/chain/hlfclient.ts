@@ -1,4 +1,4 @@
-import { HlfErrors, HlfInfo } from './logging.enum';
+import { HlfInfo } from './logging.enum';
 import { Component } from '@nestjs/common';
 import { ChainService } from './chain.service';
 import { ChainMethod } from '../../routes/chainmethods.enum';

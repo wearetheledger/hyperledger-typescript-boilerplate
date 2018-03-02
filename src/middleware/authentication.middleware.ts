@@ -6,6 +6,13 @@ import { EnvConfig } from '../config/env';
 
 @Middleware()
 export class AuthenticationMiddleware implements NestMiddleware {
+
+    /**     
+     * Performs authentication for selected routes (check the appmodule MiddlewaresConsumer to configure routes)
+     * 
+     * @param {Auth0Authenticator} auth0Authenticator 
+     * @memberof AuthenticationMiddleware
+     */
     resolve(): ExpressMiddleware {
         return jwt({
             secret: expressJwtSecret({

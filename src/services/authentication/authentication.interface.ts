@@ -1,7 +1,6 @@
 
 export interface IAuthService {
-    getCredsUserId(auth): string;
-    getAuthUserId(auth): string;
+    getUserId(auth): string;
     getUserFromStore(userId: string): Promise<any>;
     createUserCreds(userId: string): Promise<any>;
 }

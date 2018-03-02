@@ -2,17 +2,16 @@ import { Log } from './../../logging/log.service';
 import { EnvConfig } from './../../../config/env';
 import { Component, InternalServerErrorException } from '@nestjs/common';
 import * as jwtDecode from 'jwt-decode';
-import { JwtToken, AuthenticationClient } from 'auth0';
+import { JwtToken, ManagementClient } from 'auth0';
 import { UserAttr } from '../../chain/models/userattr.model';
 import { HlfCaClient } from '../../chain/hlfcaclient';
 import { Auth0UserModel } from './auth0user.model';
 import { IAuthService } from '../authentication.interface';
 
 @Component()
-export class Auth0Service implements IAuthService {
+export class Auth0CredsService implements IAuthService {
 
     private auth0Client;
-    private auth0AccessToken: string;
 
     /**
      * Creates an instance of Auth0Service.
@@ -20,27 +19,27 @@ export class Auth0Service implements IAuthService {
      * @memberof Auth0Service
      */
     constructor(private hlfCaClient: HlfCaClient) {
-        // init a new Auth0 authenticationclient using env variables
-        this.auth0Client = new AuthenticationClient({
+        this.auth0Client = new ManagementClient({
             domain: EnvConfig.AUTH0_DOMAIN,
             clientId: EnvConfig.AUTH0_CLIENT_ID,
-            clientSecret: EnvConfig.AUTH0_CLIENT_SECRET
-        });
-        // generate a JWT access token for auth0
-        this.auth0Client.clientCredentialsGrant({
+            clientSecret: EnvConfig.AUTH0_CLIENT_SECRET,
+            scope: 'read:users write:users',
             audience: EnvConfig.AUTH0_AUDIENCE,
-            scope: 'read:users update:users'
-        }, (err, response) => {
-            if (err) {
-                Log.config.error(`Failed to generate Auth0 Access token:`, JSON.stringify(err));
-            } else {
-                this.auth0AccessToken = response.access_token;
-                Log.config.info(`Generated Auth0 Access token:`, response.access_token);
+            tokenProvider: {
+                enableCache: true,
+                cacheTTLInSeconds: 10
             }
         });
     }
 
-    getCredsUserId(auth): string {
+    /**
+     * get user id from auth token to be used in creds
+     * 
+     * @param {any} auth 
+     * @returns {string} 
+     * @memberof Auth0CredsService
+     */
+    getUserId(auth): string {
         if (auth) {
             let token: JwtToken = jwtDecode(auth.split(' ')[1]);
             return token.sub.replace('|', '-');
@@ -49,19 +48,25 @@ export class Auth0Service implements IAuthService {
         }
     }
 
-    getAuthUserId(auth): string {
-        if (auth) {
-            let token: JwtToken = jwtDecode(auth.split(' ')[1]);
-            return token.sub;
-        } else {
-            return 'guest';
-        }
-    }
-
-    getUserFromStore(userId: string): Promise<any> {
+    /**
+     * check if user exists in store, 
+     * return user from creds
+     * 
+     * @param {string} userId 
+     * @returns {Promise<any>} 
+     * @memberof Auth0CredsService
+     */
+    getUserFromStore(userId: string): Promise<User> {
         return this.hlfCaClient.getUserFromStore(userId);
     }
 
+    /**
+     * Create new user credendtial files in store
+     * 
+     * @param {string} userId 
+     * @returns {Promise<any>} 
+     * @memberof Auth0CredsService
+     */
     createUserCreds(userId: string): Promise<any> {
         return this.getUserModel(userId)
             .then((auth0UserModel: Auth0UserModel) => {
@@ -74,6 +79,14 @@ export class Auth0Service implements IAuthService {
             });
     }
 
+    /**
+     * Transform user attributes from auth0
+     * 
+     * @private
+     * @param {Auth0UserModel} auth0UserModel 
+     * @returns {UserAttr[]} 
+     * @memberof Auth0CredsService
+     */
     private transformAttrs(auth0UserModel: Auth0UserModel): UserAttr[] {
         const object = {
             id: auth0UserModel.id,
@@ -86,6 +99,15 @@ export class Auth0Service implements IAuthService {
             .map(key => { return { name: key, value: object[key], ecert: true }; });
     }
 
+    /**
+     * Get user model from auth0
+     * return mock object if guest
+     * 
+     * @private
+     * @param {string} userId 
+     * @returns {Promise<Auth0UserModel>} 
+     * @memberof Auth0CredsService
+     */
     private getUserModel(userId: string): Promise<Auth0UserModel> {
         if (userId != 'guest') {
             return this.getUserInfoFromAuth0(userId);
@@ -101,15 +123,22 @@ export class Auth0Service implements IAuthService {
         }
     }
 
+    /**
+     * api call to auth0 to fetch user info by id
+     * 
+     * @private
+     * @param {string} userId 
+     * @returns {Promise<Auth0UserModel>} 
+     * @memberof Auth0CredsService
+     */
     private getUserInfoFromAuth0(userId: string): Promise<Auth0UserModel> {
-        return this.auth0Client.users
-            .getInfo(this.auth0AccessToken, (err, userInfo: Auth0UserModel) => {
-                if (err) {
-                    Log.config.error(`Unable to fetch User data from Auth0`, userId);
-                    throw new InternalServerErrorException(err);
-                }
-                return userInfo;
-            });
+        return this.auth0Client.getUser(userId, (err, userInfo) => {
+            if (err) {
+                Log.config.error(`Unable to fetch User data from Auth0`, userId);
+                throw new InternalServerErrorException(err);
+            }
+            return userInfo;
+        });
     }
 
 }

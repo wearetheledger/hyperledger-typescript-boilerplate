@@ -16,7 +16,7 @@ import { FabricOptions } from '../services/chain/fabricoptions.model';
 import { Log } from '../services/logging/log.service';
 import { HlfCaClient } from '../services/chain/hlfcaclient';
 import { AuthenticationModule } from './authentication.module';
-import { HlfCaMiddleware } from '../middleware/hlfca.middleware';
+import { CredsGenerator } from '../middleware/credsgenerator.middleware';
 
 @Module({
     controllers: [
@@ -86,7 +86,7 @@ export class ApplicationModule implements NestModule {
      */
     configure(consumer: MiddlewaresConsumer): void {
         // HlfCaMiddleware automatically generates certificates for users using the HLF Certificate Authority Client
-        consumer.apply(HlfCaMiddleware).forRoutes(
+        consumer.apply(CredsGenerator).forRoutes(
             { path: '*', method: RequestMethod.ALL }
         );
         // authenticated routes

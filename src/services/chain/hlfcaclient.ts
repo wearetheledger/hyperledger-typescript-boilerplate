@@ -68,7 +68,7 @@ export class HlfCaClient {
             }).then((user) => {
                 return Promise.resolve(user);
             }).catch((err) => {
-                Log.hlf.error(HlfErrors.FAILED_TO_REGISTER, username, err);
+                Log.hlf.error(HlfErrors.FAILED_TO_REGISTER, username);
                 if (err.toString().indexOf('Authorization') > -1) {
                     Log.hlf.error(HlfErrors.AUTH_FAILURES);
                 }
