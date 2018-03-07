@@ -1,4 +1,4 @@
-import { ApiUseTags } from '@nestjs/swagger';
+import { ApiUseTags } from '@theledger/nestjs-swagger';
 import { Controller, Get } from '@nestjs/common';
 import { PingService } from './ping.service';
 
@@ -25,4 +25,5 @@ export class PingController {
     ping(): string {
         return this.pingService.ping();
     }
+
 }

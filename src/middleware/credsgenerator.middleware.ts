@@ -28,11 +28,11 @@ export class CredsGenerator implements NestMiddleware {
                     Log.config.debug('Creating new user:', userId);
                     // token.sub = unchanged user id from auth0
                     if (token) {
-                        this.createUser(token.sub).then(() => { next() }).catch(err => {
+                        this.createUser(token.sub).then(() => { next(); }).catch(err => {
                             throw new InternalServerErrorException(err);
                         });
                     } else {
-                        this.createUser('guest').then(() => { next() }).catch(err => {
+                        this.createUser('guest').then(() => { next(); }).catch(err => {
                             throw new InternalServerErrorException(err);
                         });
                     }

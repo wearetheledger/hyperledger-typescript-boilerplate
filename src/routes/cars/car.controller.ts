@@ -2,10 +2,10 @@ import { Controller, Get, Post, Body, Headers } from '@nestjs/common';
 import { CarService } from './car.service';
 import { CarDto } from './car.model';
 import { InvokeResult } from '../invokeresult.model';
-import { ApiUseTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiUseTags, ApiOauth2Auth } from '@theledger/nestjs-swagger';
 import { Auth0CredsService } from '../../services/authentication/auth0/auth0.credsservice';
 
-@ApiBearerAuth()
+@ApiOauth2Auth()
 @ApiUseTags('cars')
 @Controller('cars')
 export class CarController {

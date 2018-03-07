@@ -1,10 +1,10 @@
+import { DocumentBuilder, SwaggerModule } from '@theledger/nestjs-swagger';
 import { EnvConfig } from './config/env';
 import { NestFactory } from '@nestjs/core';
-import { ApplicationModule } from './modules/app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { config as awsConfig } from 'aws-sdk';
 import * as bodyParser from 'body-parser';
 import { Log } from './services/logging/log.service';
+import { ApplicationModule } from './modules/app.module';
 
 /**
  * Set AWS Credentials
@@ -37,11 +37,23 @@ async function bootstrap() {
         .setTitle('Chainservice API')
         .setDescription('The Chainservice API')
         .setVersion('1.0')
+        .addOauth2(
+            'implicit',
+            `https://${EnvConfig.AUTH0_DOMAIN}/authorize?audience=${EnvConfig.AUTH0_AUDIENCE}`,
+            `http://localhost:3000/api`,
+            {}
+        )
         .setExternalDoc('Github repo', 'https://github.com/wearetheledger/hyperledger-typescript-boilerplate')
         .build();
 
     const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('/api', app, document);
+    SwaggerModule.setup('/api', app, document, {
+        customSiteTitle: `Chainservice API`,
+        swaggerOptions: {
+            oauth: { clientId: EnvConfig.AUTH0_CLIENT_ID }
+        },
+        additionalQueryStringParams:{}
+    });
 
     /**
      * Start Chainservice API

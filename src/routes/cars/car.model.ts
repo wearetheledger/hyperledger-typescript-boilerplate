@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiModelProperty } from '@theledger/nestjs-swagger';
 
 export class CarDto {
     @ApiModelProperty()
