@@ -1,39 +1,28 @@
 import { Component } from '@nestjs/common';
-import hlf = require('fabric-client');
-import { HlfInfo, HlfErrors } from './logging.enum';
+import { HlfErrors, HlfInfo } from './logging.enum';
 import { Log } from '../logging/log.service';
+import { HlfConfig } from './hlfconfig';
 
 @Component()
 export abstract class ChainService {
 
     // TODO: refactor
 
-    protected options: {
-        walletPath: string;
-        userId: string;
-        channelId: string;
-        networkUrl: string;
-        eventUrl: string;
-        ordererUrl: string;
-    };
-
-    protected client: Client;
-    protected channel: Channel;
-    protected targets: Peer[] = [];
+    constructor(public hlfConfig: HlfConfig) { }
 
     protected newDefaultKeyValueStore(walletPath: string): Promise<IKeyValueStore> {
         Log.hlf.info(HlfInfo.CREATING_CLIENT);
-        return hlf.newDefaultKeyValueStore({ path: walletPath });
+        return this.hlfConfig.client.newDefaultKeyValueStore({ path: walletPath });
     }
 
     protected setStateStore(wallet: IKeyValueStore): void {
-        Log.hlf.info(HlfInfo.SET_WALLET_PATH, this.options.userId);
+        Log.hlf.info(HlfInfo.SET_WALLET_PATH, this.hlfConfig.options.userId);
         Log.hlf.debug(HlfInfo.WALLET, JSON.stringify(wallet));
-        this.client.setStateStore(wallet);
+        this.hlfConfig.client.setStateStore(wallet);
     }
 
     protected getUserContext(userId: string): Promise<User> {
-        return this.client.getUserContext(userId, true);
+        return this.hlfConfig.client.getUserContext(userId, true);
     }
 
     protected isUserEnrolled(user): boolean {
@@ -42,7 +31,7 @@ export abstract class ChainService {
             Log.hlf.error(HlfErrors.NO_ENROLLED_USER);
             return false;
         }
-        Log.hlf.info(HlfInfo.USER_ENROLLED);
+        Log.hlf.info(HlfInfo.USER_ENROLLED, user);
         return true;
     }
 
@@ -52,8 +41,7 @@ export abstract class ChainService {
     }
 
     protected newQuery(requestFunction: string, requestArguments: string[], chaincodeId: string): Promise<Buffer[]> {
-        Log.hlf.info(HlfInfo.MAKE_QUERY);
-        const transactionId = this.client.newTransactionID();
+        const transactionId = this.hlfConfig.client.newTransactionID();
         Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, transactionId.getTransactionID());
         const request: ChaincodeQueryRequest = {
             chaincodeId: chaincodeId,
@@ -61,7 +49,7 @@ export abstract class ChainService {
             fcn: requestFunction,
             args: requestArguments,
         };
-        return this.channel.queryByChaincode(request);
+        return this.hlfConfig.channel.queryByChaincode(request);
     }
 
     protected getQueryResponse(queryResponses: Buffer[]): object {
@@ -79,19 +67,19 @@ export abstract class ChainService {
 
     protected sendTransactionProposal(requestFunction: string, requestArguments: string[], chaincodeId: string)
         : Promise<{ txHash: string; buffer: ProposalResponseObject }> {
-        const txId: any = this.client.newTransactionID();
+        const txId: any = this.hlfConfig.client.newTransactionID();
         Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, txId._transaction_id);
 
         let request: ChaincodeInvokeRequest = {
-            targets: this.targets,
+            targets: this.hlfConfig.targets,
             chaincodeId: chaincodeId,
             fcn: requestFunction,
             args: requestArguments,
-            chainId: this.options.channelId,
+            chainId: this.hlfConfig.options.channelId,
             txId: txId
         };
 
-        return this.channel.sendTransactionProposal(request).then(proposalResponse => {
+        return this.hlfConfig.channel.sendTransactionProposal(request).then(proposalResponse => {
             return { txHash: txId._transaction_id, buffer: proposalResponse };
         });
     }
@@ -118,8 +106,8 @@ export abstract class ChainService {
         // set the transaction listener and set a timeout of 30sec
         // if the transaction did not get committed within the timeout period,
         // fail the test
-        let eh = this.client.newEventHub();
-        eh.setPeerAddr(this.options.eventUrl);
+        let eh = this.hlfConfig.client.newEventHub();
+        eh.setPeerAddr(this.hlfConfig.options.eventUrl);
         Log.hlf.info(HlfInfo.CONNECTING_EVENTHUB);
         eh.connect();
 

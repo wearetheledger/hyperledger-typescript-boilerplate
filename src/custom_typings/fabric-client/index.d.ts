@@ -86,6 +86,7 @@ interface ICryptoSuite {
     importKey(pem: string, opts: KeyOpts): ICryptoKey | Promise<ICryptoKey>;
     sign(key: ICryptoKey, digest: Buffer): Buffer;
     verify(key: ICryptoKey, signature: Buffer, digest: Buffer): boolean;
+    setCryptoKeyStore(any);
 }
 
 interface ChannelRequest {
@@ -290,6 +291,7 @@ declare class User {
 }
 
 declare class Client extends BaseClient {
+    [x: string]: any;
     isDevMode(): boolean;
     getUserContext(name: string, checkPersistence: boolean): Promise<User>;
     setUserContext(user: User, skipPersistence?: boolean): Promise<User>;
@@ -307,7 +309,10 @@ declare class Client extends BaseClient {
     installChaincode(request: ChaincodeInstallRequest): Promise<ProposalResponseObject>;
     queryInstalledChaincodes(target: Peer): Promise<ChaincodeQueryResponse>;
     queryChannels(target: Peer): Promise<ChannelQueryResponse>;
+    newCryptoSuite();
+    newCryptoKeyStore(any);
 }
+
 
 declare module 'fabric-client' {
     export = Client;
