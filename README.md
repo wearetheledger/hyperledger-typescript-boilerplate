@@ -19,6 +19,7 @@
 - Frontend chain transaction notifications using [Pusher](https://pusher.com)
 - Solves Hyperledger [concurrency issues](https://medium.com/wearetheledger/hyperledger-fabric-concurrency-really-eccd901e4040) by using a FIFO AWS SQS queue.
 - Example Authentication using [Auth0](https://auth0.com/)
+- Automatic attribute based access crontrol using auth0
 
 
 
@@ -37,19 +38,19 @@ Be sure to have an up to date node.js configuration:
     }
 ```
 
-Install dependencies
+### Install dependencies
 
 `npm i`
 
-## Starting the app
+### Starting the app
 
 `npm start`
 
-## E2E Tests using Jest (wip)
+### E2E Tests using Jest (wip)
 
 `npm test`
 
-### Work in progress and future plans:
+## Work in progress and future plans:
 
 - Further Refactoring of the Hyperledger Fabric Client & Ca SDK abstraction layer using Typescript (WIP)
 - Proper E2E Testing using [Jest](https://facebook.github.io/jest/), supertest and [Jasmine](https://jasmine.github.io/) (WIP)
@@ -59,13 +60,8 @@ Install dependencies
 - Static page generator using [pug](https://pugjs.org/api/getting-started.html)
 - Makefile generator to choose between static pages or headless api.
 
-** Feel free to contribute or make suggestions. **
+**Feel free to contribute or make suggestions.**
 
 ## Get in touch
 Interested in starting your own blockchain project, but don’t know how? 
 Do you need help starting your token sale or having one audited? Get in touch [https://theledger.be](https://theledger.be)
-
-
-
-
-
