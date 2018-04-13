@@ -39,7 +39,7 @@ export class PusherService implements IEventService {
      */
     triggerSuccess(channel: string, eventName: string, data: any): void {
 
-        console.log('pusherbtriggerSuccess')
+        console.log('pusherbtriggerSuccess');
         if (this.pusher) {
             this.pusher.trigger(channel, 'success',
                 {

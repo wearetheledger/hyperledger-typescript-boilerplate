@@ -99,7 +99,7 @@ export class HlfCaClient {
                     signedCertPEM: enrollment.certificate
                 }
             });
-        })
+        });
     }
 
 }

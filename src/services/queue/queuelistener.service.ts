@@ -1,4 +1,4 @@
-import { PusherService } from '../events/implementations/pusher.service';
+
 import { EnvConfig } from '../../config/env';
 import { Component, Inject } from '@nestjs/common';
 import { AWSError, SQS } from 'aws-sdk';
@@ -7,7 +7,7 @@ import { MessageBody } from './messagebody.model';
 import { HlfClient } from '../chain/hlfclient';
 import { Log } from '../logging/log.service';
 import { Json } from '../utils/json';
-import { IEventService } from "../events/event.interface";
+import { IEventService } from '../events/event.interface';
 
 @Component()
 export class QueueListenerService {
