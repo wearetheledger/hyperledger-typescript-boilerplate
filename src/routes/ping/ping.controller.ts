@@ -8,17 +8,17 @@ export class PingController {
 
     /**
      * Creates an instance of PingController.
-     * @param {PingService} pingService 
+     * @param {PingService} pingService
      * @memberof PingController
      */
-    constructor(private pingService: PingService) { }
+    constructor(private pingService: PingService) {
+    }
 
     /**
      * This is the root path of the api
      * Will indicate whether the service is loaded
-     * 
-     * @param {{}} params 
-     * @returns {string} 
+     *
+     * @returns {string}
      * @memberof PingController
      */
     @Get()

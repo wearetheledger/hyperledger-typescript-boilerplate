@@ -1,12 +1,13 @@
-import { WebSocketService } from '../events/websocket.service';
+import { PusherService } from '../events/implementations/pusher.service';
 import { EnvConfig } from '../../config/env';
-import { Component } from '@nestjs/common';
+import { Component, Inject } from '@nestjs/common';
 import { AWSError, SQS } from 'aws-sdk';
 import * as Consumer from 'sqs-consumer';
 import { MessageBody } from './messagebody.model';
 import { HlfClient } from '../chain/hlfclient';
 import { Log } from '../logging/log.service';
 import { Json } from '../utils/json';
+import { IEventService } from "../events/event.interface";
 
 @Component()
 export class QueueListenerService {
@@ -20,7 +21,9 @@ export class QueueListenerService {
      * @param webSocketService
      * @param hlfClient
      */
-    constructor(private webSocketService: WebSocketService,
+    constructor(
+
+                @Inject('IEventService') private webSocketService: IEventService,
                 private hlfClient: HlfClient) {
     }
 
@@ -33,7 +36,7 @@ export class QueueListenerService {
     public init() {
         this.getQueryUrl()
             .then(queryUrl => {
-                Log.awssqs.info(`Chain is up, listening to AWS queue: ${EnvConfig.AWS_QUEUE_NAME}`);
+                Log.awssqs.info(`Listening to AWS queue: ${EnvConfig.AWS_QUEUE_NAME}`);
                 this.queryUrl = queryUrl;
 
                 this.listen();

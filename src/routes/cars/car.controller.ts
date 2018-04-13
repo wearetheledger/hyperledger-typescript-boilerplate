@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Headers } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Inject, Post } from '@nestjs/common';
 import { CarService } from './car.service';
 import { CarDto } from './car.model';
 import { InvokeResult } from '../invokeresult.model';
-import { ApiUseTags, ApiBearerAuth } from '@nestjs/swagger';
-import { Auth0CredsService } from '../../services/authentication/auth0/auth0.credsservice';
+import { ApiBearerAuth, ApiUseTags } from '@nestjs/swagger';
+import { IAuthService } from '../../services/authentication/authentication.interface';
 
 @ApiBearerAuth()
 @ApiUseTags('cars')
@@ -14,11 +14,13 @@ export class CarController {
      * Creates an instance of CarController.
      * @memberof CarController
      * @param {CarService} carService
+     * @param authService
      */
     constructor(
         private carService: CarService,
-        private authService: Auth0CredsService
-    ) { }
+        @Inject('IAuthService') private authService: IAuthService
+    ) {
+    }
 
     /**
      * Get all cars
@@ -35,10 +37,10 @@ export class CarController {
 
     /**
      * Create new car
-     * 
-     * @param {CarDto} carDto 
+     *
+     * @param {CarDto} carDto
      * @param auth
-     * @returns {*} 
+     * @returns {*}
      * @memberof CarController
      */
     @Post()

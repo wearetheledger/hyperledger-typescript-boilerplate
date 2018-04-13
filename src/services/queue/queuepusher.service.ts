@@ -45,27 +45,12 @@ export class QueuePusherService {
 
         // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#sendMessage-property
         const msgConfig = {
-            MessageBody: Json.serializeJson(message).toString(),
+            MessageBody: Json.serializeJson(message),
             QueueUrl: this.queueListenerService.queryUrl,
             DelaySeconds: 0,
             MessageDeduplicationId,
             MessageGroupId: userId ? userId : Math.floor(+new Date() / 1000).toString(),
-            // MessageAttributes: {
-            //     '<String>': {
-            //         DataType: 'STRING_VALUE', /* required */
-            //         BinaryListValues: [
-            //             new Buffer('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
-            //             /* more items */
-            //         ],
-            //         BinaryValue: new Buffer('...') || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
-            //         StringListValues: [
-            //             'STRING_VALUE',
-            //             /* more items */
-            //         ],
-            //         StringValue: 'STRING_VALUE'
-            //     },
-            //     /* '<String>': ... */
-            // },
+            // MessageAttributes - other possible field
         };
 
         return new Promise((resolve, reject) => {

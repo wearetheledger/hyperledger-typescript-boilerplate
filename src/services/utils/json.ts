@@ -1,25 +1,28 @@
-import { Log } from './../logging/log.service';
+import { Log } from '../logging/log.service';
 
 export class Json {
 
-    public static serializeJson = (obj: Object): string | boolean => {
+    public static serializeJson = (obj: Object): string => {
         try {
             return JSON.stringify(obj);
         } catch (error) {
             Log.config.error(`JSON stringify error for object: ${obj}`);
-            return false;
+
+            throw error;
         }
     }
-    public static deserializeJson = (string: string): Object | boolean => {
+
+    public static deserializeJson = (string: string): Object => {
         try {
             return JSON.parse(string);
         } catch (error) {
             Log.config.error(`JSON parse error for string: ${string}`);
-            return false;
+
+            throw error;
         }
     }
 
-    public static stringifyParams = (params: any[]): string[] | boolean => {
+    public static stringifyParams = (params: any[]): string[] => {
         try {
             return params.map(param => {
                 if (typeof param === 'object' || Array.isArray(param)) {
@@ -30,7 +33,8 @@ export class Json {
             });
         } catch (error) {
             Log.config.error(`stringifyParams error for params: ${params}`);
-            return false;
+
+            throw error;
         }
 
     }

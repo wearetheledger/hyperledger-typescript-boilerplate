@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { WebSocketService } from '../services/events/websocket.service';
+import { EventService } from '../config/appconfig';
 
 @Module({
-  components: [WebSocketService],
-  exports: [WebSocketService]
+    components: [EventService],
+    exports: [EventService]
 })
-export class EventsModule { }
+export class EventsModule {
+}

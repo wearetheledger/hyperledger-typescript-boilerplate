@@ -1,5 +1,5 @@
-import { Log } from './../../logging/log.service';
-import { EnvConfig } from './../../../config/env';
+import { Log } from '../../logging/log.service';
+import { EnvConfig } from '../../../config/env';
 import { Component, InternalServerErrorException } from '@nestjs/common';
 import * as jwtDecode from 'jwt-decode';
 import { JwtToken, ManagementClient } from 'auth0';
@@ -15,7 +15,7 @@ export class Auth0CredsService implements IAuthService {
 
     /**
      * Creates an instance of Auth0Service.
-     * @param {HlfCaClient} hlfCaClient 
+     * @param {HlfCaClient} hlfCaClient
      * @memberof Auth0Service
      */
     constructor(private hlfCaClient: HlfCaClient) {
@@ -34,14 +34,14 @@ export class Auth0CredsService implements IAuthService {
 
     /**
      * get user id from auth token to be used in creds
-     * 
-     * @param {any} auth 
-     * @returns {string} 
+     *
+     * @param {any} bearerToken
+     * @returns {string}
      * @memberof Auth0CredsService
      */
-    getUserId(auth): string {
-        if (auth) {
-            let token: JwtToken = jwtDecode(auth.split(' ')[1]);
+    getUserId(bearerToken: string): string {
+        if (bearerToken) {
+            let token: JwtToken = jwtDecode(bearerToken.split(' ')[1]);
             return token.sub.replace('|', '-');
         } else {
             return 'guest';
@@ -49,25 +49,25 @@ export class Auth0CredsService implements IAuthService {
     }
 
     /**
-     * check if user exists in store, 
+     * check if user exists in store,
      * return user from creds
-     * 
-     * @param {string} userId 
-     * @returns {Promise<any>} 
+     *
+     * @param {string} userId
+     * @returns {Promise<any>}
      * @memberof Auth0CredsService
      */
-    getUserFromStore(userId: string): Promise<User> {
+    getUserFromStore(userId: string): Promise<User | void> {
         return this.hlfCaClient.getUserFromStore(userId);
     }
 
     /**
-     * Create new user credendtial files in store
-     * 
-     * @param {string} userId 
-     * @returns {Promise<any>} 
+     * Create new user credential file in store
+     *
+     * @param {string} userId
+     * @returns {Promise<any>}
      * @memberof Auth0CredsService
      */
-    createUserCreds(userId: string): Promise<any> {
+    createUserCreds(userId: string): Promise<User> {
         return this.getUserModel(userId)
             .then((auth0UserModel: Auth0UserModel) => {
                 return this.hlfCaClient.createUser(
@@ -81,10 +81,10 @@ export class Auth0CredsService implements IAuthService {
 
     /**
      * Transform user attributes from auth0
-     * 
+     *
      * @private
-     * @param {Auth0UserModel} auth0UserModel 
-     * @returns {UserAttr[]} 
+     * @param {Auth0UserModel} auth0UserModel
+     * @returns {UserAttr[]}
      * @memberof Auth0CredsService
      */
     private transformAttrs(auth0UserModel: Auth0UserModel): UserAttr[] {
@@ -96,16 +96,18 @@ export class Auth0CredsService implements IAuthService {
         };
         return Object
             .keys(object)
-            .map(key => { return { name: key, value: object[key], ecert: true }; });
+            .map(key => {
+                return {name: key, value: object[key], ecert: true};
+            });
     }
 
     /**
      * Get user model from auth0
      * return mock object if guest
-     * 
+     *
      * @private
-     * @param {string} userId 
-     * @returns {Promise<Auth0UserModel>} 
+     * @param {string} userId
+     * @returns {Promise<Auth0UserModel>}
      * @memberof Auth0CredsService
      */
     private getUserModel(userId: string): Promise<Auth0UserModel> {
@@ -125,10 +127,10 @@ export class Auth0CredsService implements IAuthService {
 
     /**
      * api call to auth0 to fetch user info by id
-     * 
+     *
      * @private
-     * @param {string} userId 
-     * @returns {Promise<Auth0UserModel>} 
+     * @param {string} userId
+     * @returns {Promise<Auth0UserModel>}
      * @memberof Auth0CredsService
      */
     private getUserInfoFromAuth0(userId: string): Promise<Auth0UserModel> {

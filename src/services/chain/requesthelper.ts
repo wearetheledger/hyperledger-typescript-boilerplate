@@ -1,11 +1,13 @@
-import { Component } from '@nestjs/common';
+import { Component, Inject } from '@nestjs/common';
 import { HlfClient } from './hlfclient';
 import { QueuePusherService } from '../queue/queuepusher.service';
 import { ChainMethod } from '../../routes/chainmethods.enum';
 import { InvokeResult } from '../../routes/invokeresult.model';
 import { EnvConfig } from '../../config/env';
-import { WebSocketService } from '../events/websocket.service';
+import { PusherService } from '../events/implementations/pusher.service';
 import { Log } from '../logging/log.service';
+import { isObject } from '@nestjs/common/utils/shared.utils';
+import { IEventService } from '../events/event.interface';
 
 @Component()
 export class RequestHelper {
@@ -15,12 +17,12 @@ export class RequestHelper {
     /**
      * Creates an instance of RequestHelper.
      * @param {HlfClient} hlfClient
-     * @param {WebSocketService} webSocketService
+     * @param {PusherService} webSocketService
      * @param {QueuePusherService} queuePusherService
      * @memberof RequestHelper
      */
     constructor(private hlfClient: HlfClient,
-                private webSocketService: WebSocketService,
+                @Inject('IEventService') private webSocketService: IEventService,
                 private queuePusherService: QueuePusherService) {
     }
 
@@ -35,6 +37,9 @@ export class RequestHelper {
      * @memberof RequestHelper
      */
     public invokeRequest(chainMethod: ChainMethod, params: string[], userId: string, invokeAlways = false): Promise<InvokeResult | any> {
+
+        params = this.forceStringParams(params);
+
         if (EnvConfig.BYPASS_QUEUE) {
             return this.hlfClient.invoke(chainMethod, params)
                 .then((response) => {
@@ -69,6 +74,8 @@ export class RequestHelper {
      * @memberof RequestHelper
      */
     public queryRequest(chainMethod: ChainMethod, params: string[]): Promise<any> {
+        params = this.forceStringParams(params);
+
         return this.hlfClient.query(chainMethod, params)
             .then((response) => {
                 Log.hlf.debug('Query successfully executed: ', response);
@@ -98,6 +105,16 @@ export class RequestHelper {
                 Log.config.error('Validation', error);
                 return Promise.reject(error);
             });
+    }
+
+    private forceStringParams(params: string[]): string[] {
+        return params.map(param => {
+            if (isObject(param)) {
+                return JSON.stringify(param);
+            }
+
+            return param.toString();
+        });
     }
 
 }

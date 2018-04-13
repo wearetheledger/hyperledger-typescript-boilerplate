@@ -9,6 +9,7 @@ import { Log } from './services/logging/log.service';
 /**
  * Set AWS Credentials
  */
+
 awsConfig.update({
     accessKeyId: EnvConfig.AWS_ACCESS_KEY,
     secretAccessKey: EnvConfig.AWS_SECRET_ACCESS_KEY,

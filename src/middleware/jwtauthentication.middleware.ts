@@ -1,17 +1,15 @@
-
-import { Middleware, NestMiddleware, ExpressMiddleware } from '@nestjs/common';
+import { ExpressMiddleware, Middleware, NestMiddleware } from '@nestjs/common';
 import * as jwt from 'express-jwt';
 import { expressJwtSecret } from 'jwks-rsa';
 import { EnvConfig } from '../config/env';
 
 @Middleware()
-export class AuthenticationMiddleware implements NestMiddleware {
+export class JwtauthenticationMiddleware implements NestMiddleware {
 
-    /**     
-     * Performs authentication for selected routes (check the appmodule MiddlewaresConsumer to configure routes)
-     * 
-     * @param {Auth0Authenticator} auth0Authenticator 
-     * @memberof AuthenticationMiddleware
+    /**
+     * Performs JWT authentication for selected routes (check the appmodule MiddlewaresConsumer to configure routes)
+     *
+     * @memberof JwtauthenticationMiddleware
      */
     resolve(): ExpressMiddleware {
         return jwt({

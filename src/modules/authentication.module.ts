@@ -1,8 +1,9 @@
-import { Auth0CredsService } from './../services/authentication/auth0/auth0.credsservice';
 import { Module } from '@nestjs/common';
+import { AuthService } from '../config/appconfig';
 
 @Module({
-  components: [Auth0CredsService],
-  exports: [Auth0CredsService]
+    components: [AuthService],
+    exports: [AuthService]
 })
-export class AuthenticationModule { }
+export class AuthenticationModule {
+}

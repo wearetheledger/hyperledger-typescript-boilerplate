@@ -8,23 +8,47 @@ export abstract class ChainService {
 
     // TODO: refactor
 
-    constructor(public hlfConfig: HlfConfig) { }
-
-    protected newDefaultKeyValueStore(walletPath: string): Promise<IKeyValueStore> {
-        Log.hlf.info(HlfInfo.CREATING_CLIENT);
-        return this.hlfConfig.client.newDefaultKeyValueStore({ path: walletPath });
+    protected constructor(public hlfConfig: HlfConfig) {
     }
 
+    /**
+     * Wrapper around the newDefaultKeyValueStore function
+     *
+     * @param {string} walletPath
+     * @returns {Promise<IKeyValueStore>}
+     */
+    protected newDefaultKeyValueStore(walletPath: string): Promise<IKeyValueStore> {
+        Log.hlf.info(HlfInfo.CREATING_CLIENT);
+        return this.hlfConfig.client.newDefaultKeyValueStore({path: walletPath});
+    }
+
+    /**
+     * Wrapper around the setStateStore function
+     *
+     * @param {IKeyValueStore} wallet
+     */
     protected setStateStore(wallet: IKeyValueStore): void {
         Log.hlf.info(HlfInfo.SET_WALLET_PATH, this.hlfConfig.options.userId);
         Log.hlf.debug(HlfInfo.WALLET, JSON.stringify(wallet));
         this.hlfConfig.client.setStateStore(wallet);
     }
 
+    /**
+     * Wrapper around the getUserContext function
+     *
+     * @param {string} userId
+     * @returns {Promise<User>}
+     */
     protected getUserContext(userId: string): Promise<User> {
         return this.hlfConfig.client.getUserContext(userId, true);
     }
 
+    /**
+     * Check if a user is enrolled
+     *
+     * @param user
+     * @returns {boolean}
+     */
     protected isUserEnrolled(user): boolean {
         Log.hlf.info(HlfInfo.CHECK_USER_ENROLLED);
         if (user === undefined || user == null || user.isEnrolled() === false) {
@@ -37,21 +61,35 @@ export abstract class ChainService {
 
     protected handleError(err): Promise<any> {
         Log.hlf.error(err);
-        return Promise.reject(err);
+        throw err;
     }
 
+    /**
+     * Create new query transaction
+     *
+     * @param {string} requestFunction
+     * @param {string[]} requestArguments
+     * @param {string} chaincodeId
+     * @returns {Promise<Buffer[]>}
+     */
     protected newQuery(requestFunction: string, requestArguments: string[], chaincodeId: string): Promise<Buffer[]> {
-        const transactionId = this.hlfConfig.client.newTransactionID();
-        Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, transactionId.getTransactionID());
+        const txId = this.hlfConfig.client.newTransactionID();
+        Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, txId.getTransactionID());
         const request: ChaincodeQueryRequest = {
             chaincodeId: chaincodeId,
-            txId: transactionId,
+            txId,
             fcn: requestFunction,
             args: requestArguments,
         };
         return this.hlfConfig.channel.queryByChaincode(request);
     }
 
+    /**
+     * Get actual reponse from response buffers
+     *
+     * @param {Buffer[]} queryResponses
+     * @returns {object}
+     */
     protected getQueryResponse(queryResponses: Buffer[]): object {
         if (!queryResponses.length) {
             Log.hlf.debug(HlfInfo.NO_PAYLOADS_RETURNED);
@@ -65,6 +103,14 @@ export abstract class ChainService {
         return JSON.parse(queryResponses[0].toString());
     }
 
+    /**
+     * Create and send new invoke transaction proposal
+     *
+     * @param {string} requestFunction
+     * @param {string[]} requestArguments
+     * @param {string} chaincodeId
+     * @returns {Promise<{txHash: string; buffer: ProposalResponseObject}>}
+     */
     protected sendTransactionProposal(requestFunction: string, requestArguments: string[], chaincodeId: string)
         : Promise<{ txHash: string; buffer: ProposalResponseObject }> {
         const txId: any = this.hlfConfig.client.newTransactionID();
@@ -80,10 +126,16 @@ export abstract class ChainService {
         };
 
         return this.hlfConfig.channel.sendTransactionProposal(request).then(proposalResponse => {
-            return { txHash: txId._transaction_id, buffer: proposalResponse };
+            return {txHash: txId._transaction_id, buffer: proposalResponse};
         });
     }
 
+    /**
+     * Check if the proposal response is good
+     *
+     * @param {ProposalResponseObject} results
+     * @returns {boolean}
+     */
     protected isProposalGood(results: ProposalResponseObject): boolean {
         let proposalResponses = results[0];
         let isProposalGood = false;
@@ -102,7 +154,13 @@ export abstract class ChainService {
         Log.hlf.debug(HlfInfo.SUCCESFULLY_SENT_PROPOSAL, proposalResponses[0].response.status, proposalResponses[0].response.message);
     }
 
-    protected registerTxEvent(transactionID): Promise<any> {
+    /**
+     * Listen and wait for transaction comitting on peer
+     *
+     * @param transactionID
+     * @returns {Promise<any>}
+     */
+    protected registerTxEvent(transactionID: string): Promise<any> {
         // set the transaction listener and set a timeout of 30sec
         // if the transaction did not get committed within the timeout period,
         // fail the test
@@ -132,7 +190,7 @@ export abstract class ChainService {
         });
     }
 
-    protected concatEventPromises(sendPromise, eventPromises): Promise<any> {
+    protected concatEventPromises(sendPromise:Promise<BroadcastResponse>, eventPromises:Promise<BroadcastResponse>[]): Promise<any> {
         return Promise.all([sendPromise].concat(eventPromises)).then((results) => {
             Log.hlf.info(HlfInfo.EVENT_PROMISES_COMPLETE);
             return results[0]; // the first returned value is from the 'sendPromise' which is from the 'sendTransaction()' call
