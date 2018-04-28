@@ -1,4 +1,4 @@
-import { Component, InternalServerErrorException } from '@nestjs/common';
+import { Component, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { ChainMethod } from '../chainmethods.enum';
 import { CarDto } from './car.model';
 import { InvokeResult } from '../invokeresult.model';
@@ -17,13 +17,12 @@ export class CarService {
     }
 
     /**
-     * get all cars
+     * Get all cars
      *
      * @returns {Promise<CarDto[]>}
      * @memberof CarService
      */
     getAll(): Promise<CarDto[]> {
-        // this is a query, query chaincode directly
         return this.requestHelper.queryRequest(ChainMethod.queryAllCars, [])
             .catch(error => {
                 throw new InternalServerErrorException(error);
@@ -31,21 +30,25 @@ export class CarService {
     }
 
     /**
-     * get car by id
+     * Get car by id
      *
      * @returns {Promise<CarDto>}
      * @memberof CarService
      */
     getById(id: string): Promise<CarDto> {
-        // this is a query, query chaincode directly
         return this.requestHelper.queryRequest(ChainMethod.queryCar, [id])
-            .catch(error => {
+            .then(car => {
+                if (!car) {
+                    throw new NotFoundException('Car does not exist!');
+                }
+                return car;
+            }, error => {
                 throw new InternalServerErrorException(error);
             });
     }
 
     /**
-     * create new car
+     * Create new car
      *
      * @param {CarDto} carDto
      * @param {IAuthUser} authUser

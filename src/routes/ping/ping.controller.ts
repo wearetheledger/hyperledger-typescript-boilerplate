@@ -8,6 +8,7 @@ export class PingController {
 
     /**
      * Creates an instance of PingController.
+     *
      * @param {PingService} pingService
      * @memberof PingController
      */

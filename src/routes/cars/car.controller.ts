@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Inject, NotFoundException, Param, Post, Req } from '@nestjs/common';
 import { CarService } from './car.service';
 import { CarDto } from './car.model';
 import { InvokeResult } from '../invokeresult.model';
@@ -29,6 +29,12 @@ export class CarController {
     @Get()
     @ApiOperation({title: 'Get all cars'})
     @ApiOAuth2Auth(['read'])
+    @ApiResponse({
+        status: 200,
+        description: 'Returns a list of car objects',
+        type: CarDto,
+        isArray: true
+    })
     getAll(): Promise<CarDto[]> {
         return this.carService.getAll();
     }
@@ -43,7 +49,17 @@ export class CarController {
     @Get(':id')
     @ApiOperation({title: 'Get a car by id'})
     @ApiOAuth2Auth(['read'])
-    getById(@Param('id') id): Promise<CarDto> {
+    @ApiResponse({
+        status: 200,
+        description: 'Returns a Car object',
+        type: CarDto,
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Car does not exist!',
+        type: NotFoundException
+    })
+    getById(@Param('id') id: string): Promise<CarDto> {
         return this.carService.getById(id);
     }
 

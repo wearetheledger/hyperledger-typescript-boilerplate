@@ -13,9 +13,10 @@ import { CarController } from '../routes/cars/car.controller';
 import { Log } from '../services/logging/log.service';
 import { HlfCaClient } from '../services/chain/hlfcaclient';
 import { AuthenticationModule } from './authentication.module';
-import { HlfcredsgeneratorMiddleware } from '../middleware/hlfcredsgenerator.middleware';
+import { HlfcredsgeneratorMiddleware } from '../common/middleware/hlfcredsgenerator.middleware';
 import { HlfErrors } from '../services/chain/logging.enum';
 import { Appconfig } from '../config/appconfig';
+import { JwtauthenticationMiddleware } from '../common/middleware/jwtauthentication.middleware';
 
 @Module({
     controllers: [
@@ -74,13 +75,12 @@ export class ApplicationModule implements NestModule {
      */
     configure(consumer: MiddlewaresConsumer): void {
 
-        //consumer.apply(JwtauthenticationMiddleware).forRoutes(
-        //{path: '/cars/*', method: RequestMethod.ALL},
-        // {path: '*', method: RequestMethod.ALL} use wildcard for all routes
-        // );
+        consumer.apply(JwtauthenticationMiddleware).forRoutes(
+            {path: '/cars*', method: RequestMethod.ALL},
+        );
 
         consumer.apply(HlfcredsgeneratorMiddleware).forRoutes(
-            {path: '/cars/*', method: RequestMethod.ALL}
+            {path: '/cars*', method: RequestMethod.ALL}
         );
     }
 }

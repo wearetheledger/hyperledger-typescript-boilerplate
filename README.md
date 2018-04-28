@@ -33,7 +33,7 @@ A [Pusher](https://pusher.com) account is also required if you want to make use 
 Be sure to have an up to date node.js configuration:
 ```
     "engines": {
-        "node": "^8",
+        "node": "^8.9",
         "npm": "^5.6"
     }
 ```

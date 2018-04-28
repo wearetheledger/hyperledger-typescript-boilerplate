@@ -1,4 +1,4 @@
-import { Log } from '../services/logging/log.service';
+import { Log } from '../../services/logging/log.service';
 import {
     ExpressMiddleware,
     Inject,
@@ -7,9 +7,9 @@ import {
     NestMiddleware,
     UnauthorizedException
 } from '@nestjs/common';
-import { IAuthService } from '../services/authentication/authenticationservice.interface';
-import { Appconfig } from '../config/appconfig';
-import { IAuthUser } from '../services/authentication/authenticateduser';
+import { IAuthService } from '../../services/authentication/authenticationservice.interface';
+import { Appconfig } from '../../config/appconfig';
+import { IAuthUser } from '../../services/authentication/authenticateduser';
 
 @Middleware()
 export class HlfcredsgeneratorMiddleware implements NestMiddleware {

@@ -94,12 +94,16 @@ export abstract class ChainService {
         if (!queryResponses.length) {
             Log.hlf.debug(HlfInfo.NO_PAYLOADS_RETURNED);
         } else {
-            Log.hlf.debug(HlfInfo.PAYLOAD_RESULT_COUNT, queryResponses.length);
             if (queryResponses[0] instanceof Error) {
                 return this.handleError(queryResponses[0].toString());
             }
         }
         Log.hlf.debug(HlfInfo.RESPONSE_IS, queryResponses[0].toString());
+
+        if (!queryResponses[0].toString().length) {
+            return null;
+        }
+
         return JSON.parse(queryResponses[0].toString());
     }
 
@@ -190,7 +194,7 @@ export abstract class ChainService {
         });
     }
 
-    protected concatEventPromises(sendPromise:Promise<BroadcastResponse>, eventPromises:Promise<BroadcastResponse>[]): Promise<any> {
+    protected concatEventPromises(sendPromise: Promise<BroadcastResponse>, eventPromises: Promise<BroadcastResponse>[]): Promise<any> {
         return Promise.all([sendPromise].concat(eventPromises)).then((results) => {
             Log.hlf.info(HlfInfo.EVENT_PROMISES_COMPLETE);
             return results[0]; // the first returned value is from the 'sendPromise' which is from the 'sendTransaction()' call
