@@ -1,5 +1,6 @@
 export interface ConfigOptions {
     hlf: HlfConfigOptions;
+    allowguest: boolean;
 }
 
 export type AdminCreds = {

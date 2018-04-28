@@ -16,6 +16,7 @@ export class EnvConfig {
     // NODE
     public static NODE_ENV = process.env['NODE_ENV'] || 'LOCAL';
     public static PORT = process.env['PORT'] || 3000;
+    public static DOMAIN_URL = process.env['DOMAIN_URL'] || '';
 
     // AWS
     public static AWS_ACCESS_KEY = process.env['AWS_ACCESS_KEY'] || '';

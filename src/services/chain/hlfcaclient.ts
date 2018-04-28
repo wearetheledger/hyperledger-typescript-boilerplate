@@ -31,21 +31,23 @@ export class HlfCaClient {
     }
 
     createAdmin(enrollmentID: string, enrollmentSecret: string, mspid: string): Promise<User> {
-        return this.getUserFromStore(this.hlfConfig.options.admin.enrollmentID).then(userFromStore => {
-            if (userFromStore) {
-                this.hlfConfig.adminUser = userFromStore;
-                return this.hlfConfig.client.setUserContext(this.hlfConfig.adminUser);
-            } else {
-                return this.enrollUser(enrollmentID, enrollmentSecret, mspid)
-                    .then((user: User) => {
-                        this.hlfConfig.adminUser = user;
-                        return this.hlfConfig.client.setUserContext(this.hlfConfig.adminUser);
-                    });
-            }
-        }).then(() => {
-            Log.hlf.info(HlfInfo.ASSIGNED_ADMIN, this.hlfConfig.adminUser.toString());
-            return Promise.resolve(this.hlfConfig.adminUser);
-        });
+        return this.getUserFromStore(this.hlfConfig.options.admin.enrollmentID)
+            .then(userFromStore => {
+                if (userFromStore) {
+                    this.hlfConfig.adminUser = userFromStore;
+                    return this.hlfConfig.client.setUserContext(this.hlfConfig.adminUser);
+                } else {
+                    return this.enrollUser(enrollmentID, enrollmentSecret, mspid)
+                        .then((user: User) => {
+                            this.hlfConfig.adminUser = user;
+                            return this.hlfConfig.client.setUserContext(this.hlfConfig.adminUser);
+                        });
+                }
+            })
+            .then(() => {
+                Log.hlf.info(HlfInfo.ASSIGNED_ADMIN);
+                return this.hlfConfig.adminUser;
+            });
     }
 
     createUser(username: string, mspid: string, affiliation: string, attrs: UserAttr[]): Promise<User> {
@@ -64,9 +66,13 @@ export class HlfCaClient {
                 })
                 .catch((err) => {
                     Log.hlf.error(HlfErrors.FAILED_TO_REGISTER, username);
+
+                    Log.hlf.error(err);
+
                     if (err.toString().indexOf('Authorization') > -1) {
                         Log.hlf.error(HlfErrors.AUTH_FAILURES);
                     }
+
                     throw err;
                 });
         } else {
@@ -74,13 +80,13 @@ export class HlfCaClient {
         }
     }
 
-    getUserFromStore(userId: string, checkPersistence = true): Promise<User | void> {
+    getUserFromStore(userId: string, checkPersistence = true): Promise<User> {
         return this.hlfConfig.client.getUserContext(userId, checkPersistence)
             .then(userFromStore => {
                 if (userFromStore && userFromStore.isEnrolled()) {
-                    return Promise.resolve(userFromStore);
+                    return userFromStore;
                 } else {
-                    return Promise.resolve(null);
+                    return null;
                 }
             });
     }

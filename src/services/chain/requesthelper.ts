@@ -17,12 +17,12 @@ export class RequestHelper {
     /**
      * Creates an instance of RequestHelper.
      * @param {HlfClient} hlfClient
-     * @param {PusherService} webSocketService
+     * @param {PusherService} eventService
      * @param {QueuePusherService} queuePusherService
      * @memberof RequestHelper
      */
     constructor(private hlfClient: HlfClient,
-                @Inject('IEventService') private webSocketService: IEventService,
+                @Inject('IEventService') private eventService: IEventService,
                 private queuePusherService: QueuePusherService) {
     }
 
@@ -44,23 +44,23 @@ export class RequestHelper {
             return this.hlfClient.invoke(chainMethod, params)
                 .then((response) => {
                     Log.hlf.debug('Invoke successfully executed: ', response);
-                    this.webSocketService.triggerSuccess(userId, chainMethod, params);
-                    return Promise.resolve({txHash: response});
+                    this.eventService.triggerSuccess(userId, chainMethod, params);
+                    return {txHash: response};
                 })
                 .catch(error => {
                     Log.hlf.error(`${chainMethod}`, error);
-                    this.webSocketService.triggerError(userId, chainMethod, params);
-                    return Promise.reject(error);
+                    this.eventService.triggerError(userId, chainMethod, params);
+                    throw error;
                 });
         } else {
             return this.queuePusherService.add(chainMethod, params, userId, invokeAlways)
                 .then((response) => {
                     Log.awssqs.debug('Invoke successfully added to SQS queue: ', response);
-                    return Promise.resolve(response);
+                    return response;
                 })
                 .catch(error => {
                     Log.awssqs.error(`${chainMethod}`, error);
-                    return Promise.reject(error);
+                    throw error;
                 });
         }
     }
@@ -78,12 +78,12 @@ export class RequestHelper {
 
         return this.hlfClient.query(chainMethod, params)
             .then((response) => {
-                Log.hlf.debug('Query successfully executed: ', response);
-                return Promise.resolve(response);
+                Log.hlf.debug('Query successfully executed!');
+                return response;
             })
             .catch(error => {
                 Log.hlf.error(`${chainMethod}`, error);
-                return Promise.reject(error);
+                throw error;
             });
     }
 
@@ -99,11 +99,11 @@ export class RequestHelper {
         return schema.validate(body)
             .then(params => {
                 Log.config.debug('Valid object schema: ', params);
-                return Promise.resolve(params);
+                return params;
             })
             .catch((error) => {
                 Log.config.error('Validation', error);
-                return Promise.reject(error);
+                throw error;
             });
     }
 

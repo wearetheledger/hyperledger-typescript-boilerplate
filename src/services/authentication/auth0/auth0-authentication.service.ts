@@ -6,10 +6,10 @@ import { JwtToken, ManagementClient } from 'auth0';
 import { UserAttr } from '../../chain/models/userattr.model';
 import { HlfCaClient } from '../../chain/hlfcaclient';
 import { Auth0UserModel } from './auth0user.model';
-import { IAuthService } from '../authentication.interface';
+import { IAuthService } from '../authenticationservice.interface';
 
 @Component()
-export class Auth0CredsService implements IAuthService {
+export class Auth0AuthenticationService implements IAuthService {
 
     private auth0Client;
 
@@ -23,7 +23,7 @@ export class Auth0CredsService implements IAuthService {
             domain: EnvConfig.AUTH0_DOMAIN,
             clientId: EnvConfig.AUTH0_CLIENT_ID,
             clientSecret: EnvConfig.AUTH0_CLIENT_SECRET,
-            scope: 'read:users write:users',
+            scope: 'read:users read:users_app_metadata',
             audience: EnvConfig.AUTH0_AUDIENCE,
             tokenProvider: {
                 enableCache: true,
@@ -35,17 +35,17 @@ export class Auth0CredsService implements IAuthService {
     /**
      * get user id from auth token to be used in creds
      *
-     * @param {any} bearerToken
+     * @param {string} bearerToken
      * @returns {string}
-     * @memberof Auth0CredsService
+     * @memberof Auth0AuthenticationService
      */
     getUserId(bearerToken: string): string {
         if (bearerToken) {
             let token: JwtToken = jwtDecode(bearerToken.split(' ')[1]);
             return token.sub.replace('|', '-');
-        } else {
-            return 'guest';
         }
+
+        return null;
     }
 
     /**
@@ -53,10 +53,10 @@ export class Auth0CredsService implements IAuthService {
      * return user from creds
      *
      * @param {string} userId
-     * @returns {Promise<any>}
-     * @memberof Auth0CredsService
+     * @returns {Promise<User>}
+     * @memberof Auth0AuthenticationService
      */
-    getUserFromStore(userId: string): Promise<User | void> {
+    getUserFromStore(userId: string): Promise<User> {
         return this.hlfCaClient.getUserFromStore(userId);
     }
 
@@ -64,14 +64,14 @@ export class Auth0CredsService implements IAuthService {
      * Create new user credential file in store
      *
      * @param {string} userId
-     * @returns {Promise<any>}
-     * @memberof Auth0CredsService
+     * @returns {Promise<User>}
+     * @memberof Auth0AuthenticationService
      */
     createUserCreds(userId: string): Promise<User> {
         return this.getUserModel(userId)
             .then((auth0UserModel: Auth0UserModel) => {
                 return this.hlfCaClient.createUser(
-                    auth0UserModel.id,
+                    userId,
                     'Org1MSP',
                     'org1.department1',
                     this.transformAttrs(auth0UserModel)
@@ -85,20 +85,21 @@ export class Auth0CredsService implements IAuthService {
      * @private
      * @param {Auth0UserModel} auth0UserModel
      * @returns {UserAttr[]}
-     * @memberof Auth0CredsService
+     * @memberof Auth0AuthenticationService
      */
     private transformAttrs(auth0UserModel: Auth0UserModel): UserAttr[] {
         const object = {
-            id: auth0UserModel.id,
-            username: auth0UserModel.username,
+            user_id: auth0UserModel.user_id,
+            nickname: auth0UserModel.nickname,
             email: auth0UserModel.email,
-            ...auth0UserModel.user_metadata,
+            properties: JSON.stringify(auth0UserModel.app_metadata)
         };
         return Object
             .keys(object)
             .map(key => {
                 return {name: key, value: object[key], ecert: true};
             });
+
     }
 
     /**
@@ -108,15 +109,15 @@ export class Auth0CredsService implements IAuthService {
      * @private
      * @param {string} userId
      * @returns {Promise<Auth0UserModel>}
-     * @memberof Auth0CredsService
+     * @memberof Auth0AuthenticationService
      */
     private getUserModel(userId: string): Promise<Auth0UserModel> {
         if (userId != 'guest') {
             return this.getUserInfoFromAuth0(userId);
         } else {
-            return Promise.resolve({
-                id: 'guest',
-                username: 'guest',
+            return Promise.resolve(<Auth0UserModel>{
+                user_id: 'guest',
+                nickname: 'guest',
                 email: null,
                 user_metadata: {
                     role: 'guest'
@@ -131,16 +132,14 @@ export class Auth0CredsService implements IAuthService {
      * @private
      * @param {string} userId
      * @returns {Promise<Auth0UserModel>}
-     * @memberof Auth0CredsService
+     * @memberof Auth0AuthenticationService
      */
     private getUserInfoFromAuth0(userId: string): Promise<Auth0UserModel> {
-        return this.auth0Client.getUser(userId, (err, userInfo) => {
-            if (err) {
+        return this.auth0Client.getUser({id: userId.replace('-', '|')})
+            .catch(err => {
                 Log.config.error(`Unable to fetch User data from Auth0`, userId);
                 throw new InternalServerErrorException(err);
-            }
-            return userInfo;
-        });
+            });
     }
 
 }

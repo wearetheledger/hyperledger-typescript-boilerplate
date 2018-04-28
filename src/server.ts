@@ -39,10 +39,21 @@ async function bootstrap() {
         .setDescription('The Chainservice API')
         .setVersion('1.0')
         .setExternalDoc('Github repo', 'https://github.com/wearetheledger/hyperledger-typescript-boilerplate')
+        .addOAuth2('implicit', `https://${EnvConfig.AUTH0_DOMAIN}/authorize`, `https://${EnvConfig.AUTH0_DOMAIN}/oauth/token`)
         .build();
 
     const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('/api', app, document);
+    SwaggerModule.setup('/api', app, document, {
+        swaggerOptions: {
+            oauth2RedirectUrl: `${EnvConfig.DOMAIN_URL}/api/oauth2-redirect.html`,
+            oauth: {
+                clientId: EnvConfig.AUTH0_CLIENT_ID,
+                appName: 'Chainservice API',
+                scopeSeparator: ' ',
+                additionalQueryStringParams: {audience: EnvConfig.AUTH0_AUDIENCE}
+            }
+        }
+    });
 
     /**
      * Start Chainservice API

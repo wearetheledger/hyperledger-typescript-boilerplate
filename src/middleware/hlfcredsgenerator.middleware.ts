@@ -1,9 +1,18 @@
 import { Log } from '../services/logging/log.service';
-import { ExpressMiddleware, Inject, InternalServerErrorException, Middleware, NestMiddleware } from '@nestjs/common';
-import { IAuthService } from '../services/authentication/authentication.interface';
+import {
+    ExpressMiddleware,
+    Inject,
+    InternalServerErrorException,
+    Middleware,
+    NestMiddleware,
+    UnauthorizedException
+} from '@nestjs/common';
+import { IAuthService } from '../services/authentication/authenticationservice.interface';
+import { Appconfig } from '../config/appconfig';
+import { IAuthUser } from '../services/authentication/authenticateduser';
 
 @Middleware()
-export class CredsGenerator implements NestMiddleware {
+export class HlfcredsgeneratorMiddleware implements NestMiddleware {
 
     /**
      * Creates an instance of HlfCaMiddleware.
@@ -12,49 +21,47 @@ export class CredsGenerator implements NestMiddleware {
      * In this case we Are using the Auth0Service.
      *
      * @memberof HlfCaMiddleware
-     * @param authCredsService
+     * @param authService
      */
-    constructor(@Inject('IAuthService') private authCredsService: IAuthService) {
+    constructor(@Inject('IAuthService') private authService: IAuthService) {
     }
 
     resolve(...args: any[]): ExpressMiddleware {
         return (req, res, next) => {
             const token = req.headers['authorization'];
-            const userId = this.authCredsService.getUserId(token);
+            let userId = this.authService.getUserId(token);
 
-            this.authCredsService.getUserFromStore(userId)
+            if (!userId && !Appconfig.allowguest) {
+                Log.config.debug('UserId not provided and allowguest is marked as false, not allowed to continue');
+                throw new UnauthorizedException();
+            } else if (!userId) {
+                userId = 'guest';
+            } else if (userId) {
+                req.auth = <IAuthUser>{
+                    id: userId
+                };
+            }
+
+            this.authService.getUserFromStore(userId)
                 .then(userFromStore => {
-                    Log.config.debug('User From store:', userFromStore);
                     // create user creds if not already exists
                     if (!userFromStore) {
                         Log.config.debug('Creating new user:', userId);
                         // token.sub = unchanged user id from auth0
-                        if (token) {
-                            this.createUser(token.sub).then(() => {
+                        this.authService.createUserCreds(userId)
+                            .then(() => {
                                 next();
-                            }).catch(err => {
+                            })
+                            .catch(err => {
                                 throw new InternalServerErrorException(err);
                             });
-                        } else {
-                            this.createUser('guest').then(() => {
-                                next();
-                            }).catch(err => {
-                                throw new InternalServerErrorException(err);
-                            });
-                        }
+
                     } else {
+                        Log.config.debug('User From store:', userFromStore.getName());
+
                         next();
                     }
                 });
         };
-    }
-
-    private createUser(userId: string) {
-        return this.authCredsService.createUserCreds(userId)
-            .then(userCreds => {
-                return userCreds;
-            }).catch(err => {
-                return err;
-            });
     }
 }

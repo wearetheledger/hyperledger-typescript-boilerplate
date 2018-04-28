@@ -4,6 +4,7 @@ import { ChainMethod } from '../chainmethods.enum';
 import { CarDto } from './car.model';
 import { InvokeResult } from '../invokeresult.model';
 import { RequestHelper } from '../../services/chain/requesthelper';
+import { IAuthUser } from "../../services/authentication/authenticateduser";
 
 @Component()
 export class CarService {
@@ -19,17 +20,12 @@ export class CarService {
     /**
      * get all cars
      *
-     * @param {string} userId
      * @returns {Promise<CarDto[]>}
      * @memberof AssetsService
      */
-    getAll(userId: string): Promise<CarDto[]> {
+    getAll(): Promise<CarDto[]> {
         // this is a query, query chaincode directly
         return this.requestHelper.queryRequest(ChainMethod.queryAllCars, [])
-            .then(result => {
-                userId = 'demo';
-                return result;
-            })
             .catch(error => {
                 throw new InternalServerErrorException(error);
             });
@@ -39,11 +35,11 @@ export class CarService {
      * create new car
      *
      * @param {CarDto} carDto
-     * @param {string} userId
+     * @param {IAuthUser} authUser
      * @returns {Promise<InvokeResult>}
      * @memberof AssetsService
      */
-    create(carDto: CarDto, userId: string): Promise<InvokeResult> {
+    create(carDto: CarDto, authUser: IAuthUser): Promise<InvokeResult> {
         const schema = Yup.object().shape({
             Key: Yup.string().required(),
             Make: Yup.string().required(),
@@ -51,6 +47,7 @@ export class CarService {
             Colour: Yup.string().required(),
             Owner: Yup.string().required()
         });
+
         // TODO: replace yup with validation pipe
         return this.requestHelper.validateRequest(schema, carDto)
             .then(params => {
@@ -60,10 +57,7 @@ export class CarService {
                     carDto.Make,
                     carDto.Model,
                     carDto.Owner,
-                ], userId)
-                    .then(result => {
-                        return result;
-                    })
+                ], authUser.id)
                     .catch(error => {
                         throw new InternalServerErrorException(error);
                     });

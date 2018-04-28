@@ -36,5 +36,5 @@ export enum HlfInfo {
     'CHECK_TRANSACTION_PROPOSAL' = 'Checking if transaction proposal is good...',
     'REGISTERING_TRANSACTION_EVENT' = 'Registering transaction event...',
     'CONNECTING_EVENTHUB' = 'Connecting eventhub...',
-    'ASSIGNED_ADMIN' = 'Assigned the admin user to the fabric client: %s',
+    'ASSIGNED_ADMIN' = 'Assigned the admin user to the fabric client',
 }

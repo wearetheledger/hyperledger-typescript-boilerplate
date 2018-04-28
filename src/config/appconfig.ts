@@ -2,7 +2,7 @@ import { EnvConfig } from './env';
 import * as path from 'path';
 import { ConfigOptions } from './config.model';
 import { PusherService } from '../services/events/implementations/pusher.service';
-import { Auth0CredsService } from '../services/authentication/auth0/auth0.credsservice';
+import { Auth0AuthenticationService } from '../services/authentication/auth0/auth0-authentication.service';
 
 export const Appconfig: ConfigOptions = <ConfigOptions>{
     hlf: {
@@ -24,8 +24,9 @@ export const Appconfig: ConfigOptions = <ConfigOptions>{
             verify: false
         },
         caName: 'ca.example.com'
-    }
+    },
+    allowguest: true
 };
 
 export const EventService = {provide: 'IEventService', useClass: PusherService};
-export const AuthService = {provide: 'IAuthService', useClass: Auth0CredsService};
+export const AuthService = {provide: 'IAuthService', useClass: Auth0AuthenticationService};
