@@ -1,18 +1,10 @@
-import { Body, Controller, Get, Headers, Inject, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Req } from '@nestjs/common';
 import { CarService } from './car.service';
 import { CarDto } from './car.model';
 import { InvokeResult } from '../invokeresult.model';
-import {
-    ApiBearerAuth,
-    ApiImplicitHeader,
-    ApiOAuth2Auth,
-    ApiOperation,
-    ApiResponse,
-    ApiUseTags
-} from '@nestjs/swagger';
+import { ApiOAuth2Auth, ApiOperation, ApiResponse, ApiUseTags } from '@nestjs/swagger';
 import { IAuthService } from '../../services/authentication/authenticationservice.interface';
 
-@ApiBearerAuth()
 @ApiUseTags('cars')
 @Controller('cars')
 export class CarController {
@@ -24,8 +16,8 @@ export class CarController {
      * @param authService
      */
     constructor(
-        private carService: CarService,
-        @Inject('IAuthService') private authService: IAuthService) {
+        @Inject('IAuthService') private authService: IAuthService, // For some reason, we can't remove this line even tho it is not used
+        private carService: CarService) {
     }
 
     /**
@@ -33,7 +25,6 @@ export class CarController {
      *
      * @returns {Promise<CarDto[]>}
      * @memberof CarController
-     * @param auth
      */
     @Get()
     @ApiOperation({title: 'Get all cars'})
@@ -47,14 +38,13 @@ export class CarController {
      *
      * @returns {Promise<CarDto[]>}
      * @memberof CarController
-     * @param req
+     * @param id
      */
     @Get(':id')
     @ApiOperation({title: 'Get a car by id'})
     @ApiOAuth2Auth(['read'])
-    getById(@Req() req): Promise<CarDto[]> {
-        //const userId = this.authService.getUserId(auth);
-        return this.carService.getAll();
+    getById(@Param('id') id): Promise<CarDto> {
+        return this.carService.getById(id);
     }
 
     /**
@@ -67,7 +57,6 @@ export class CarController {
      */
     @Post()
     @ApiOperation({title: 'Create new car'})
-    @ApiImplicitHeader({name: 'authorization', required: false})
     @ApiResponse({
         status: 201,
         description: 'The record has been successfully created.',

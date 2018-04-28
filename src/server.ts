@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { config as awsConfig } from 'aws-sdk';
 import * as bodyParser from 'body-parser';
 import { Log } from './services/logging/log.service';
+import { ValidationPipe } from '@nestjs/common';
 
 /**
  * Set AWS Credentials
@@ -21,6 +22,8 @@ async function bootstrap() {
     const app = await NestFactory.create(ApplicationModule);
 
     app.use(bodyParser.json());
+
+    app.useGlobalPipes(new ValidationPipe());
 
     /**
      * Headers setup

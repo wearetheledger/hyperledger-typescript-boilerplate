@@ -1,6 +1,6 @@
 {
   "name": "hyperledger-typescript-boilerplate",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "",
   "scripts": {
     "start": "node index.js",
@@ -40,6 +40,7 @@
     "aws-sdk": "^2.140.0",
     "axios": "^0.18.0",
     "body-parser": "^1.18.2",
+    "class-validator": "^0.8.5",
     "dotenv": "^4.0.0",
     "express-jwt": "^5.3.0",
     "fabric-ca-client": "^1.0.4",

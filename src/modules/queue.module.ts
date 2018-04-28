@@ -12,4 +12,5 @@ import { QueuePusherService } from '../services/queue/queuepusher.service';
         QueuePusherService
     ]
 })
-export class QueueModule { }
+export class QueueModule {
+}
