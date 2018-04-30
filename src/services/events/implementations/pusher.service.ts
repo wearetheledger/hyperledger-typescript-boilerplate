@@ -1,4 +1,4 @@
-import { EnvConfig } from '../../../config/env';
+import { EnvConfig } from '../../../common/config/env';
 import { Component } from '@nestjs/common';
 import * as Pusher from 'pusher';
 import { Log } from '../../logging/log.service';

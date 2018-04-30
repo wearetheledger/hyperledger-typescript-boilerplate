@@ -3,7 +3,7 @@ import { HlfClient } from './hlfclient';
 import { QueuePusherService } from '../queue/queuepusher.service';
 import { ChainMethod } from '../../routes/chainmethods.enum';
 import { InvokeResult } from '../../routes/invokeresult.model';
-import { EnvConfig } from '../../config/env';
+import { EnvConfig } from '../../common/config/env';
 import { PusherService } from '../events/implementations/pusher.service';
 import { Log } from '../logging/log.service';
 import { isObject } from '@nestjs/common/utils/shared.utils';

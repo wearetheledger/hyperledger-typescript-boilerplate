@@ -1,12 +1,12 @@
-import { Log } from '../../logging/log.service';
-import { EnvConfig } from '../../../config/env';
+import { Log } from '../../../services/logging/log.service';
+import { EnvConfig } from '../../../common/config/env';
 import { Component, InternalServerErrorException } from '@nestjs/common';
-import * as jwtDecode from 'jwt-decode';
 import { JwtToken, ManagementClient } from 'auth0';
-import { UserAttr } from '../../chain/models/userattr.model';
-import { HlfCaClient } from '../../chain/hlfcaclient';
+import { UserAttr } from '../../../services/chain/models/userattr.model';
+import { HlfCaClient } from '../../../services/chain/hlfcaclient';
 import { Auth0UserModel } from './auth0user.model';
-import { IAuthService } from '../authenticationservice.interface';
+import { IAuthService } from '../interfaces/IAuthService';
+import { IJWT } from "../interfaces/IJWT";
 
 @Component()
 export class Auth0AuthenticationService implements IAuthService {
@@ -35,13 +35,12 @@ export class Auth0AuthenticationService implements IAuthService {
     /**
      * get user id from auth token to be used in creds
      *
-     * @param {string} bearerToken
      * @returns {string}
-     * @memberof Auth0AuthenticationService
+     * @memberof CivicAuthenticationService
+     * @param token
      */
-    getUserId(bearerToken: string): string {
-        if (bearerToken) {
-            let token: JwtToken = jwtDecode(bearerToken.split(' ')[1]);
+    getUserId(token: JwtToken): string {
+        if (token) {
             return token.sub.replace('|', '-');
         }
 
@@ -54,7 +53,7 @@ export class Auth0AuthenticationService implements IAuthService {
      *
      * @param {string} userId
      * @returns {Promise<User>}
-     * @memberof Auth0AuthenticationService
+     * @memberof CivicAuthenticationService
      */
     getUserFromStore(userId: string): Promise<User> {
         return this.hlfCaClient.getUserFromStore(userId);
@@ -63,11 +62,13 @@ export class Auth0AuthenticationService implements IAuthService {
     /**
      * Create new user credential file in store
      *
-     * @param {string} userId
      * @returns {Promise<User>}
-     * @memberof Auth0AuthenticationService
+     * @memberof CivicAuthenticationService
+     * @param tokenObject
      */
-    createUserCreds(userId: string): Promise<User> {
+    createUserCreds(tokenObject: IJWT): Promise<User> {
+        const userId = this.getUserId(tokenObject);
+
         return this.getUserModel(userId)
             .then((auth0UserModel: Auth0UserModel) => {
                 return this.hlfCaClient.createUser(
@@ -85,10 +86,11 @@ export class Auth0AuthenticationService implements IAuthService {
      * @private
      * @param {Auth0UserModel} auth0UserModel
      * @returns {UserAttr[]}
-     * @memberof Auth0AuthenticationService
+     * @memberof CivicAuthenticationService
      */
     private transformAttrs(auth0UserModel: Auth0UserModel): UserAttr[] {
         const object = {
+            provider: 'auth0',
             user_id: auth0UserModel.user_id,
             nickname: auth0UserModel.nickname,
             email: auth0UserModel.email,
@@ -109,7 +111,7 @@ export class Auth0AuthenticationService implements IAuthService {
      * @private
      * @param {string} userId
      * @returns {Promise<Auth0UserModel>}
-     * @memberof Auth0AuthenticationService
+     * @memberof CivicAuthenticationService
      */
     private getUserModel(userId: string): Promise<Auth0UserModel> {
         if (userId != 'guest') {
@@ -132,7 +134,7 @@ export class Auth0AuthenticationService implements IAuthService {
      * @private
      * @param {string} userId
      * @returns {Promise<Auth0UserModel>}
-     * @memberof Auth0AuthenticationService
+     * @memberof CivicAuthenticationService
      */
     private getUserInfoFromAuth0(userId: string): Promise<Auth0UserModel> {
         return this.auth0Client.getUser({id: userId.replace('-', '|')})

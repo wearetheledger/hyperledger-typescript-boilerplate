@@ -1,5 +1,5 @@
 import { Component } from '@nestjs/common';
-import { HlfConfigOptions } from '../../config/config.model';
+import { HlfConfigOptions } from '../../common/config/config.model';
 
 @Component()
 export class HlfConfig {

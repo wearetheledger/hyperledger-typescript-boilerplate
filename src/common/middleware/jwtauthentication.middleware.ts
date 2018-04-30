@@ -1,7 +1,7 @@
 import { ExpressMiddleware, Middleware, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'express-jwt';
 import { expressJwtSecret } from 'jwks-rsa';
-import { EnvConfig } from '../../config/env';
+import { EnvConfig } from '../config/env';
 
 @Middleware()
 export class JwtauthenticationMiddleware implements NestMiddleware {

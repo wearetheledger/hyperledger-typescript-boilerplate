@@ -28,5 +28,5 @@ vendor
 .idea
 
 !src/config/creds/.gitkeep
-src/config/creds/*
+src/common/config/creds/*
 

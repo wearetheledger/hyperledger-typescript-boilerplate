@@ -1,5 +1,5 @@
 
-import { EnvConfig } from '../../config/env';
+import { EnvConfig } from '../../common/config/env';
 import { Component, Inject } from '@nestjs/common';
 import { AWSError, SQS } from 'aws-sdk';
 import * as Consumer from 'sqs-consumer';

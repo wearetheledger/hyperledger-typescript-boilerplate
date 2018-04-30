@@ -3,7 +3,7 @@ import { ChainMethod } from '../chainmethods.enum';
 import { CarDto } from './car.model';
 import { InvokeResult } from '../invokeresult.model';
 import { RequestHelper } from '../../services/chain/requesthelper';
-import { IAuthUser } from '../../services/authentication/authenticateduser';
+import { IAuthUser } from '../../modules/auth/authenticateduser';
 
 @Component()
 export class CarService {

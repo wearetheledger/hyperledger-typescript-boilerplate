@@ -5,7 +5,7 @@ import { ChainMethod } from '../../routes/chainmethods.enum';
 import { Log } from '../logging/log.service';
 import { HlfConfig } from './hlfconfig';
 import FabricClient = require('fabric-client');
-import { HlfConfigOptions } from '../../config/config.model';
+import { HlfConfigOptions } from '../../common/config/config.model';
 
 @Component()
 export class HlfClient extends ChainService {

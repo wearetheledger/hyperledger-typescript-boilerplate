@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { PingService } from '../src/routes/ping/ping.service';
 import { config as awsConfig } from 'aws-sdk';
-import { EnvConfig } from '../src/config/env';
+import { EnvConfig } from '../src/common/config/env';
 
 
 describe('Tests', () => {

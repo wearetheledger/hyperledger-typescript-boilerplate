@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { EventService } from '../config/appconfig';
+import { EventService } from '../common/config/appconfig';
 
 @Module({
     components: [EventService],

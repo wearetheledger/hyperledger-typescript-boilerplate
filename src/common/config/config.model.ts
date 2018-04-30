@@ -1,5 +1,6 @@
 export interface ConfigOptions {
     hlf: HlfConfigOptions;
+    auth: AuthConfigOptions;
     allowguest: boolean;
 }
 
@@ -26,4 +27,8 @@ export type HlfConfigOptions = {
     admin: AdminCreds;
     tlsOptions: TLSOptions,
     caName: string
+};
+
+export type AuthConfigOptions = {
+    credsMiddleware: object;
 };

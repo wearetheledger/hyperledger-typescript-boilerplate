@@ -3,7 +3,7 @@ import { Log } from '../logging/log.service';
 import { Component } from '@nestjs/common';
 import { HlfErrors, HlfInfo } from './logging.enum';
 import { HlfConfig } from './hlfconfig';
-import { AdminCreds } from '../../config/config.model';
+import { AdminCreds } from '../../common/config/config.model';
 
 const CaClient = require('fabric-ca-client');
 

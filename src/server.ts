@@ -1,4 +1,4 @@
-import { EnvConfig } from './config/env';
+import { EnvConfig } from './common/config/env';
 import { NestFactory } from '@nestjs/core';
 import { ApplicationModule } from './modules/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';

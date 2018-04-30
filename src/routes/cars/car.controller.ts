@@ -1,9 +1,8 @@
-import { Body, Controller, Get, Inject, NotFoundException, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Post, Req } from '@nestjs/common';
 import { CarService } from './car.service';
 import { CarDto } from './car.model';
 import { InvokeResult } from '../invokeresult.model';
 import { ApiOAuth2Auth, ApiOperation, ApiResponse, ApiUseTags } from '@nestjs/swagger';
-import { IAuthService } from '../../services/authentication/authenticationservice.interface';
 
 @ApiUseTags('cars')
 @Controller('cars')
@@ -13,11 +12,8 @@ export class CarController {
      * Creates an instance of CarController.
      * @memberof CarController
      * @param {CarService} carService
-     * @param authService
      */
-    constructor(
-        @Inject('IAuthService') private authService: IAuthService, // For some reason, we can't remove this line even tho it is not used
-        private carService: CarService) {
+    constructor(private carService: CarService) {
     }
 
     /**

@@ -2,7 +2,7 @@ import { CarService } from '../routes/cars/car.service';
 import { EventsModule } from './events.module';
 import { ChainModule } from './chain.module';
 import { QueueModule } from './queue.module';
-import { EnvConfig } from '../config/env';
+import { EnvConfig } from '../common/config/env';
 import { MiddlewaresConsumer, Module, RequestMethod } from '@nestjs/common';
 import { PingService } from '../routes/ping/ping.service';
 import { PingController } from '../routes/ping/ping.controller';
@@ -12,11 +12,10 @@ import { NestModule } from '@nestjs/common/interfaces';
 import { CarController } from '../routes/cars/car.controller';
 import { Log } from '../services/logging/log.service';
 import { HlfCaClient } from '../services/chain/hlfcaclient';
-import { AuthenticationModule } from './authentication.module';
+import { AuthenticationModule } from './auth/authentication.module';
 import { HlfcredsgeneratorMiddleware } from '../common/middleware/hlfcredsgenerator.middleware';
 import { HlfErrors } from '../services/chain/logging.enum';
-import { Appconfig } from '../config/appconfig';
-import { JwtauthenticationMiddleware } from '../common/middleware/jwtauthentication.middleware';
+import { Appconfig } from '../common/config/appconfig';
 
 @Module({
     controllers: [
@@ -31,7 +30,7 @@ import { JwtauthenticationMiddleware } from '../common/middleware/jwtauthenticat
         ChainModule,
         QueueModule,
         EventsModule,
-        AuthenticationModule
+        AuthenticationModule,
     ],
 })
 export class ApplicationModule implements NestModule {
@@ -75,12 +74,19 @@ export class ApplicationModule implements NestModule {
      */
     configure(consumer: MiddlewaresConsumer): void {
 
-        consumer.apply(JwtauthenticationMiddleware).forRoutes(
-            {path: '/cars*', method: RequestMethod.ALL},
-        );
+        // TODO this middleware should be optional and also work for Civic
+        //consumer.apply(JwtauthenticationMiddleware).forRoutes(
+        //    {path: '/cars*', method: RequestMethod.ALL},
+        //);
 
+        // Middleware would get triggered when sending preflight requests
+        // TODO find a better solution
         consumer.apply(HlfcredsgeneratorMiddleware).forRoutes(
-            {path: '/cars*', method: RequestMethod.ALL}
+            {path: '/cars*', method: RequestMethod.GET},
+            {path: '/cars*', method: RequestMethod.POST},
+            {path: '/cars*', method: RequestMethod.PATCH},
+            {path: '/cars*', method: RequestMethod.PUT},
+            {path: '/cars*', method: RequestMethod.DELETE},
         );
     }
 }
