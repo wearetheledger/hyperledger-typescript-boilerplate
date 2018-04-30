@@ -6,7 +6,7 @@ import { UserAttr } from '../../../services/chain/models/userattr.model';
 import { HlfCaClient } from '../../../services/chain/hlfcaclient';
 import { Auth0UserModel } from './auth0user.model';
 import { IAuthService } from '../interfaces/IAuthService';
-import { IJWT } from "../interfaces/IJWT";
+import { IJWT } from '../interfaces/IJWT';
 
 @Component()
 export class Auth0AuthenticationService implements IAuthService {

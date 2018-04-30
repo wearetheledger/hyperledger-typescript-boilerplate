@@ -45,7 +45,7 @@ export class CivicController {
         return civicClient.exchangeCode(body.token)
             .then(this.civicService.createToken)
             .catch((error) => {
-                Log.hlf.error(error)
+                Log.hlf.error(error);
                 throw new InternalServerErrorException(error);
             });
     }

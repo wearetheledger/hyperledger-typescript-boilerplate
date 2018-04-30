@@ -1,4 +1,4 @@
-import { IJWT } from "./IJWT";
+import { IJWT } from './IJWT';
 
 export interface IAuthService {
     getUserId(tokenObject: object): string;
