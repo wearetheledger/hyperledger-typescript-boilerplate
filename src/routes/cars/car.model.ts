@@ -4,17 +4,17 @@ import { IsString } from 'class-validator';
 export class CarDto {
     @IsString()
     @ApiModelProperty()
-    readonly Key: string;
+    readonly key: string;
     @IsString()
     @ApiModelProperty()
-    readonly Make: string;
+    readonly make: string;
     @IsString()
     @ApiModelProperty()
-    readonly Model: string;
+    readonly model: string;
     @IsString()
     @ApiModelProperty()
-    readonly Colour: string;
+    readonly colour: string;
     @IsString()
     @ApiModelProperty()
-    readonly Owner: string;
+    readonly owner: string;
 }

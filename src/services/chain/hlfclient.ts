@@ -72,13 +72,13 @@ export class HlfClient extends ChainService {
      *
      * @param {ChainMethod} chainMethod
      * @param { string[]} params
-     * @param {string} channelId
+     * @param {string} chaincodeId
      * @returns
      * @memberof ChainService
      */
-    invoke(chainMethod: ChainMethod, params: string[], channelId = this.hlfConfig.options.channelId): Promise<any> {
+    invoke(chainMethod: ChainMethod, params: string[], chaincodeId = this.hlfConfig.options.chaincodeId): Promise<any> {
         Log.hlf.info(chainMethod, params);
-        return this.sendTransactionProposal(chainMethod, params, channelId)
+        return this.sendTransactionProposal(chainMethod, params, chaincodeId)
             .then((result: { txHash: string; buffer: ProposalResponseObject }) => {
                 // Log.hlf.debug(JSON.stringify(result.buffer));
                 Log.hlf.info(HlfInfo.CHECK_TRANSACTION_PROPOSAL);
