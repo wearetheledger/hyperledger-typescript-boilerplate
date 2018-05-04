@@ -3,5 +3,7 @@ node_js:
   - '7'
 install:
   - npm install
+build:
+  - npm run build
 script:
   - npm test
