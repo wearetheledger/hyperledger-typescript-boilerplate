@@ -57,11 +57,11 @@ export class CarService {
      */
     create(carDto: CarDto, authUser: IAuthUser): Promise<InvokeResult> {
         return this.requestHelper.invokeRequest(ChainMethod.createCar, [
-            carDto.Colour,
-            carDto.Key,
-            carDto.Make,
-            carDto.Model,
-            carDto.Owner,
+            carDto.colour,
+            carDto.key,
+            carDto.make,
+            carDto.model,
+            carDto.owner,
         ], authUser.id)
             .catch(error => {
                 throw new InternalServerErrorException(error);
