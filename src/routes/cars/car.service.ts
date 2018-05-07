@@ -21,7 +21,7 @@ export class CarService {
    * @memberof CarService
    */
   getAll(): Promise<CarDto[]> {
-    return this.requestHelper.queryRequest(ChainMethod.queryAllCars, {}).catch((error) => {
+    return this.requestHelper.queryRequest(ChainMethod.queryAllCars).catch((error) => {
       throw new InternalServerErrorException(error);
     });
   }
@@ -55,20 +55,8 @@ export class CarService {
    * @memberof CarService
    */
   create(carDto: CarDto, authUser: IAuthUser): Promise<InvokeResult> {
-    return this.requestHelper
-      .invokeRequest(
-        ChainMethod.createCar,
-        {
-          colour: carDto.colour,
-          key: carDto.key,
-          make: carDto.make,
-          model: carDto.model,
-          owner: carDto.owner,
-        },
-        authUser.id,
-      )
-      .catch((error) => {
-        throw new InternalServerErrorException(error);
-      });
+    return this.requestHelper.invokeRequest(ChainMethod.createCar, carDto, authUser.id).catch((error) => {
+      throw new InternalServerErrorException(error);
+    });
   }
 }

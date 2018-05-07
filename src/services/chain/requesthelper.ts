@@ -74,7 +74,7 @@ export class RequestHelper {
    * @returns {Promise<any>}
    * @memberof RequestHelper
    */
-  public queryRequest(chainMethod: ChainMethod, params: Object): Promise<any> {
+  public queryRequest(chainMethod: ChainMethod, params: Object = {}): Promise<any> {
     const arrayParams = this.convertObjectParams(params);
 
     return this.hlfClient
