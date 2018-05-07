@@ -60,7 +60,7 @@
     "sqs-queue-parallel": "^0.1.6",
     "type-util": "^0.1.5",
     "winston": "^2.4.0",
-    "winston-daily-rotate-file": "^1.7.2",
+    "winston-daily-rotate-file": "^1.7.2"
   },
   "devDependencies": {
     "@types/express": "^4.0.37",
