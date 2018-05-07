@@ -28,7 +28,7 @@ export class CarController {
      */
     @Get()
     @ApiOperation({title: 'Get all cars'})
-    // @ApiOAuth2Auth(['read'])
+    @ApiOAuth2Auth(['read'])
     @ApiResponse({
         status: 200,
         description: 'Returns a list of car objects',
