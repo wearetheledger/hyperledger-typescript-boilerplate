@@ -27,5 +27,5 @@ test-reports/
 vendor
 .idea
 
-src/config/creds/*
+src/common/config/*
 
