@@ -6,12 +6,10 @@ import { InvokeResult } from '../../routes/invokeresult.model';
 import { EnvConfig } from '../../config/env';
 import { PusherService } from '../events/implementations/pusher.service';
 import { Log } from '../logging/log.service';
-import { isObject } from '@nestjs/common/utils/shared.utils';
 import { IEventService } from '../events/event.interface';
 
 @Component()
 export class RequestHelper {
-
     // TODO: refactor invokes according to https://docs.nestjs.com/recipes/cqrs
 
     /**
@@ -21,44 +19,47 @@ export class RequestHelper {
      * @param {QueuePusherService} queuePusherService
      * @memberof RequestHelper
      */
-    constructor(private hlfClient: HlfClient,
-                @Inject('IEventService') private eventService: IEventService,
-                private queuePusherService: QueuePusherService) {
+    constructor(
+        private hlfClient: HlfClient,
+        @Inject('IEventService') private eventService: IEventService,
+        private queuePusherService: QueuePusherService,
+    ) {
     }
 
     /**
      * Pass transaction request to aws queue
      *
      * @param {ChainMethod} chainMethod
-     * @param {string[]} params
+     * @param {Object} params
      * @param {string} userId
      * @param invokeAlways - Workaround for message deduplication SQS
      * @returns {Promise<InvokeResult>}
      * @memberof RequestHelper
      */
-    public invokeRequest(chainMethod: ChainMethod, params: string[], userId: string, invokeAlways = false): Promise<InvokeResult | any> {
-
-        params = this.forceStringParams(params);
+    public invokeRequest(chainMethod: ChainMethod, params: Object, userId: string, invokeAlways = false): Promise<InvokeResult | any> {
+        const args = [JSON.stringify(params)];
 
         if (EnvConfig.BYPASS_QUEUE) {
-            return this.hlfClient.invoke(chainMethod, params)
+            return this.hlfClient
+                .invoke(chainMethod, args)
                 .then((response) => {
                     Log.hlf.debug('Invoke successfully executed: ', response);
                     this.eventService.triggerSuccess(userId, chainMethod, params);
                     return {txHash: response};
                 })
-                .catch(error => {
+                .catch((error) => {
                     Log.hlf.error(`${chainMethod}`, error);
                     this.eventService.triggerError(userId, chainMethod, params);
                     throw error;
                 });
         } else {
-            return this.queuePusherService.add(chainMethod, params, userId, invokeAlways)
+            return this.queuePusherService
+                .add(chainMethod, args, userId, invokeAlways)
                 .then((response) => {
                     Log.awssqs.debug('Invoke successfully added to SQS queue: ', response);
                     return response;
                 })
-                .catch(error => {
+                .catch((error) => {
                     Log.awssqs.error(`${chainMethod}`, error);
                     throw error;
                 });
@@ -69,52 +70,22 @@ export class RequestHelper {
      * Query hlf chain and return response
      *
      * @param {ChainMethod} chainMethod
-     * @param {string[]} params
+     * @param {Object} params
      * @returns {Promise<any>}
      * @memberof RequestHelper
      */
-    public queryRequest(chainMethod: ChainMethod, params: string[]): Promise<any> {
-        params = this.forceStringParams(params);
+    public queryRequest(chainMethod: ChainMethod, params: Object = {}): Promise<any> {
+        const args = [JSON.stringify(params)];
 
-        return this.hlfClient.query(chainMethod, params)
+        return this.hlfClient
+            .query(chainMethod, args)
             .then((response) => {
                 Log.hlf.debug('Query successfully executed!');
                 return response;
             })
-            .catch(error => {
+            .catch((error) => {
                 Log.hlf.error(`${chainMethod}`, error);
                 throw error;
             });
     }
-
-    /**
-     * validate requests with yup
-     *
-     * @param {Schema} schema
-     * @param {any} body
-     * @returns {Promise<any>}
-     * @memberof RequestHelper
-     */
-    public validateRequest(schema: Schema, body): Promise<any[]> {
-        return schema.validate(body)
-            .then(params => {
-                Log.config.debug('Valid object schema: ', params);
-                return params;
-            })
-            .catch((error) => {
-                Log.config.error('Validation', error);
-                throw error;
-            });
-    }
-
-    private forceStringParams(params: string[]): string[] {
-        return params.map(param => {
-            if (isObject(param)) {
-                return JSON.stringify(param);
-            }
-
-            return param.toString();
-        });
-    }
-
 }
