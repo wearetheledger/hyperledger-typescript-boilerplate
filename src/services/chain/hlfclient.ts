@@ -92,7 +92,6 @@ export class HlfClient extends ChainService {
                     };
                     Log.hlf.info(HlfInfo.REGISTERING_TRANSACTION_EVENT);
 
-
                     let sendPromise = this.hlfConfig.channel.sendTransaction(request);
                     let txPromise = this.registerTxEvent(result.txHash);
 
@@ -107,6 +106,7 @@ export class HlfClient extends ChainService {
                         try {
                             message = JSON.parse(message);
                         } catch (e) {
+                            Log.hlf.error(e);
                         }
                     }
                     return Promise.reject(message);
