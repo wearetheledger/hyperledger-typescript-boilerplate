@@ -1,17 +1,17 @@
 import { Log } from '../../services/logging/log.service';
 import {
-    ExpressMiddleware,
     Inject,
+    Injectable,
     InternalServerErrorException,
-    Middleware,
+    MiddlewareFunction,
     NestMiddleware,
     UnauthorizedException
 } from '@nestjs/common';
 import { IAuthService } from '../../services/authentication/authenticationservice.interface';
-import { Appconfig } from '../../config/appconfig';
+import { Appconfig } from '../config/appconfig';
 import { IAuthUser } from '../../services/authentication/authenticateduser';
 
-@Middleware()
+@Injectable()
 export class HlfcredsgeneratorMiddleware implements NestMiddleware {
 
     /**
@@ -26,7 +26,7 @@ export class HlfcredsgeneratorMiddleware implements NestMiddleware {
     constructor(@Inject('IAuthService') private authService: IAuthService) {
     }
 
-    resolve(...args: any[]): ExpressMiddleware {
+    resolve(...args: any[]): MiddlewareFunction {
         return (req, res, next) => {
             const token = req.headers['authorization'];
             let userId = this.authService.getUserId(token);

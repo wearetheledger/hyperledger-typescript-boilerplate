@@ -13,7 +13,7 @@ export class CarDto {
     readonly model: string;
     @IsString()
     @ApiModelProperty()
-    readonly colour: string;
+    readonly color: string;
     @IsString()
     @ApiModelProperty()
     readonly owner: string;

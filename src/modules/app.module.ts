@@ -2,8 +2,7 @@ import { CarService } from '../routes/cars/car.service';
 import { EventsModule } from './events.module';
 import { ChainModule } from './chain.module';
 import { QueueModule } from './queue.module';
-import { EnvConfig } from '../config/env';
-import { MiddlewaresConsumer, Module, RequestMethod } from '@nestjs/common';
+import { EnvConfig } from '../common/config/env';
 import { PingService } from '../routes/ping/ping.service';
 import { PingController } from '../routes/ping/ping.controller';
 import { HlfClient } from '../services/chain/hlfclient';
@@ -15,19 +14,20 @@ import { HlfCaClient } from '../services/chain/hlfcaclient';
 import { AuthenticationModule } from './authentication.module';
 import { HlfcredsgeneratorMiddleware } from '../common/middleware/hlfcredsgenerator.middleware';
 import { HlfErrors } from '../services/chain/logging.enum';
-import { Appconfig } from '../config/appconfig';
+import { Appconfig } from '../common/config/appconfig';
 import { JwtauthenticationMiddleware } from '../common/middleware/jwtauthentication.middleware';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 
 @Module({
     controllers: [
         PingController,
         CarController,
     ],
-    components: [
+    providers: [
         PingService,
         CarService,
     ],
-    modules: [
+    imports: [
         ChainModule,
         QueueModule,
         EventsModule,
@@ -47,12 +47,12 @@ export class ApplicationModule implements NestModule {
                 private caClient: HlfCaClient,
                 private queueListenerService: QueueListenerService) {
 
-        // list env keys in cli
+        // list env keys in console
         for (let propName of Object.keys(EnvConfig)) {
             Log.config.debug(`${propName}:  ${EnvConfig[propName]}`);
         }
 
-        // init hlf client and hlf ca client 
+        // init hlf client and hlf ca client
         // assign admin user
         this.hlfClient.init(Appconfig.hlf)
             .then(result => {
@@ -73,14 +73,10 @@ export class ApplicationModule implements NestModule {
      * @param {MiddlewaresConsumer} consumer
      * @memberof ApplicationModule
      */
-    configure(consumer: MiddlewaresConsumer): void {
+    configure(consumer: MiddlewareConsumer): void {
 
-        consumer.apply(JwtauthenticationMiddleware).forRoutes(
-            {path: '/cars*', method: RequestMethod.ALL},
-        );
-
-        consumer.apply(HlfcredsgeneratorMiddleware).forRoutes(
-            {path: '/cars*', method: RequestMethod.ALL}
-        );
+        consumer
+            .apply([JwtauthenticationMiddleware, HlfcredsgeneratorMiddleware])
+            .forRoutes('/cars*');
     }
 }

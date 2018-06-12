@@ -1,6 +1,6 @@
-import { EnvConfig } from '../../config/env';
+import { EnvConfig } from '../../common/config/env';
 import { QueueListenerService } from './queuelistener.service';
-import { Component } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AWSError, SQS } from 'aws-sdk';
 import * as ObjectHash from 'object-hash';
 import { InvokeResult } from '../../routes/invokeresult.model';
@@ -9,7 +9,7 @@ import { MessageBody } from './messagebody.model';
 import { Json } from '../utils/json';
 import { Log } from '../logging/log.service';
 
-@Component()
+@Injectable()
 export class QueuePusherService {
 
     /**

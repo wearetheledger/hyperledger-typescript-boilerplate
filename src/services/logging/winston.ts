@@ -1,6 +1,6 @@
 import { Logger, LoggerInstance, transports } from 'winston';
 import 'winston-daily-rotate-file';
-import { EnvConfig } from '../../config/env';
+import { EnvConfig } from '../../common/config/env';
 
 export class Loggers {
 

@@ -1,9 +1,9 @@
-import { ExpressMiddleware, Middleware, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import { Injectable, MiddlewareFunction, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'express-jwt';
 import { expressJwtSecret } from 'jwks-rsa';
-import { EnvConfig } from '../../config/env';
+import { EnvConfig } from '../config/env';
 
-@Middleware()
+@Injectable()
 export class JwtauthenticationMiddleware implements NestMiddleware {
 
     /**
@@ -11,7 +11,7 @@ export class JwtauthenticationMiddleware implements NestMiddleware {
      *
      * @memberof JwtauthenticationMiddleware
      */
-    resolve(): ExpressMiddleware {
+    resolve(): MiddlewareFunction {
         return (req, res, next) => {
             jwt({
                 secret: expressJwtSecret({

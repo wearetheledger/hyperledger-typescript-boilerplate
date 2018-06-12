@@ -1,12 +1,12 @@
-import { Component } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
-@Component()
+@Injectable()
 export class PingService {
 
     /**
      * check if app is alive
-     * 
-     * @returns {string} 
+     *
+     * @returns {string}
      * @memberof PingService
      */
     ping(): string {

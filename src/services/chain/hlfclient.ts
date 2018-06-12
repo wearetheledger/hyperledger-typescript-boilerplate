@@ -1,13 +1,14 @@
 import { HlfInfo } from './logging.enum';
-import { Component } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ChainService } from './chain.service';
 import { ChainMethod } from '../../routes/chainmethods.enum';
 import { Log } from '../logging/log.service';
 import { HlfConfig } from './hlfconfig';
-import { HlfConfigOptions } from '../../config/config.model';
+import { HlfConfigOptions } from '../../common/config/config.model';
+import { IKeyValueStore, ProposalResponseObject, TransactionRequest } from 'fabric-client';
 import FabricClient = require('fabric-client');
 
-@Component()
+@Injectable()
 export class HlfClient extends ChainService {
 
     constructor(public hlfConfig: HlfConfig) {
@@ -55,13 +56,13 @@ export class HlfClient extends ChainService {
      *
      * @param {ChainMethod} chainMethod
      * @param {string[]} params
-     * @param {string} [chaincodeId='mycc']
+     * @param transientMap
      * @returns {Promise<any>}
      * @memberof HlfClient
      */
-    query(chainMethod: ChainMethod, params: string[], chaincodeId = this.hlfConfig.options.chaincodeId): Promise<any> {
+    query(chainMethod: ChainMethod, params: string[], transientMap?: Object): Promise<any> {
         Log.hlf.info(HlfInfo.MAKE_QUERY, chainMethod, params);
-        return this.newQuery(chainMethod, params, chaincodeId)
+        return this.newQuery(chainMethod, params, this.hlfConfig.options.chaincodeId, transientMap)
             .then((queryResponses: Buffer[]) => {
                 return Promise.resolve(this.getQueryResponse(queryResponses));
             });
@@ -72,42 +73,52 @@ export class HlfClient extends ChainService {
      *
      * @param {ChainMethod} chainMethod
      * @param { string[]} params
-     * @param {string} chaincodeId
+     * @param transientMap
      * @returns
      * @memberof ChainService
      */
-    invoke(chainMethod: ChainMethod, params: string[], chaincodeId = this.hlfConfig.options.chaincodeId): Promise<any> {
+    invoke(chainMethod: ChainMethod, params: string[], transientMap?: Object): Promise<any> {
         Log.hlf.info(chainMethod, params);
-        return this.sendTransactionProposal(chainMethod, params, chaincodeId)
+        return this.sendTransactionProposal(chainMethod, params, this.hlfConfig.options.chaincodeId, transientMap)
             .then((result: { txHash: string; buffer: ProposalResponseObject }) => {
                 // Log.hlf.debug(JSON.stringify(result.buffer));
                 Log.hlf.info(HlfInfo.CHECK_TRANSACTION_PROPOSAL);
                 if (this.isProposalGood(result.buffer)) {
                     this.logSuccessfulProposalResponse(result.buffer);
+
                     let request: TransactionRequest = {
                         proposalResponses: result.buffer[0],
-                        proposal: result.buffer[1],
-                        header: result.buffer[2]
+                        proposal: result.buffer[1]
                     };
                     Log.hlf.info(HlfInfo.REGISTERING_TRANSACTION_EVENT);
-                    let txPromise = this.registerTxEvent(result.txHash);
-                    let eventPromises = [];
-                    eventPromises.push(txPromise);
+
+
                     let sendPromise = this.hlfConfig.channel.sendTransaction(request);
-                    return this.concatEventPromises(sendPromise, eventPromises)
-                        .then(ep => {
-                            return {txHash: result.txHash, ep};
-                        });
+                    let txPromise = this.registerTxEvent(result.txHash);
+
+                    return Promise.all([sendPromise, txPromise]);
                 } else {
-                    return this.handleError(result.buffer[0][0].message);
+
+                    let message = (<any>result.buffer[0][0]).message;
+
+                    if ((<any>result.buffer[0][0]).message.indexOf(' transaction returned with failure: ') !== -1) {
+                        message = (<any>result.buffer[0][0]).message.split(' transaction returned with failure: ')[1];
+
+                        try {
+                            message = JSON.parse(message);
+                        } catch (e) {
+                        }
+                    }
+                    return Promise.reject(message);
                 }
             })
-            .then((response) => {
-                if (response.ep.status === 'SUCCESS') {
-                    Log.hlf.info(HlfInfo.SUCCESSSFULLY_SENT_TO_ORDERER);
-                    return Promise.resolve(response.txHash);
-                } else {
-                    return this.handleError(response.status);
+            .then((results) => {
+                if (!results || (results && results[0] && results[0].status !== 'SUCCESS')) {
+                    Log.hlf.error('Failed to order the transaction. Error code: ' + results[0].status);
+                }
+
+                if (!results || (results && results[1] && results[1].event_status !== 'VALID')) {
+                    Log.hlf.error('Transaction failed to be committed to the ledger due to ::' + results[1].event_status);
                 }
             });
     }

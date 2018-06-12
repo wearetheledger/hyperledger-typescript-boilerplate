@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
-import { AuthService } from '../config/appconfig';
+import { Global, Module } from '@nestjs/common';
+import { AuthService } from '../common/config/appconfig';
 
+@Global()
 @Module({
-    components: [AuthService],
+    providers: [AuthService],
     exports: [AuthService]
 })
 export class AuthenticationModule {

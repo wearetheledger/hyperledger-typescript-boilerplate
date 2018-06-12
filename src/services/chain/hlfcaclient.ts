@@ -1,13 +1,14 @@
 import { UserAttr } from './models/userattr.model';
 import { Log } from '../logging/log.service';
-import { Component } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HlfErrors, HlfInfo } from './logging.enum';
 import { HlfConfig } from './hlfconfig';
-import { AdminCreds } from '../../config/config.model';
+import { AdminCreds } from '../../common/config/config.model';
+import { User } from 'fabric-client';
 
 const CaClient = require('fabric-ca-client');
 
-@Component()
+@Injectable()
 export class HlfCaClient {
 
     // TODO: improve typings
@@ -81,7 +82,7 @@ export class HlfCaClient {
     }
 
     getUserFromStore(userId: string, checkPersistence = true): Promise<User> {
-        return this.hlfConfig.client.getUserContext(userId, checkPersistence)
+        return (<Promise<User>>this.hlfConfig.client.getUserContext(userId, checkPersistence))
             .then(userFromStore => {
                 if (userFromStore && userFromStore.isEnrolled()) {
                     return userFromStore;
@@ -103,7 +104,8 @@ export class HlfCaClient {
                 cryptoContent: {
                     privateKeyPEM: enrollment.key.toBytes(),
                     signedCertPEM: enrollment.certificate
-                }
+                },
+                skipPersistence: false
             });
         });
     }

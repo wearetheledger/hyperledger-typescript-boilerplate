@@ -1,14 +1,15 @@
 import { Log } from '../../logging/log.service';
-import { EnvConfig } from '../../../config/env';
-import { Component, InternalServerErrorException } from '@nestjs/common';
+import { EnvConfig } from '../../../common/config/env';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as jwtDecode from 'jwt-decode';
 import { JwtToken, ManagementClient } from 'auth0';
 import { UserAttr } from '../../chain/models/userattr.model';
 import { HlfCaClient } from '../../chain/hlfcaclient';
 import { Auth0UserModel } from './auth0user.model';
 import { IAuthService } from '../authenticationservice.interface';
+import { User } from 'fabric-client';
 
-@Component()
+@Injectable()
 export class Auth0AuthenticationService implements IAuthService {
 
     private auth0Client;

@@ -1,10 +1,10 @@
-import { EnvConfig } from '../../../config/env';
-import { Component } from '@nestjs/common';
+import { EnvConfig } from '../../../common/config/env';
+import { Injectable } from '@nestjs/common';
 import * as Pusher from 'pusher';
 import { Log } from '../../logging/log.service';
 import { IEventService } from '../event.interface';
 
-@Component()
+@Injectable()
 export class PusherService implements IEventService {
 
     public pusher: Pusher;

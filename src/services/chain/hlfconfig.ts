@@ -1,7 +1,9 @@
-import { Component } from '@nestjs/common';
-import { HlfConfigOptions } from '../../config/config.model';
+import { Injectable } from '@nestjs/common';
+import { HlfConfigOptions } from '../../common/config/config.model';
+import { Channel, Peer, User } from 'fabric-client';
+import Client = require('fabric-client');
 
-@Component()
+@Injectable()
 export class HlfConfig {
     public options: HlfConfigOptions;
     public client: Client;

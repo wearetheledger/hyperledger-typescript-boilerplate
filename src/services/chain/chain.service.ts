@@ -1,9 +1,17 @@
-import { Component } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 import { HlfErrors, HlfInfo } from './logging.enum';
 import { Log } from '../logging/log.service';
 import { HlfConfig } from './hlfconfig';
+import {
+    ChaincodeInvokeRequest,
+    ChaincodeQueryRequest,
+    IKeyValueStore,
+    ProposalResponseObject,
+    User
+} from 'fabric-client';
+import Client = require('fabric-client');
 
-@Component()
+@Injectable()
 export abstract class ChainService {
 
     // TODO: refactor
@@ -19,7 +27,7 @@ export abstract class ChainService {
      */
     protected newDefaultKeyValueStore(walletPath: string): Promise<IKeyValueStore> {
         Log.hlf.info(HlfInfo.CREATING_CLIENT);
-        return this.hlfConfig.client.newDefaultKeyValueStore({path: walletPath});
+        return Client.newDefaultKeyValueStore({path: walletPath});
     }
 
     /**
@@ -40,7 +48,7 @@ export abstract class ChainService {
      * @returns {Promise<User>}
      */
     protected getUserContext(userId: string): Promise<User> {
-        return this.hlfConfig.client.getUserContext(userId, true);
+        return <Promise<User>>this.hlfConfig.client.getUserContext(userId, true);
     }
 
     /**
@@ -70,16 +78,17 @@ export abstract class ChainService {
      * @param {string} requestFunction
      * @param {string[]} requestArguments
      * @param {string} chaincodeId
+     * @param transientMap
      * @returns {Promise<Buffer[]>}
      */
-    protected newQuery(requestFunction: string, requestArguments: string[], chaincodeId: string): Promise<Buffer[]> {
+    protected newQuery(requestFunction: string, requestArguments: string[], chaincodeId: string, transientMap?: Object): Promise<Buffer[]> {
         const txId = this.hlfConfig.client.newTransactionID();
         Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, txId.getTransactionID());
         const request: ChaincodeQueryRequest = {
             chaincodeId: chaincodeId,
-            txId,
             fcn: requestFunction,
             args: requestArguments,
+            transientMap: transientMap
         };
         return this.hlfConfig.channel.queryByChaincode(request);
     }
@@ -113,10 +122,10 @@ export abstract class ChainService {
      * @param {string} requestFunction
      * @param {string[]} requestArguments
      * @param {string} chaincodeId
+     * @param transientMap
      * @returns {Promise<{txHash: string; buffer: ProposalResponseObject}>}
      */
-    protected sendTransactionProposal(requestFunction: string, requestArguments: string[], chaincodeId: string)
-        : Promise<{ txHash: string; buffer: ProposalResponseObject }> {
+    protected sendTransactionProposal(requestFunction: string, requestArguments: string[], chaincodeId: string, transientMap?: Object): Promise<{ txHash: string; buffer: ProposalResponseObject }> {
         const txId: any = this.hlfConfig.client.newTransactionID();
         Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, txId._transaction_id);
 
@@ -125,13 +134,14 @@ export abstract class ChainService {
             chaincodeId: chaincodeId,
             fcn: requestFunction,
             args: requestArguments,
-            chainId: this.hlfConfig.options.channelId,
+            transientMap: transientMap,
             txId: txId
         };
 
-        return this.hlfConfig.channel.sendTransactionProposal(request).then(proposalResponse => {
-            return {txHash: txId._transaction_id, buffer: proposalResponse};
-        });
+        return this.hlfConfig.channel.sendTransactionProposal(request)
+            .then(proposalResponse => {
+                return {txHash: txId._transaction_id, buffer: proposalResponse};
+            });
     }
 
     /**
@@ -169,7 +179,7 @@ export abstract class ChainService {
         // if the transaction did not get committed within the timeout period,
         // fail the test
         let eh = this.hlfConfig.client.newEventHub();
-        eh.setPeerAddr(this.hlfConfig.options.eventUrl);
+        eh.setPeerAddr(this.hlfConfig.options.eventUrl, {});
         Log.hlf.info(HlfInfo.CONNECTING_EVENTHUB);
         eh.connect();
 
@@ -183,24 +193,17 @@ export abstract class ChainService {
                 clearTimeout(handle);
                 eh.unregisterTxEvent(transactionID);
                 eh.disconnect();
+
+                const status = {event_status: code, tx_id: transactionID};
+
                 if (code !== 'VALID') {
                     Log.hlf.error(HlfErrors.INVALID_TRANSACTION, code);
-                    reject();
+                    reject(status);
                 } else {
                     Log.hlf.debug(HlfInfo.COMMITTED_ON_PEER, eh.getPeerAddr());
-                    resolve();
+                    resolve(status);
                 }
             });
-        });
-    }
-
-    protected concatEventPromises(sendPromise: Promise<BroadcastResponse>, eventPromises: Promise<BroadcastResponse>[]): Promise<any> {
-        return Promise.all([sendPromise].concat(eventPromises)).then((results) => {
-            Log.hlf.info(HlfInfo.EVENT_PROMISES_COMPLETE);
-            return results[0]; // the first returned value is from the 'sendPromise' which is from the 'sendTransaction()' call
-        }).catch((err) => {
-            Log.hlf.error(HlfErrors.FAILED_TO_SEND_TX, err);
-            return this.handleError(err);
         });
     }
 }
