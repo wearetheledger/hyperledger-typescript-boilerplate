@@ -11,14 +11,20 @@ import { NestModule } from '@nestjs/common/interfaces';
 import { CarController } from '../routes/cars/car.controller';
 import { Log } from '../services/logging/log.service';
 import { HlfCaClient } from '../services/chain/hlfcaclient';
-import { AuthenticationModule } from './authentication.module';
 import { HlfcredsgeneratorMiddleware } from '../common/middleware/hlfcredsgenerator.middleware';
 import { HlfErrors } from '../services/chain/logging.enum';
 import { Appconfig } from '../common/config/appconfig';
 import { JwtauthenticationMiddleware } from '../common/middleware/jwtauthentication.middleware';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { AuthenticationModule } from './authentication.module';
 
 @Module({
+    imports: [
+        AuthenticationModule,
+        ChainModule,
+        QueueModule,
+        EventsModule,
+    ],
     controllers: [
         PingController,
         CarController,
@@ -26,12 +32,6 @@ import { MiddlewareConsumer, Module } from '@nestjs/common';
     providers: [
         PingService,
         CarService,
-    ],
-    imports: [
-        ChainModule,
-        QueueModule,
-        EventsModule,
-        AuthenticationModule
     ],
 })
 export class ApplicationModule implements NestModule {

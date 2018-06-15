@@ -2,6 +2,19 @@ import { Logger, LoggerInstance, transports } from 'winston';
 import 'winston-daily-rotate-file';
 import { EnvConfig } from '../../common/config/env';
 
+// TODO should re-add logging persistance
+/*
+new transports.DailyRotateFile({
+                level: 'info',
+                filename: '/var/log/chain-service/chain-service.log',
+                datePattern: 'yyyy-MM-dd.',
+                prepend: true,
+                json: false,
+                handleExceptions: true,
+                maxFiles: 10
+            })
+ */
+
 export class Loggers {
 
     public static hlf: LoggerInstance = new Logger({
@@ -61,27 +74,6 @@ export class Loggers {
             label: 'SQS',
             colorize: true,
         })],
-        exitOnError: false,
-    });
-
-    public static prodlogger: LoggerInstance = new Logger({
-        transports: [new transports.Console({
-            level: 'debug',
-            prettyPrint: true,
-            handleExceptions: true,
-            json: false,
-            label: 'Chain',
-            colorize: true,
-        }),
-            new transports.DailyRotateFile({
-                level: 'info',
-                filename: '/var/log/chain-service/chain-service.log',
-                datePattern: 'yyyy-MM-dd.',
-                prepend: true,
-                json: false,
-                handleExceptions: true,
-                maxFiles: 10
-            })],
         exitOnError: false,
     });
 }

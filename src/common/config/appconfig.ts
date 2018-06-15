@@ -28,5 +28,5 @@ export const Appconfig: ConfigOptions = <ConfigOptions>{
     allowguest: true
 };
 
-export const EventService = {provide: 'IEventService', useValue: PusherService};
-export const AuthService = {provide: 'IAuthService', useValue: Auth0AuthenticationService};
+export const EventService = {provide: 'IEventService', useClass: PusherService};
+export const AuthService = {provide: 'IAuthService', useClass: Auth0AuthenticationService};
