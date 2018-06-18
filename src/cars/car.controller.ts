@@ -2,7 +2,7 @@ import { Body, Controller, Get, NotFoundException, Param, Post, Req } from '@nes
 import { CarService } from './car.service';
 import { CarDto } from './car.model';
 import { ApiOAuth2Auth, ApiOperation, ApiResponse, ApiUseTags } from '@nestjs/swagger';
-import { InvokeResult } from "../common/utils/invokeresult.model";
+import { InvokeResult } from '../common/utils/invokeresult.model';
 
 @ApiUseTags('cars')
 @Controller('cars')

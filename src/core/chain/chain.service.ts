@@ -8,7 +8,7 @@ import {
     ProposalResponseObject,
     User
 } from 'fabric-client';
-import { Log } from "../../common/utils/logging/log.service";
+import { Log } from '../../common/utils/logging/log.service';
 import Client = require('fabric-client');
 
 @Injectable()

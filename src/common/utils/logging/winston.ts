@@ -15,7 +15,6 @@ new transports.DailyRotateFile({
             })
  */
 
-
 export class Loggers {
 
     public static hlf: LoggerInstance = new Logger({

@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { HlfErrors, HlfInfo } from './logging.enum';
 import { HlfConfig } from './hlfconfig';
 import { User } from 'fabric-client';
-import { AdminCreds } from "../../common/config/config.model";
-import { Log } from "../../common/utils/logging/log.service";
+import { AdminCreds } from '../../common/config/config.model';
+import { Log } from '../../common/utils/logging/log.service';
 
 const CaClient = require('fabric-ca-client');
 
