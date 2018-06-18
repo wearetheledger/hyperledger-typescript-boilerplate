@@ -3,14 +3,18 @@
   "version": "1.2.0",
   "description": "",
   "scripts": {
-    "start": "node index.js",
+    "start": "ts-node -r tsconfig-paths/register src/main.ts",
     "start:watch": "nodemon",
     "build": "tsc -p ./tsconfig.json",
     "start:prod": "node dist/server.js",
     "lint": "tslint --fix -c tslint.json './src/**/*.ts'",
     "pretest": "npm run lint",
-    "test": "jest",
-    "clean": "rm -rf node_modules && rm -rf dist"
+    "clean": "rm -rf node_modules && rm -rf dist",
+
+    "test": "jest --config jest.json",
+    "test:watch": "jest --watch --config jest.json",
+    "test:cov": "jest --coverage --config jest.json",
+    "test:e2e": "jest --config=e2e/jest-e2e.json --forceExit"
   },
   "repository": {
     "type": "git",
@@ -30,7 +34,6 @@
     "@nestjs/testing": "^5.0.0",
     "@nestjs/websockets": "^5.0.0",
     "@types/auth0-js": "^8.11.2",
-    "@types/axios": "^0.14.0",
     "@types/body-parser": "^1.16.8",
     "@types/express-jwt": "0.0.40",
     "@types/jwt-decode": "^2.2.1",
@@ -68,30 +71,19 @@
     "@types/express-serve-static-core": "4.16.0",
     "@types/node": "^10.3.0",
     "@types/supertest": "^2.0.4",
-    "chai": "^4.1.2",
     "jasmine": "^3.1.0",
     "jest": "^23.1.0",
-    "mocha": "^5.2.0",
     "nodemon": "^1.12.1",
     "supertest": "^3.0.0",
     "ts-jest": "^22.4.6",
     "ts-node": "^6.0.5",
+    "tsconfig-paths": "^3.4.0",
     "tslint": "5.10.0",
     "typescript": "^2.5.2"
   },
   "engines": {
-    "node": "^8",
+    "node": "^8.9",
     "npm": "^5.6"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "transform": {
-      "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-    },
-    "testRegex": "/tests/.*\\.(ts)$"
   },
   "husky": {
     "hooks": {

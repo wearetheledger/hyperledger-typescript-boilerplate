@@ -6,4 +6,5 @@ install:
 build:
   - npm run build
 script:
-  - npm test
+  - npm run test:cov
+  - npm run test:e2e

@@ -28,4 +28,5 @@ vendor
 .idea
 
 src/common/config/creds/*
-
+coverage
+yarn-error.log
