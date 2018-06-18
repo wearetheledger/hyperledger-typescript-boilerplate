@@ -10,11 +10,11 @@
     "lint": "tslint --fix -c tslint.json './src/**/*.ts'",
     "pretest": "npm run lint",
     "clean": "rm -rf node_modules && rm -rf dist",
-
-    "test": "jest --config jest.json",
-    "test:watch": "jest --watch --config jest.json",
-    "test:cov": "jest --coverage --config jest.json",
-    "test:e2e": "jest --config=e2e/jest-e2e.json --forceExit"
+    "test": "cross-env NODE_ENV=test cross-env jest --config jest.json",
+    "test:watch": "cross-env NODE_ENV=test jest --watch --config jest.json",
+    "test:cov": "cross-env NODE_ENV=test jest --coverage --config jest.json",
+    "test:e2e": "cross-env SKIP_MIDDLEWARE=true NODE_ENV=test jest --config=e2e/jest-e2e.json --forceExit --detectOpenHandles",
+    "test:all": "npm run test:cov && npm run test:e2e"
   },
   "repository": {
     "type": "git",
@@ -71,6 +71,7 @@
     "@types/express-serve-static-core": "4.16.0",
     "@types/node": "^10.3.0",
     "@types/supertest": "^2.0.4",
+    "cross-env": "^5.2.0",
     "jasmine": "^3.1.0",
     "jest": "^23.1.0",
     "nodemon": "^1.12.1",

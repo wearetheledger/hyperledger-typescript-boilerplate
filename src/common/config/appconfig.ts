@@ -1,8 +1,8 @@
 import { EnvConfig } from './env';
 import * as path from 'path';
 import { ConfigOptions } from './config.model';
-import { PusherService } from '../../services/events/implementations/pusher.service';
-import { Auth0AuthenticationService } from '../../services/authentication/auth0/auth0-authentication.service';
+import { PusherService } from '../../core/events/pusher/pusher.service';
+import { Auth0AuthenticationService } from '../../core/authentication/auth0/auth0-authentication.service';
 
 export const Appconfig: ConfigOptions = <ConfigOptions>{
     hlf: {

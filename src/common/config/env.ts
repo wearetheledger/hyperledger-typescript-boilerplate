@@ -46,5 +46,6 @@ export class EnvConfig {
 
     // Logger
     public static LOGGER_SQS_DEBUG = process.env['LOGGER_SQS_DEBUG'] || false;
+    public static SKIP_MIDDLEWARE = process.env['SKIP_MIDDLEWARE'] || false;
 
 }
