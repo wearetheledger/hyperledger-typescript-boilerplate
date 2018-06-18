@@ -14,7 +14,7 @@
     "test": "jest --config jest.json",
     "test:watch": "jest --watch --config jest.json",
     "test:cov": "jest --coverage --config jest.json",
-    "test:e2e": "jest --config test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "repository": {
     "type": "git",
