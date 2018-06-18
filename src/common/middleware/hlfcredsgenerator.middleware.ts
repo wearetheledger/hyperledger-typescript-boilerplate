@@ -1,8 +1,8 @@
-import { Log } from '../../services/logging/log.service';
+import { Log } from '../utils/logging/log.service';
 import { Inject, Injectable, MiddlewareFunction, NestMiddleware, UnauthorizedException } from '@nestjs/common';
-import { IAuthService } from '../../services/authentication/authenticationservice.interface';
+import { IAuthService } from '../../core/authentication/interfaces/authenticationservice.interface';
 import { Appconfig } from '../config/appconfig';
-import { IAuthUser } from '../../services/authentication/authenticateduser';
+import { IAuthUser } from '../../core/authentication/interfaces/authenticateduser';
 
 @Injectable()
 export class HlfcredsgeneratorMiddleware implements NestMiddleware {

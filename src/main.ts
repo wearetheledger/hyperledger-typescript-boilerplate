@@ -1,10 +1,10 @@
 import { EnvConfig } from './common/config/env';
 import { NestFactory } from '@nestjs/core';
-import { ApplicationModule } from './modules/app.module';
+import { ApplicationModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { config as awsConfig } from 'aws-sdk';
 import * as bodyParser from 'body-parser';
-import { Log } from './services/logging/log.service';
+import { Log } from './common/utils/logging/log.service';
 import { ValidationPipe } from '@nestjs/common';
 
 /**
