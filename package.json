@@ -13,7 +13,7 @@
     "test": "cross-env NODE_ENV=test cross-env jest --config jest.json",
     "test:watch": "cross-env NODE_ENV=test jest --watch --config jest.json",
     "test:cov": "cross-env NODE_ENV=test jest --coverage --config jest.json",
-    "test:e2e": "cross-env SKIP_MIDDLEWARE=true NODE_ENV=test jest --config=e2e/jest-e2e.json --forceExit --detectOpenHandles",
+    "test:e2e": "cross-env SKIP_MIDDLEWARE=true NODE_ENV=test jest --config=e2e/jest-e2e.json --forceExit",
     "test:all": "npm run test:cov && npm run test:e2e"
   },
   "repository": {
