@@ -63,7 +63,7 @@
     "sqs-consumer": "^3.7.0",
     "sqs-queue-parallel": "^0.1.6",
     "type-util": "^0.1.5",
-    "winston": "^2.4.0",
+    "winston": "^3.0.0",
     "winston-daily-rotate-file": "^3.2.1"
   },
   "devDependencies": {
