@@ -1,4 +1,4 @@
-import { ChainMethod } from '../../../../chainmethods.enum';
+import { ChainMethod } from '../../../chainmethods.enum';
 
 export interface MessageBody {
     payload: any;
