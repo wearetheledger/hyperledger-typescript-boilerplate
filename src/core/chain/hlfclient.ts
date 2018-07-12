@@ -98,10 +98,10 @@ export class HlfClient extends ChainService {
                     return Promise.all([sendPromise, txPromise]);
                 } else {
 
-                    let message = (<any>result.buffer[0][0]).message;
+                    let message = result.buffer[0][0].response.message;
 
-                    if ((<any>result.buffer[0][0]).message.indexOf(' transaction returned with failure: ') !== -1) {
-                        message = (<any>result.buffer[0][0]).message.split(' transaction returned with failure: ')[1];
+                    if (message.indexOf(' transaction returned with failure: ') !== -1) {
+                        message = message.split(' transaction returned with failure: ')[1];
 
                         try {
                             message = JSON.parse(message);

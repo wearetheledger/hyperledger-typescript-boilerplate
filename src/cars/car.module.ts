@@ -25,7 +25,7 @@ export class CarModule implements NestModule {
 
         if (!EnvConfig.SKIP_MIDDLEWARE) {
             consumer
-                .apply([JwtauthenticationMiddleware, HlfcredsgeneratorMiddleware])
+                .apply(JwtauthenticationMiddleware, HlfcredsgeneratorMiddleware)
                 .forRoutes(CarController);
         }
     }

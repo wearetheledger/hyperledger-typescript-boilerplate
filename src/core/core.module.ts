@@ -37,11 +37,6 @@ export class CoreModule {
                 private queueListenerService: QueueListenerService,
                 @Inject('IEventService') private webSocketService: IEventService) {
 
-        // list env keys in console
-        for (let propName of Object.keys(EnvConfig)) {
-            Log.config.debug(`${propName}:  ${EnvConfig[propName]}`);
-        }
-
         // init hlf client and hlf ca client
         // assign admin user
         this.hlfClient.init()

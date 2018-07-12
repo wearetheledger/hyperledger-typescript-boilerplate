@@ -1,6 +1,5 @@
-import { Logger, LoggerInstance, transports } from 'winston';
+import { createLogger, format, Logger, transports } from 'winston';
 import 'winston-daily-rotate-file';
-import { EnvConfig } from '../../config/env';
 
 // TODO should re-add logging persistance
 /*
@@ -10,70 +9,75 @@ new transports.DailyRotateFile({
                 datePattern: 'yyyy-MM-dd.',
                 prepend: true,
                 json: false,
-                handleExceptions: true,
+                
                 maxFiles: 10
             })
  */
 
 export class Loggers {
 
-    public static hlf: LoggerInstance = new Logger({
+    public static hlf: Logger = createLogger({
         transports: [new transports.Console({
             level: 'debug',
-            prettyPrint: true,
-            handleExceptions: true,
-            json: false,
-            label: 'FABRIC',
-            colorize: true,
+            
         })],
+        format: format.combine(
+            format.colorize(),
+            format.simple(),
+            format.label({label: 'FABRIC'})
+        ),
         exitOnError: false,
     });
 
-    public static grpc: LoggerInstance = new Logger({
+    public static grpc: Logger = createLogger({
         transports: [new transports.Console({
             level: 'debug',
-            prettyPrint: true,
-            handleExceptions: true,
-            json: false,
-            label: 'GRPC',
-            colorize: true,
+            
         })],
+        format: format.combine(
+            format.colorize(),
+            format.simple(),
+            format.label({label: 'GRPC'})
+        ),
         exitOnError: false,
     });
 
-    public static pusher: LoggerInstance = new Logger({
+    public static pusher: Logger = createLogger({
         transports: [new transports.Console({
             level: 'debug',
-            prettyPrint: true,
-            handleExceptions: true,
-            json: false,
-            label: 'PUSHER',
-            colorize: true,
+            
         })],
+        format: format.combine(
+            format.colorize(),
+            format.simple(),
+            format.label({label: 'PUSHER'})
+        ),
         exitOnError: false,
     });
 
-    public static config: LoggerInstance = new Logger({
+    public static config: Logger = createLogger({
         transports: [new transports.Console({
             level: 'debug',
-            prettyPrint: true,
-            handleExceptions: true,
-            json: false,
-            label: 'CONFIG',
-            colorize: true,
+            
         })],
+        format: format.combine(
+            format.colorize(),
+            format.simple(),
+            format.label({label: 'CONFIG'})
+        ),
         exitOnError: false,
     });
 
-    public static awssqs: LoggerInstance = new Logger({
+    public static awssqs: Logger = createLogger({
         transports: [new transports.Console({
-            level: EnvConfig.LOGGER_SQS_DEBUG ? 'debug' : 'info',
-            prettyPrint: true,
-            handleExceptions: true,
-            json: false,
-            label: 'SQS',
-            colorize: true,
+            level: 'debug',
+            
         })],
+        format: format.combine(
+            format.colorize(),
+            format.simple(),
+            format.label({label: 'SQS'})
+        ),
         exitOnError: false,
     });
 }
