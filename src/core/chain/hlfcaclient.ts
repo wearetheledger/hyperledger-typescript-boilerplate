@@ -26,7 +26,7 @@ export class HlfCaClient {
                 this.hlfConfig.options.caUrl,
                 this.hlfConfig.options.tlsOptions,
                 this.hlfConfig.options.caName, cryptoSuite);
-        }
+            }
         // create admin
         return this.createAdmin(adminCreds.enrollmentID, adminCreds.enrollmentSecret, adminCreds.MspID);
     }

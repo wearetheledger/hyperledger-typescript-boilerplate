@@ -23,6 +23,7 @@ export class Loggers {
         })],
         format: format.combine(
             format.colorize(),
+            format.splat(),
             format.simple(),
             format.label({label: 'FABRIC'})
         ),
@@ -36,6 +37,7 @@ export class Loggers {
         })],
         format: format.combine(
             format.colorize(),
+            format.splat(),
             format.simple(),
             format.label({label: 'GRPC'})
         ),
@@ -49,6 +51,7 @@ export class Loggers {
         })],
         format: format.combine(
             format.colorize(),
+            format.splat(),
             format.simple(),
             format.label({label: 'PUSHER'})
         ),
@@ -62,6 +65,7 @@ export class Loggers {
         })],
         format: format.combine(
             format.colorize(),
+            format.splat(),
             format.simple(),
             format.label({label: 'CONFIG'})
         ),
@@ -75,6 +79,7 @@ export class Loggers {
         })],
         format: format.combine(
             format.colorize(),
+            format.splat(),
             format.simple(),
             format.label({label: 'SQS'})
         ),

@@ -4,7 +4,7 @@ import { ConfigOptions } from './config.model';
 import { PusherService } from '../../core/events/pusher/pusher.service';
 import { Auth0AuthenticationService } from '../../core/authentication/auth0/auth0-authentication.service';
 
-export const Appconfig: ConfigOptions = <ConfigOptions>{
+export const Appconfig: ConfigOptions = {
     hlf: {
         walletPath: path.resolve(__dirname, `creds`),
         userId: 'admin',
@@ -26,7 +26,7 @@ export const Appconfig: ConfigOptions = <ConfigOptions>{
         caName: 'ca.example.com'
     },
     allowguest: true
-};
+} as ConfigOptions;
 
 export const EventService = {provide: 'IEventService', useClass: PusherService};
 export const AuthService = {provide: 'IAuthService', useClass: Auth0AuthenticationService};
