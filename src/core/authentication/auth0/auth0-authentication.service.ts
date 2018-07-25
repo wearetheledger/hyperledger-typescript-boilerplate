@@ -8,6 +8,7 @@ import { IAuthService } from '../interfaces/authenticationservice.interface';
 import { User } from 'fabric-client';
 import { EnvConfig } from '../../../common/config/env';
 import { Log } from '../../../common/utils/logging/log.service';
+import { flatten } from 'flat';
 
 @Injectable()
 export class Auth0AuthenticationService implements IAuthService {
@@ -89,16 +90,27 @@ export class Auth0AuthenticationService implements IAuthService {
      * @memberof Auth0AuthenticationService
      */
     private transformAttrs(auth0UserModel: Auth0UserModel): UserAttr[] {
-        const object = {
-            user_id: auth0UserModel.user_id,
-            nickname: auth0UserModel.nickname,
-            email: auth0UserModel.email,
-            properties: JSON.stringify(auth0UserModel.app_metadata)
-        };
+        const object = flatten({
+            auth0: {
+                name: auth0UserModel.name,
+                user_id: auth0UserModel.user_id,
+                email: auth0UserModel.email,
+                app_metadata: auth0UserModel.app_metadata,
+                user_metadata: auth0UserModel.user_metadata,
+            }
+        });
+
         return Object
             .keys(object)
-            .map(key => {
-                return {name: key, value: object[key], ecert: true};
+            .map(name => {
+
+                let value = object[name];
+
+                if (typeof object[name] !== 'string') {
+                    value = JSON.stringify(value);
+                }
+
+                return {name, value, ecert: true};
             });
 
     }
@@ -116,14 +128,14 @@ export class Auth0AuthenticationService implements IAuthService {
         if (userId != 'guest') {
             return this.getUserInfoFromAuth0(userId);
         } else {
-            return Promise.resolve(<Auth0UserModel>{
+            return Promise.resolve({
                 user_id: 'guest',
                 nickname: 'guest',
                 email: null,
-                user_metadata: {
+                app_metadata: {
                     role: 'guest'
                 }
-            });
+            } as Auth0UserModel);
         }
     }
 

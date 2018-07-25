@@ -53,6 +53,7 @@ export class HlfCaClient {
 
     createUser(username: string, mspid: string, affiliation: string, attrs: UserAttr[]): Promise<User> {
         Log.config.debug(`Creating user:`, username, mspid, affiliation, attrs);
+
         if (this.hlfConfig.adminUser) {
             return this.hlfConfig.caClient.register({
                 role: 'client', // since hlf 1.1
@@ -82,7 +83,7 @@ export class HlfCaClient {
     }
 
     getUserFromStore(userId: string, checkPersistence = true): Promise<User> {
-        return (<Promise<User>>this.hlfConfig.client.getUserContext(userId, checkPersistence))
+        return (this.hlfConfig.client.getUserContext(userId, checkPersistence) as Promise<User>)
             .then(userFromStore => {
                 if (userFromStore && userFromStore.isEnrolled()) {
                     return userFromStore;
