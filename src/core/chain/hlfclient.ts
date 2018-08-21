@@ -1,12 +1,13 @@
 import { HlfInfo } from './logging.enum';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ChainService } from './chain.service';
 import { HlfConfig } from './hlfconfig';
 import { IKeyValueStore, ProposalResponseObject, TransactionRequest } from 'fabric-client';
-import FabricClient = require('fabric-client');
 import { Appconfig } from '../../common/config/appconfig';
 import { ChainMethod } from '../../chainmethods.enum';
 import { Log } from '../../common/utils/logging/log.service';
+import { IEventService } from "../events/interfaces/event.interface";
+import FabricClient = require('fabric-client');
 
 @Injectable()
 export class HlfClient extends ChainService {

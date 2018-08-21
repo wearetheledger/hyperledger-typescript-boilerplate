@@ -1,4 +1,4 @@
-import { Injectable, Provider } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { HlfErrors, HlfInfo } from './logging.enum';
 import { HlfConfig } from './hlfconfig';
 import {
@@ -9,6 +9,7 @@ import {
     User
 } from 'fabric-client';
 import { Log } from '../../common/utils/logging/log.service';
+import { IEventService } from '../events/interfaces/event.interface';
 import Client = require('fabric-client');
 
 @Injectable()
@@ -16,7 +17,7 @@ export abstract class ChainService {
 
     // TODO: refactor
 
-    protected constructor(public hlfConfig: HlfConfig) {
+    protected constructor(public hlfConfig: HlfConfig, @Inject('IEventService') private eventService?: IEventService) {
     }
 
     /**
@@ -174,7 +175,10 @@ export abstract class ChainService {
      * @param transactionID
      * @returns {Promise<any>}
      */
-    protected registerTxEvent(transactionID: string): Promise<any> {
+    protected async registerTxEvent(transactionID: string): Promise<any> {
+
+        this.eventService.triggerSuccess('test', 'success', {dta: 'ddz'});
+
         // set the transaction listener and set a timeout of 30sec
         // if the transaction did not get committed within the timeout period,
         // fail the test

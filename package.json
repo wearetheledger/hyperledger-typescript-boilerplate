@@ -6,7 +6,7 @@
     "start": "ts-node -r tsconfig-paths/register src/main.ts",
     "start:watch": "nodemon",
     "build": "tsc -p ./tsconfig.json",
-    "start:prod": "node dist/server.js",
+    "start:prod": "node dist/main.js",
     "lint": "tslint --fix -c tslint.json './src/**/*.ts'",
     "pretest": "npm run lint",
     "clean": "rm -rf node_modules && rm -rf dist",
