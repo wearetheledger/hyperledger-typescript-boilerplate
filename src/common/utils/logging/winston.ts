@@ -16,7 +16,7 @@ new transports.DailyRotateFile({
 
 export class Loggers {
       
-    getLogger = (label: string) => {
+    static getLogger = (label: string) => {
          return createLogger({
             transports: [new transports.Console({
                 level: 'debug',
@@ -32,9 +32,9 @@ export class Loggers {
         });
     }  
   
-    public static hlf: Logger = this.getLogger('FABRIC');
-    public static grpc: Logger = this.getLogger('GRPC');
-    public static pusher: Logger = this.getLogger('PUSHER');
-    public static config: Logger = this.getLogger('CONFIG');
-    public static awssqs: Logger = this.getLogger('SQS');
+    public static hlf: Logger = Loggers.getLogger('FABRIC');
+    public static grpc: Logger = Loggers.getLogger('GRPC');
+    public static pusher: Logger = Loggers.getLogger('PUSHER');
+    public static config: Logger = Loggers.getLogger('CONFIG');
+    public static awssqs: Logger = Loggers.getLogger('SQS');
 }
