@@ -16,7 +16,7 @@ new transports.DailyRotateFile({
 
 export class Loggers {
       
-    private getLogger(label: string): Logger {
+    public static getLogger(label: string): Logger {
          return createLogger({
             transports: [new transports.Console({
                 level: 'debug',
