@@ -32,9 +32,9 @@ export class Loggers {
         });
     }  
   
-    public static hlf: Logger = this.getLogger('FABRIC');
-    public static grpc: Logger = this.getLogger('GRPC');
-    public static pusher: Logger = this.getLogger('PUSHER');
-    public static config: Logger = this.getLogger('CONFIG');
-    public static awssqs: Logger = this.getLogger('SQS');
+    public static hlf: Logger = getLogger('FABRIC');
+    public static grpc: Logger = getLogger('GRPC');
+    public static pusher: Logger = getLogger('PUSHER');
+    public static config: Logger = getLogger('CONFIG');
+    public static awssqs: Logger = getLogger('SQS');
 }
