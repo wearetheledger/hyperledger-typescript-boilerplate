@@ -1,13 +1,12 @@
 import { HlfInfo } from './logging.enum';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ChainService } from './chain.service';
 import { HlfConfig } from './hlfconfig';
 import { IKeyValueStore, ProposalResponseObject, TransactionRequest } from 'fabric-client';
+import FabricClient = require('fabric-client');
 import { Appconfig } from '../../common/config/appconfig';
 import { ChainMethod } from '../../chainmethods.enum';
 import { Log } from '../../common/utils/logging/log.service';
-import { IEventService } from "../events/interfaces/event.interface";
-import FabricClient = require('fabric-client');
 
 @Injectable()
 export class HlfClient extends ChainService {
@@ -42,9 +41,9 @@ export class HlfClient extends ChainService {
                 this.hlfConfig.client.setCryptoSuite(cryptoSuite);
 
                 this.hlfConfig.channel = this.hlfConfig.client.newChannel(this.hlfConfig.options.channelId);
-                const peerObj = this.hlfConfig.client.newPeer(this.hlfConfig.options.networkUrl);
+                const peerObj= this.hlfConfig.client.newPeer(this.hlfConfig.options.networkUrl);
 
-                this.hlfConfig.channel.addPeer(peerObj);
+                this.hlfConfig.channel.addPeer(peerObj, 'Org1MSP');
                 this.hlfConfig.channel.addOrderer(this.hlfConfig.client.newOrderer(this.hlfConfig.options.ordererUrl));
                 this.hlfConfig.targets.push(peerObj);
 
@@ -94,6 +93,7 @@ export class HlfClient extends ChainService {
                     Log.hlf.info(HlfInfo.REGISTERING_TRANSACTION_EVENT);
 
                     let sendPromise = this.hlfConfig.channel.sendTransaction(request);
+
                     let txPromise = this.registerTxEvent(result.txHash);
 
                     return Promise.all([sendPromise, txPromise]);

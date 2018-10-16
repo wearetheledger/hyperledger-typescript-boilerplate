@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 import { HlfErrors, HlfInfo } from './logging.enum';
 import { HlfConfig } from './hlfconfig';
 import {
@@ -9,7 +9,6 @@ import {
     User
 } from 'fabric-client';
 import { Log } from '../../common/utils/logging/log.service';
-import { IEventService } from '../events/interfaces/event.interface';
 import Client = require('fabric-client');
 
 @Injectable()
@@ -17,7 +16,7 @@ export abstract class ChainService {
 
     // TODO: refactor
 
-    protected constructor(public hlfConfig: HlfConfig, @Inject('IEventService') private eventService?: IEventService) {
+    protected constructor(public hlfConfig: HlfConfig) {
     }
 
     /**
@@ -28,7 +27,7 @@ export abstract class ChainService {
      */
     protected newDefaultKeyValueStore(walletPath: string): Promise<IKeyValueStore> {
         Log.hlf.info(HlfInfo.CREATING_CLIENT);
-        return Client.newDefaultKeyValueStore({path: walletPath});
+        return Client.newDefaultKeyValueStore({ path: walletPath });
     }
 
     /**
@@ -141,7 +140,7 @@ export abstract class ChainService {
 
         return this.hlfConfig.channel.sendTransactionProposal(request)
             .then(proposalResponse => {
-                return {txHash: txId._transaction_id, buffer: proposalResponse};
+                return { txHash: txId._transaction_id, buffer: proposalResponse };
             });
     }
 
@@ -175,39 +174,50 @@ export abstract class ChainService {
      * @param transactionID
      * @returns {Promise<any>}
      */
-    protected async registerTxEvent(transactionID: string): Promise<any> {
+    protected registerTxEvent(transactionID: string): Promise<any> {
 
-        this.eventService.triggerSuccess('test', 'success', {dta: 'ddz'});
+        const peer = this.hlfConfig.targets[0];
 
-        // set the transaction listener and set a timeout of 30sec
-        // if the transaction did not get committed within the timeout period,
-        // fail the test
-        let eh = this.hlfConfig.client.newEventHub();
-        eh.setPeerAddr(this.hlfConfig.options.eventUrl, {});
-        Log.hlf.info(HlfInfo.CONNECTING_EVENTHUB);
-        eh.connect();
+        if (!peer) {
+            throw new Error('No peers attached');
+        }
+
+        let eh = this.hlfConfig.channel.newChannelEventHub(peer);
 
         return new Promise((resolve, reject) => {
             let handle = setTimeout(() => {
-                eh.disconnect();
-                Log.hlf.error(HlfErrors.TRANSACTION_TIMED_OUT, transactionID);
-                reject();
-            }, 30000);
-            eh.registerTxEvent(transactionID, (tx, code) => {
-                clearTimeout(handle);
                 eh.unregisterTxEvent(transactionID);
                 eh.disconnect();
+                Log.hlf.error(HlfErrors.TRANSACTION_TIMED_OUT, transactionID);
+                reject(new Error('Transaction did not complete within 30 seconds'));
+            }, 3000);
 
-                const status = {event_status: code, tx_id: transactionID};
+            eh.registerTxEvent(transactionID, (tx, code) => {
+                // this is the callback for transaction event status
+                // first some clean up of event listener
+                clearTimeout(handle);
+
+                // now let the application know what happened
+                const status = { event_status: code, tx_id: transactionID };
 
                 if (code !== 'VALID') {
                     Log.hlf.error(HlfErrors.INVALID_TRANSACTION, code);
-                    reject(status);
+                    resolve(status); // we could use reject(new Error('Problem with the tranaction, event status ::'+code));
                 } else {
                     Log.hlf.debug(HlfInfo.COMMITTED_ON_PEER, eh.getPeerAddr());
                     resolve(status);
                 }
-            });
+            }, (err) => {
+                //this is the callback if something goes wrong with the event registration or processing
+                reject(new Error('There was a problem with the eventhub ::' + err));
+            },
+                { disconnect: true } //disconnect when complete
+            );
+
+            Log.hlf.info(HlfInfo.CONNECTING_EVENTHUB);
+
+            eh.connect();
+
         });
     }
 }

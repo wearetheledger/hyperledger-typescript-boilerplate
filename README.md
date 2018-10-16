@@ -4,6 +4,8 @@
 
 # [Hyperledger Typescript Boilerplate ](https://medium.com/wearetheledger/hyperledger-fabric-typescript-boilerplate-455004d0c6c8)
 
+## Note: This boilerplate has been designed for quickstarting prototype applications. Some practices used in this boilerplate are not recommended for a production environment.
+
 [![Build Status](https://travis-ci.org/wearetheledger/hyperledger-typescript-boilerplate.svg?branch=master)](https://travis-ci.org/wearetheledger/hyperledger-typescript-boilerplate) [![Greenkeeper badge](https://badges.greenkeeper.io/wearetheledger/hyperledger-typescript-boilerplate.svg)](https://greenkeeper.io/)
 
 </center>
