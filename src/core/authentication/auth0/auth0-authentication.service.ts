@@ -44,7 +44,7 @@ export class Auth0AuthenticationService implements IAuthService {
     getUserId(bearerToken: string): string {
         if (bearerToken) {
             let token: JwtToken = jwtDecode(bearerToken.split(' ')[1]);
-            return token.sub.replace('|', '-');
+            return token.sub.replace('|', '_');
         }
 
         return null;
@@ -148,7 +148,7 @@ export class Auth0AuthenticationService implements IAuthService {
      * @memberof Auth0AuthenticationService
      */
     private getUserInfoFromAuth0(userId: string): Promise<Auth0UserModel> {
-        return this.auth0Client.getUser({id: userId.replace('-', '|')})
+        return this.auth0Client.getUser({id: userId.replace('_', '|')})
             .catch(err => {
                 Log.config.error(`Unable to fetch User data from Auth0`, userId);
                 throw new InternalServerErrorException(err);
