@@ -20,8 +20,8 @@ export class JwtauthenticationMiddleware implements NestMiddleware {
                     jwksRequestsPerMinute: 5,
                     jwksUri: `https://${EnvConfig.AUTH0_DOMAIN}/.well-known/jwks.json`
                 }),
-                audience: EnvConfig.AUTH0_AUDIENCE,
-                issuer: `https://${EnvConfig.AUTH0_DOMAIN}/`,
+                aud: EnvConfig.AUTH0_AUDIENCE,
+                iss: `https://${EnvConfig.AUTH0_DOMAIN}/`,
                 algorithm: 'RS256'
             })(req, res, this.next.bind(this, next));
         };
