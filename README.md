@@ -54,6 +54,9 @@ Be sure to have an up to date node.js configuration:
 
 ## Work in progress and future plans:
 
+- switch to nestjs microservices
+- use of redis queue instead of SQS
+- ci pipeline config for gitlab & kubernetes on google cloud
 - graphql integration
 - auth mock to circumvent Auth0 for rapid prototyping
 
