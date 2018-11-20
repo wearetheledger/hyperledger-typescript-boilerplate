@@ -43,7 +43,7 @@ Be sure to have an up to date node.js configuration:
 ### Install dependencies
 
 ```bash
-$ sh setup.sh
+$ make install
 ```
 
 ### Starting the app
