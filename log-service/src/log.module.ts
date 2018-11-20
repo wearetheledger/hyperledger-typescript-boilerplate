@@ -1,22 +1,8 @@
 import { Module } from '@nestjs/common';
-import { RequestHelper } from './requesthelper';
-import { HlfClient } from './hlfclient';
-import { HlfCaClient } from './hlfcaclient';
-import { HlfConfig } from './hlfconfig';
+import { LogService } from './log.service';
 
 @Module({
-    providers: [
-        RequestHelper,
-        HlfConfig,
-        HlfClient,
-        HlfCaClient
-    ],
-    exports: [
-        RequestHelper,
-        HlfConfig,
-        HlfClient,
-        HlfCaClient
-    ]
+  providers: [LogService],
+  exports: [],
 })
-export class ChainModule {
-}
+export class LogModule {}

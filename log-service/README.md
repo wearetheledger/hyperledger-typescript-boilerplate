@@ -40,7 +40,7 @@ $ npm install
 # development
 $ npm run start
 
-# watch mode
+# watch modez
 $ npm run start:dev
 
 # incremental rebuild (webpack)

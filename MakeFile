@@ -1,0 +1,12 @@
+clean_containers:
+	docker rm -f $(docker ps -a -q)
+clean_images: 
+	docker rmi -f $(docker images -a -q)
+clean_volumes:  
+	docker volume rm $(docker volume ls -q)
+clean_deps: 
+	sh scripts/clean_deps.sh
+install_deps: 
+	sh scripts/install_deps.sh
+
+install: install_deps

@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from '../../common/config/appconfig';
-import { ChainModule } from '../../../chain-service/src/chain.module';
+import { Auth0AuthenticationService } from './auth0/auth0-authentication.service';
 
 @Module({
-    providers: [AuthService],
-    exports: [AuthService],
-    imports: [ChainModule]
+    providers: [Auth0AuthenticationService],
+    exports: [],
+    imports: []
 })
 export class AuthenticationModule {
 }

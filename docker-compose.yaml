@@ -1,0 +1,63 @@
+version: "3"
+
+services:
+  authentication-service:
+    image: authentication-service
+    build: ./authentication-service
+    restart: always
+    volumes:
+      - ./authentication-service:/usr/src/app
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis
+    command: yarn start:dev
+
+  chain-service:
+    image: chain-service
+    build: ./chain-service
+    restart: always
+    volumes:
+      - ./chain-service:/usr/src/app
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis
+    command: yarn start:dev
+
+  log-service:
+    image: log-service
+    build: ./log-service
+    restart: always
+    volumes:
+      - ./log-service:/usr/src/app
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis
+    command: yarn start:dev
+
+  api-service:
+    image: api-service
+    build: ./api-service
+    restart: always
+    volumes:
+      - ./api-service:/usr/src/app
+    ports:
+      - 3000:3000
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis
+    command: yarn start:dev
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+
+networks:
+  application:
+    external:
+      name: ${NETWORK_NAME}
