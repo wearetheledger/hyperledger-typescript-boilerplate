@@ -1,9 +1,9 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { LogMessage } from './models/log.model';
 import { RecieverService } from './core/reciever.service';
 import { LogService } from './log.service';
 import { TransferModel } from './core/models/transfer.model';
+import { LogMessage } from './core/models/log.model';
 
 @Controller()
 export class NewsController {
