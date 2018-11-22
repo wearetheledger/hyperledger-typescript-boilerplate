@@ -1,6 +1,5 @@
-
 export class UserAttr {
-    name: string;
-    value: string;
-    ecert?: boolean;
-} 
+  name: string;
+  value: string;
+  ecert?: boolean;
+}

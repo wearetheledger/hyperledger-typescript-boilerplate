@@ -8,5 +8,7 @@ clean_deps:
 	sh scripts/clean_deps.sh
 install_deps: 
 	sh scripts/install_deps.sh
+prettier:
+	sh scripts/prettier.sh
 
 install: install_deps

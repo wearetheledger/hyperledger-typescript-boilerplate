@@ -4,7 +4,7 @@ import { RecieverService } from './reciever.service';
 
 @Global()
 @Module({
-  providers: [ BroadCasterService, RecieverService],
-  exports: [ BroadCasterService, RecieverService],
+  providers: [BroadCasterService, RecieverService],
+  exports: [BroadCasterService, RecieverService],
 })
 export class CoreModule {}
