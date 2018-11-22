@@ -9,7 +9,7 @@ new transports.DailyRotateFile({
                 datePattern: 'yyyy-MM-dd.',
                 prepend: true,
                 json: false,
-                
+
                 maxFiles: 10
             })
  */

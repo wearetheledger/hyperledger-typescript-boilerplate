@@ -3,18 +3,18 @@ export interface ConfigOptions {
   allowguest: boolean;
 }
 
-export type AdminCreds = {
+export interface AdminCreds {
   enrollmentID: string;
   enrollmentSecret: string;
   MspID: string;
-};
+}
 
-export type TLSOptions = {
+export interface TLSOptions {
   trustedRoots: Array<any>;
   verify: boolean;
-};
+}
 
-export type HlfConfigOptions = {
+export interface HlfConfigOptions {
   walletPath: string;
   userId: string;
   channelId: string;
@@ -26,4 +26,4 @@ export type HlfConfigOptions = {
   admin: AdminCreds;
   tlsOptions: TLSOptions;
   caName: string;
-};
+}

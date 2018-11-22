@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { BroadCasterService } from './core/broadcaster.service';
 import { LogMessage } from './core/models/log.model';
 
@@ -6,10 +6,12 @@ import { LogMessage } from './core/models/log.model';
 export class ApiService {
   constructor(private broadcasterService: BroadCasterService) {
     setInterval(() => {
-      this.broadcasterService.broadcast(`LOG`, {
-        message: 'test',
-        type: 'debug',
-      } as LogMessage);
+      this.broadcasterService
+        .broadcast<LogMessage, void>(`LOG`, {
+          message: 'test',
+          type: 'debug',
+        })
+        .subscribe();
     }, 1000);
   }
 }

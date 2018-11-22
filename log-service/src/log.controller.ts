@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { RecieverService } from './core/reciever.service';
 import { LogService } from './log.service';
@@ -6,7 +6,7 @@ import { TransferModel } from './core/models/transfer.model';
 import { LogMessage } from './core/models/log.model';
 
 @Controller()
-export class NewsController {
+export class LogController {
   constructor(
     private recieverService: RecieverService,
     private logService: LogService,
@@ -16,9 +16,9 @@ export class NewsController {
   @MessagePattern({ cmd: `LOG` })
   incomingLog(logMessage: TransferModel<LogMessage>) {
     this.recieverService.recieve<LogMessage, void>(
-      'LOG',
+      logMessage.type,
       logMessage.data,
-      this.logService.create.bind(logMessage.data),
+      this.logService.create.bind(logMessage),
     );
   }
 }
