@@ -1,6 +1,6 @@
 import { Injectable } from '../node_modules/@nestjs/common';
-import { LogMessage } from './models/log.model';
 import { Logger } from '@nestjs/common';
+import { LogMessage } from './core/models/log.model';
 
 @Injectable()
 export class LogService {
