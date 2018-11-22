@@ -28,12 +28,6 @@ export class BroadCasterService {
   }
 
   broadcast<T, R>(command: string, data: T): Observable<R> {
-    // maybe we can log on debug only
-
-    Logger.log(
-      `${data ? JSON.stringify(data) : 'null'}`,
-      `BROADCASTING:${command}`,
-    );
     return this.client.send({ cmd: `${command}` }, data);
   }
 }
