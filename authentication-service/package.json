@@ -22,6 +22,7 @@
     "@nestjs/common": "^5.4.0",
     "@nestjs/core": "^5.4.0",
     "@nestjs/microservices": "^5.4.0",
+    "redis": "^2.8.0",
 
     "reflect-metadata": "^0.1.12",
     "rimraf": "^2.6.2",

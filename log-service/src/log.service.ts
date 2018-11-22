@@ -6,6 +6,6 @@ import { Logger } from '@nestjs/common';
 export class LogService {
   create(log: LogMessage) {
     // handle using winston or some 3rd party service...
-    Logger.log(log.message, log.service);
+    Logger.log(log.message, log.type);
   }
 }

@@ -52,6 +52,11 @@ $ make install
 $ docker-compose up
 ```
 
+### Clean code
+
+```bash
+$ make prettier
+```
 
 ## Work in progress and future plans:
 

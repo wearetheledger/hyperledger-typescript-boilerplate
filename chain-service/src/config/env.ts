@@ -18,4 +18,5 @@ export class EnvConfig {
   public static CA_HOST = process.env['CA_HOST'] || 'localhost';
   public static REDIS_URL =
     process.env['REDIS_URL'] || 'redis://localhost:6379';
+  public static SERVICE_ID = process.env['SERVICE_ID'] || 'chain-service';
 }

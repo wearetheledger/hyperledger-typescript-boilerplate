@@ -6,6 +6,7 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { EnvConfig } from '../config/env';
+import { TransferModel } from './models/transfer.model';
 
 @Injectable()
 export class BroadCasterService {
@@ -28,6 +29,10 @@ export class BroadCasterService {
   }
 
   broadcast<T, R>(command: string, data: T): Observable<R> {
-    return this.client.send({ cmd: `${command}` }, data);
+    return this.client.send({ cmd: `${command}` }, {
+      type: command,
+      serviceId: EnvConfig.SERVICE_ID,
+      data,
+    } as TransferModel<T>);
   }
 }
