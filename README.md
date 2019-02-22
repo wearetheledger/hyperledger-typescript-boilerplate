@@ -40,15 +40,15 @@ Be sure to have an up to date node.js configuration:
 
 ### Install dependencies
 
-`npm i` or `yarn`
+`npm i`
 
 ### Starting the app
 
-`npm start` or `yarn start` 
+`npm start`
 
 ### E2E Tests using Jest (wip)
 
-`npm test` or `yarn test`
+`npm test`
 
 ## Work in progress and future plans:
 

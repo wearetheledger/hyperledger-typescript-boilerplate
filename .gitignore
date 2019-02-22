@@ -30,4 +30,4 @@ vendor
 src/common/config/creds/*
 coverage
 yarn-error.log
-package-lock.json
+yarn.lock
