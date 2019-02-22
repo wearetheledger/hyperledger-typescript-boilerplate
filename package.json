@@ -33,7 +33,7 @@
     "@nestjs/swagger": "^2.0.2",
     "@nestjs/testing": "^5.0.0",
     "@nestjs/websockets": "^5.0.0",
-    "auth0": "^2.9.1",
+    "auth0": "^2.14.0",
     "aws-sdk": "^2.140.0",
     "axios": "^0.18.0",
     "body-parser": "^1.18.2",
