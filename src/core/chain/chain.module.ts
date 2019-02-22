@@ -3,7 +3,6 @@ import { RequestHelper } from './requesthelper';
 import { HlfClient } from './hlfclient';
 import { HlfCaClient } from './hlfcaclient';
 import { HlfConfig } from './hlfconfig';
-import { QueueModule } from '../queue/queue.module';
 import { EventsModule } from '../events/events.module';
 
 @Module({
@@ -20,7 +19,6 @@ import { EventsModule } from '../events/events.module';
         HlfCaClient
     ],
     imports: [
-        QueueModule,
         EventsModule
     ]
 })

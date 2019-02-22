@@ -22,10 +22,6 @@ export class EnvConfig {
     public static AWS_ACCESS_KEY = process.env['AWS_ACCESS_KEY'] || '';
     public static AWS_SECRET_ACCESS_KEY = process.env['AWS_SECRET_ACCESS_KEY'] || '';
     public static AWS_REGION = process.env['AWS_REGION'] || '';
-    public static AWS_QUEUE_NAME = process.env['AWS_QUEUE_NAME'] || '';
-    public static BYPASS_QUEUE = process.env['BYPASS_QUEUE'] || false;
-    public static PURGE_QUEUE_ON_STARTUP = process.env['PURGE_QUEUE_ON_STARTUP'] || false;
-    public static DEAD_LETTER_QUEUE_ARN = process.env['DEAD_LETTER_QUEUE_ARN'] || null;
 
     // FABRIC
     public static PEER_HOST = process.env['PEER_HOST'] || 'localhost';

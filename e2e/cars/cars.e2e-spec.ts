@@ -6,7 +6,6 @@ import { HlfClient } from '../../src/core/chain/hlfclient';
 import { CarService } from '../../src/cars/car.service';
 import { ApplicationModule } from '../../src/app.module';
 import { HlfCaClient } from '../../src/core/chain/hlfcaclient';
-import { QueueListenerService } from '../../src/core/queue/queuelistener.service';
 
 describe('Cars', () => {
     let app: INestApplication;
@@ -52,8 +51,6 @@ describe('Cars', () => {
             .overrideProvider(HlfClient)
             .useValue(mockService)
             .overrideProvider(HlfCaClient)
-            .useValue(mockService)
-            .overrideProvider(QueueListenerService)
             .useValue(mockService)
             .compile();
 

@@ -4,7 +4,6 @@ import { INestApplication } from '@nestjs/common';
 import { ApplicationModule } from '../../src/app.module';
 import { HlfClient } from '../../src/core/chain/hlfclient';
 import { HlfCaClient } from '../../src/core/chain/hlfcaclient';
-import { QueueListenerService } from '../../src/core/queue/queuelistener.service';
 
 describe('Ping', () => {
     let app: INestApplication;
@@ -24,8 +23,6 @@ describe('Ping', () => {
             .overrideProvider(HlfClient)
             .useValue(mockService)
             .overrideProvider(HlfCaClient)
-            .useValue(mockService)
-            .overrideProvider(QueueListenerService)
             .useValue(mockService)
             .compile();
 

@@ -19,7 +19,6 @@
 - Fabric Client and Fabric Ca CLient abstraction
 (https://martinfowler.com/bliki/CQRS.html)
 - Frontend chain transaction notifications using [Pusher](https://pusher.com)
-- Solves Hyperledger [concurrency issues](https://medium.com/wearetheledger/hyperledger-fabric-concurrency-really-eccd901e4040) by using a FIFO AWS SQS queue.
 - Example Authentication using [Auth0](https://auth0.com/)
 - Automatic attribute based access crontrol using auth0
 
@@ -28,7 +27,6 @@
 ## Installation
 
 In order for this application to run properly and handle invokes concurrently, you should have set up an account on AWS to be able to use the AWS SQS Service. 
-During development, the SQS Queue can be bypassed using an environment variable: BYPASS_QUEUE=1
 A [Pusher](https://pusher.com) account is also required if you want to make use of transaction event handling in a frontend.
 [Auth0](https://auth0.com/) will require Auth0 credentials.
 

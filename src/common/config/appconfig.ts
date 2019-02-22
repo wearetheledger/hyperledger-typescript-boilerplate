@@ -3,6 +3,7 @@ import * as path from 'path';
 import { ConfigOptions } from './config.model';
 import { PusherService } from '../../core/events/pusher/pusher.service';
 import { Auth0AuthenticationService } from '../../core/authentication/auth0/auth0-authentication.service';
+import { HeaderAuthenticationService } from '../../core/authentication/headerMock/header-authentication.service';
 
 export const Appconfig: ConfigOptions = {
     hlf: {
@@ -28,5 +29,5 @@ export const Appconfig: ConfigOptions = {
     allowguest: true
 } as ConfigOptions;
 
-export const EventService = {provide: 'IEventService', useClass: PusherService};
-export const AuthService = {provide: 'IAuthService', useClass: Auth0AuthenticationService};
+export const EventService = { provide: 'IEventService', useClass: PusherService };
+export const AuthService = { provide: 'IAuthService', useClass: EnvConfig.AUTH0_DOMAIN ? Auth0AuthenticationService : HeaderAuthenticationService };

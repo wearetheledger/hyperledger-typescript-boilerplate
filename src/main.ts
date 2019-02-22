@@ -1,7 +1,7 @@
 import { EnvConfig } from './common/config/env';
 import { NestFactory } from '@nestjs/core';
 import { ApplicationModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule, SwaggerCustomOptions } from '@nestjs/swagger';
 import { config as awsConfig } from 'aws-sdk';
 import * as bodyParser from 'body-parser';
 import { Log } from './common/utils/logging/log.service';
@@ -19,7 +19,7 @@ awsConfig.update({
 
 async function bootstrap() {
 
-    const app = await NestFactory.create(ApplicationModule,);
+    const app = await NestFactory.create(ApplicationModule);
 
     app.use(bodyParser.json());
 
@@ -37,26 +37,34 @@ async function bootstrap() {
     /**
      * Swagger implementation
      */
-    const options = new DocumentBuilder()
+    let options = new DocumentBuilder()
         .setTitle('Chainservice API')
         .setDescription('The Chainservice API')
         .setVersion('1.0')
-        .setExternalDoc('Github repo', 'https://github.com/wearetheledger/hyperledger-typescript-boilerplate')
-        .addOAuth2('implicit', `https://${EnvConfig.AUTH0_DOMAIN}/authorize`, `https://${EnvConfig.AUTH0_DOMAIN}/oauth/token`)
-        .build();
+        .setExternalDoc('Github repo', 'https://github.com/wearetheledger/hyperledger-typescript-boilerplate');
 
-    const document = SwaggerModule.createDocument(app, options);
+    let swaggerOptions: SwaggerCustomOptions = {};
+
+    if (EnvConfig.AUTH0_DOMAIN) {
+        options = options.addOAuth2('implicit', `https://${EnvConfig.AUTH0_DOMAIN}/authorize`, `https://${EnvConfig.AUTH0_DOMAIN}/oauth/token`);
+
+        swaggerOptions = {
+            swaggerOptions: {
+                oauth2RedirectUrl: `${EnvConfig.DOMAIN_URL}/api/oauth2-redirect.html`,
+                oauth: {
+                    clientId: EnvConfig.AUTH0_CLIENT_ID,
+                    appName: 'Chainservice API',
+                    scopeSeparator: ' ',
+                    additionalQueryStringParams: { audience: EnvConfig.AUTH0_AUDIENCE }
+                }
+            }
+        };
+    }
+
+    const document = SwaggerModule.createDocument(app, options.build());
 
     SwaggerModule.setup('/api', app, document, {
-        swaggerOptions: {
-            oauth2RedirectUrl: `${EnvConfig.DOMAIN_URL}/api/oauth2-redirect.html`,
-            oauth: {
-                clientId: EnvConfig.AUTH0_CLIENT_ID,
-                appName: 'Chainservice API',
-                scopeSeparator: ' ',
-                additionalQueryStringParams: {audience: EnvConfig.AUTH0_AUDIENCE}
-            }
-        }
+        swaggerOptions
     });
 
     /**
