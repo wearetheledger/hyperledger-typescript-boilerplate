@@ -6,6 +6,7 @@ import { Log } from '../../common/utils/logging/log.service';
 import { IEventService } from '../events/interfaces/event.interface';
 import { PusherService } from '../events/pusher/pusher.service';
 import { HlfClient } from './hlfclient';
+import { TransientMap } from 'fabric-client';
 
 @Injectable()
 export class RequestHelper {
@@ -33,7 +34,7 @@ export class RequestHelper {
      * @returns {Promise<InvokeResult>}
      * @memberof RequestHelper
      */
-    public invokeRequest(chainMethod: ChainMethod, params: Object, userId: string, invokeAlways = false, transientMap?: Object): Promise<InvokeResult | any> {
+    public invokeRequest(chainMethod: ChainMethod, params: Object, userId: string, invokeAlways = false, transientMap?: TransientMap): Promise<InvokeResult | any> {
         const args = [JSON.stringify(params)];
 
         return this.hlfClient
@@ -60,7 +61,7 @@ export class RequestHelper {
      * @returns {Promise<any>}
      * @memberof RequestHelper
      */
-    public queryRequest(chainMethod: ChainMethod, params: Object = {}, transientMap?: Object): Promise<any> {
+    public queryRequest(chainMethod: ChainMethod, params: Object = {}, transientMap?: TransientMap): Promise<any> {
         const args = [JSON.stringify(params)];
 
         return this.hlfClient
