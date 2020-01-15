@@ -60,7 +60,7 @@ export class HlfClient extends ChainService {
      * @returns {Promise<any>}
      * @memberof HlfClient
      */
-    query(chainMethod: ChainMethod, params: string[], transientMap?: Object): Promise<any> {
+    query(chainMethod: ChainMethod, params: string[], transientMap?: FabricClient.TransientMap): Promise<any> {
         Log.hlf.info(HlfInfo.MAKE_QUERY, chainMethod, params);
         return this.newQuery(chainMethod, params, this.hlfConfig.options.chaincodeId, transientMap)
             .then((queryResponses: Buffer[]) => {
@@ -77,7 +77,7 @@ export class HlfClient extends ChainService {
      * @returns
      * @memberof ChainService
      */
-    invoke(chainMethod: ChainMethod, params: string[], transientMap?: Object): Promise<any> {
+    invoke(chainMethod: ChainMethod, params: string[], transientMap?: FabricClient.TransientMap): Promise<any> {
         Log.hlf.info(chainMethod, params);
         return this.sendTransactionProposal(chainMethod, params, this.hlfConfig.options.chaincodeId, transientMap)
             .then((result: { txHash: string; buffer: ProposalResponseObject }) => {
