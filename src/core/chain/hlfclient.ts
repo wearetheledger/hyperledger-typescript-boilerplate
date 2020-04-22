@@ -8,6 +8,10 @@ import { Appconfig } from '../../common/config/appconfig';
 import { ChainMethod } from '../../chainmethods.enum';
 import { Log } from '../../common/utils/logging/log.service';
 
+interface ProposalErrorResponse extends FabricClient.ProposalErrorResponse {
+    message: string;
+}
+
 @Injectable()
 export class HlfClient extends ChainService {
 
@@ -36,12 +40,12 @@ export class HlfClient extends ChainService {
                 let cryptoSuite = FabricClient.newCryptoSuite();
                 // use the same location for the state store (where the users' certificate are kept)
                 // and the crypto store (where the users' keys are kept)
-                let cryptoStore = FabricClient.newCryptoKeyStore({path: this.hlfConfig.options.walletPath});
+                let cryptoStore = FabricClient.newCryptoKeyStore({ path: this.hlfConfig.options.walletPath });
                 cryptoSuite.setCryptoKeyStore(cryptoStore);
                 this.hlfConfig.client.setCryptoSuite(cryptoSuite);
 
                 this.hlfConfig.channel = this.hlfConfig.client.newChannel(this.hlfConfig.options.channelId);
-                const peerObj= this.hlfConfig.client.newPeer(this.hlfConfig.options.networkUrl);
+                const peerObj = this.hlfConfig.client.newPeer(this.hlfConfig.options.networkUrl);
 
                 this.hlfConfig.channel.addPeer(peerObj, 'Org1MSP');
                 this.hlfConfig.channel.addOrderer(this.hlfConfig.client.newOrderer(this.hlfConfig.options.ordererUrl));
@@ -81,13 +85,12 @@ export class HlfClient extends ChainService {
         Log.hlf.info(chainMethod, params);
         return this.sendTransactionProposal(chainMethod, params, this.hlfConfig.options.chaincodeId, transientMap)
             .then((result: { txHash: string; buffer: ProposalResponseObject }) => {
-                // Log.hlf.debug(JSON.stringify(result.buffer));
                 Log.hlf.info(HlfInfo.CHECK_TRANSACTION_PROPOSAL);
                 if (this.isProposalGood(result.buffer)) {
                     this.logSuccessfulProposalResponse(result.buffer);
 
                     let request: TransactionRequest = {
-                        proposalResponses: result.buffer[0],
+                        proposalResponses: result.buffer[0] as FabricClient.ProposalResponse[],
                         proposal: result.buffer[1]
                     };
                     Log.hlf.info(HlfInfo.REGISTERING_TRANSACTION_EVENT);
@@ -98,11 +101,10 @@ export class HlfClient extends ChainService {
 
                     return Promise.all([sendPromise, txPromise]);
                 } else {
+                    let message = (result.buffer[0][0] as ProposalErrorResponse).message;
 
-                    let message = result.buffer[0][0].response.message;
-
-                    if (message.indexOf(' transaction returned with failure: ') !== -1) {
-                        message = message.split(' transaction returned with failure: ')[1];
+                    if (message.indexOf('transaction returned with failure: ') !== -1) {
+                        message = message.split('transaction returned with failure: ')[1];
 
                         try {
                             message = JSON.parse(message);

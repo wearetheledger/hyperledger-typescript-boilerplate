@@ -4,6 +4,7 @@ import { RequestHelper } from '../core/chain/requesthelper';
 import { IAuthUser } from '../core/authentication/interfaces/authenticateduser';
 import { InvokeResult } from '../common/utils/invokeresult.model';
 import { ChainMethod } from '../chainmethods.enum';
+import { EnvConfig } from '../common/config/env';
 
 @Injectable()
 export class CarService {
@@ -34,7 +35,7 @@ export class CarService {
      * @memberof CarService
      */
     getById(id: string): Promise<CarDto> {
-        return this.requestHelper.queryRequest(ChainMethod.queryCar, {key: id}).then(
+        return this.requestHelper.queryRequest(ChainMethod.queryCar, { key: id }).then(
             (car) => {
                 if (!car) {
                     throw new NotFoundException('Car does not exist!');
@@ -56,7 +57,7 @@ export class CarService {
      * @memberof CarService
      */
     create(carDto: CarDto, authUser: IAuthUser): Promise<InvokeResult> {
-        return this.requestHelper.invokeRequest(ChainMethod.createCar, carDto, authUser.id, false)
+        return this.requestHelper.invokeRequest(ChainMethod.createCar, carDto, authUser?.id, false)
             .catch((error) => {
                 throw new InternalServerErrorException(error);
             });
