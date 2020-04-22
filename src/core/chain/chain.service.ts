@@ -81,7 +81,7 @@ export abstract class ChainService {
      * @param transientMap
      * @returns {Promise<Buffer[]>}
      */
-    protected newQuery(requestFunction: string, requestArguments: string[], chaincodeId: string, transientMap?: Object): Promise<Buffer[]> {
+    protected newQuery(requestFunction: string, requestArguments: string[], chaincodeId: string, transientMap?: Client.TransientMap): Promise<Buffer[]> {
         const txId = this.hlfConfig.client.newTransactionID();
         Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, txId.getTransactionID());
         const request: ChaincodeQueryRequest = {
@@ -125,7 +125,12 @@ export abstract class ChainService {
      * @param transientMap
      * @returns {Promise<{txHash: string; buffer: ProposalResponseObject}>}
      */
-    protected sendTransactionProposal(requestFunction: string, requestArguments: string[], chaincodeId: string, transientMap?: Object): Promise<{ txHash: string; buffer: ProposalResponseObject }> {
+    protected sendTransactionProposal(
+        requestFunction: string,
+        requestArguments: string[],
+        chaincodeId: string,
+        transientMap?: Client.TransientMap
+    ): Promise<{ txHash: string; buffer: ProposalResponseObject }> {
         const txId: any = this.hlfConfig.client.newTransactionID();
         Log.hlf.debug(HlfInfo.ASSIGNING_TRANSACTION_ID, txId._transaction_id);
 
@@ -153,8 +158,8 @@ export abstract class ChainService {
     protected isProposalGood(results: ProposalResponseObject): boolean {
         let proposalResponses = results[0];
         let isProposalGood = false;
-        if (proposalResponses && proposalResponses[0].response &&
-            proposalResponses[0].response.status === 200) {
+        if (proposalResponses && (proposalResponses[0] as Client.ProposalResponse).response &&
+            (proposalResponses[0] as Client.ProposalResponse).response.status === 200) {
             isProposalGood = true;
             Log.hlf.debug(HlfInfo.GOOD_TRANSACTION_PROPOSAL);
         } else {

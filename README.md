@@ -46,6 +46,10 @@ Be sure to have an up to date node.js configuration:
 
 `npm start`
 
+## Without Auth
+To test this application without auth. You can enable the SKIP_MIDDLEWARE flag in the .env
+Beware that this is not best practise and will also disable other security measures.
+
 ### E2E Tests using Jest (wip)
 
 `npm test`
