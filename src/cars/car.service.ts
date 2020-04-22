@@ -57,7 +57,7 @@ export class CarService {
      * @memberof CarService
      */
     create(carDto: CarDto, authUser: IAuthUser): Promise<InvokeResult> {
-        return this.requestHelper.invokeRequest(ChainMethod.createCar, carDto, EnvConfig.SKIP_MIDDLEWARE ? undefined : authUser.id, false)
+        return this.requestHelper.invokeRequest(ChainMethod.createCar, carDto, authUser?.id, false)
             .catch((error) => {
                 throw new InternalServerErrorException(error);
             });

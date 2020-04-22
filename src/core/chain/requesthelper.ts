@@ -41,7 +41,9 @@ export class RequestHelper {
             .invoke(chainMethod, args, transientMap)
             .then((response) => {
                 Log.hlf.debug('Invoke successfully executed: ', response);
-                this.eventService.triggerSuccess(userId || 'UNKNOWN_USER', chainMethod, params);
+                if (userId) {
+                    this.eventService.triggerSuccess(userId, chainMethod, params);
+                }
                 return { txHash: response };
             })
             .catch((error) => {
