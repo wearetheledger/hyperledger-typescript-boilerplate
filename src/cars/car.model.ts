@@ -5,8 +5,8 @@ export class CarDto {
     @IsString()
     @ApiModelProperty()
     readonly key: string;
-    // @IsString()
-    // @ApiModelProperty()
+    @IsString()
+    @ApiModelProperty()
     readonly make: string;
     @IsString()
     @ApiModelProperty()
