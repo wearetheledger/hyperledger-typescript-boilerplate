@@ -35,7 +35,7 @@
     "@nestjs/websockets": "^5.0.0",
     "auth0": "^2.14.0",
     "aws-sdk": "^2.140.0",
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "body-parser": "^1.18.2",
     "class-transformer": "^0.1.9",
     "class-validator": "^0.8.5",
