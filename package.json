@@ -28,9 +28,9 @@
   "homepage": "https://github.com/wearetheledger/hyperledger-typescript-boilerplate#readme",
   "dependencies": {
     "@nestjs/common": "^5.0.0",
-    "@nestjs/core": "^5.0.0",
+    "@nestjs/core": "^9.2.1",
     "@nestjs/microservices": "^5.0.0",
-    "@nestjs/swagger": "^2.0.2",
+    "@nestjs/swagger": "^6.1.4",
     "@nestjs/testing": "^5.0.0",
     "@nestjs/websockets": "^5.0.0",
     "auth0": "^2.14.0",
